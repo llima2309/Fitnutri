@@ -2,6 +2,7 @@ using System.Text;
 using Fitnutri.Auth;
 using Fitnutri.Contracts;
 using Fitnutri.Infrastructure;
+using Fitnutri.Swagger;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -28,6 +29,7 @@ if (string.IsNullOrWhiteSpace(jwt.Key) || Encoding.UTF8.GetBytes(jwt.Key).Length
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        options.MapInboundClaims = false; // mantém "sub" como "sub"
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -70,11 +72,8 @@ builder.Services.AddSwaggerGen(c =>
     };
     c.AddSecurityDefinition("ApiKey", apiKey);
 
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        { bearer, Array.Empty<string>() },
-        { apiKey, Array.Empty<string>() }
-    });
+    // aplica o requisito em TODAS as operações
+    c.OperationFilter<GlobalSecurityRequirementsOperationFilter>();
 });
 
 var app = builder.Build();
@@ -103,14 +102,20 @@ app.MapPost("/auth/register", async (IAuthService auth, RegisterRequest req, Can
 
     try
     {
-        var user = await auth.RegisterAsync(req.UserName.Trim(), req.Email.Trim().ToLowerInvariant(), req.Password, ct);
+        var user = await auth.RegisterAsync(req.UserName, req.Email, req.Password, ct);
         return Results.Created($"/users/{user.Id}", new { user.Id, user.UserName, user.Email, user.CreatedAt });
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
     }
     catch (InvalidOperationException ex)
     {
         return Results.Conflict(new { error = ex.Message });
     }
 });
+
+
 
 app.MapPost("/auth/login", async (IAuthService auth, LoginRequest req, CancellationToken ct) =>
 {
