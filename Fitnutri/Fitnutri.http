@@ -1,0 +1,6 @@
+@Fitnutri_HostAddress = http://localhost:5229
+
+GET {{Fitnutri_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
