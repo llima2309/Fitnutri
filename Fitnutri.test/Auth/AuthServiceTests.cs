@@ -39,6 +39,8 @@ namespace Fitnutri.test.Auth
 
             var user = await sut.RegisterAsync("alice", "alice@mail.com", "P@ssw0rd!", CancellationToken.None);
             user.Id.Should().NotBeEmpty();
+            user.Status = Domain.UserStatus.Approved;
+            user.EmailConfirmed = true;
 
             var (u, token, exp) = await sut.LoginAsync("alice", "P@ssw0rd!", CancellationToken.None);
             u.Email.Should().Be("alice@mail.com");
@@ -51,7 +53,7 @@ namespace Fitnutri.test.Auth
             using var db = InMemoryDb();
             var sut = CreateSut(db);
 
-            await sut.RegisterAsync("bob", "bob@mail.com", "secret", CancellationToken.None);
+            await sut.RegisterAsync("bob", "bob@mail.com", "P@ssw0rd!", CancellationToken.None);
             var act = async () => await sut.LoginAsync("bob", "wrong", CancellationToken.None);
             await act.Should().ThrowAsync<InvalidOperationException>();
         }

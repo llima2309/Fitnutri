@@ -1,29 +1,33 @@
 ﻿using Fitnutri.Domain;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.SqlServer;
-using System.Collections.Generic;
-using System.Reflection.Emit;
 
-namespace Fitnutri.Infrastructure
+namespace Fitnutri.Infrastructure;
+
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+    public DbSet<User> Users => Set<User>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        public DbSet<User> Users => Set<User>();
+        var u = modelBuilder.Entity<User>();
 
-        // ... rest of the file ...
+        u.HasKey(x => x.Id);
+        u.Property(x => x.UserName).HasMaxLength(32).IsRequired();
+        u.Property(x => x.Email).HasMaxLength(256).IsRequired();
+        u.HasIndex(x => x.UserName).IsUnique();
+        u.HasIndex(x => x.Email).IsUnique();
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            var u = modelBuilder.Entity<User>();
+        u.Property(x => x.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
 
-            u.HasKey(x => x.Id);
-            u.Property(x => x.UserName).HasMaxLength(64).IsRequired();
-            u.Property(x => x.Email).HasMaxLength(256).IsRequired();
-            u.Property(x => x.PasswordHash).IsRequired();
-            u.Property(x => x.CreatedAt).HasDefaultValueSql("GETUTCDATE()"); // This line requires Microsoft.EntityFrameworkCore.Metadata.Builders
+        // email verification
+        u.Property(x => x.EmailConfirmed).IsRequired();
+        u.Property(x => x.EmailVerificationToken).HasMaxLength(200);
 
-            u.HasIndex(x => x.UserName).IsUnique();
-            u.HasIndex(x => x.Email).IsUnique();
-        }
+        // approval
+        u.Property(x => x.Status).HasConversion<int>().IsRequired();
+        u.Property(x => x.ApprovedAt);
+        u.Property(x => x.ApprovedBy).HasMaxLength(128);
+
+        u.Property(x => x.Role).HasConversion<int>().IsRequired();
     }
 }
