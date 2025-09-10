@@ -21,8 +21,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         // email verification
         u.Property(x => x.EmailConfirmed).IsRequired();
-        u.Property(x => x.EmailVerificationToken).HasMaxLength(200);
-
+        u.Property(x => x.EmailVerificationCode);
         // approval
         u.Property(x => x.Status).HasConversion<int>().IsRequired();
         u.Property(x => x.ApprovedAt);

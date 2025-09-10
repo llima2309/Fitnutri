@@ -1,5 +1,8 @@
-using System.Text;
+﻿using System.Text;
 using System.Threading.RateLimiting;
+using Amazon.SimpleEmailV2;
+using Amazon;
+using Fitnutri.Application.Email;
 using Fitnutri.Auth;
 using Fitnutri.Contracts;
 using Fitnutri.Domain;
@@ -9,9 +12,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
+using System.Security.Cryptography;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Host.UseSerilog((ctx, lc) =>
+    lc.ReadFrom.Configuration(ctx.Configuration).WriteTo.Console());
 // EF Core
 builder.Services.AddDbContext<AppDbContext>(opt =>
 {
@@ -49,7 +55,7 @@ builder.Services.AddAuthorization(opt =>
 // DI
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-// Swagger + seguran�a (Bearer + x-api-key)
+// Swagger + segurança (Bearer + x-api-key)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -76,13 +82,13 @@ builder.Services.AddSwaggerGen(c =>
     c.AddSecurityDefinition("ApiKey", apiKey);
 
 
-    // aplica o requisito em TODAS as opera��es
+    // aplica o requisito em TODAS as operações
     c.OperationFilter<GlobalSecurityRequirementsOperationFilter>();
 });
 
 builder.Services.AddRateLimiter(options =>
 {
-    // pol�tica para registro por IP
+    // política para registro por IP
     options.AddPolicy("register-ip", httpContext =>
     {
         var key = GetClientIp(httpContext) ?? "unknown";
@@ -90,7 +96,7 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: key,
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit = 10,                // at� 10 registros/min por IP (ajuste conforme cen�rio)
+                PermitLimit = 10,                // até 10 registros/min por IP (ajuste conforme cenário)
                 Window = TimeSpan.FromMinutes(1),
                 QueueLimit = 0,
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst
@@ -105,24 +111,32 @@ builder.Services.AddRateLimiter(options =>
             key,
             _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit = 30,            // 30 tentativas por minuto por IP (ajuste conforme seu cen�rio)
+                PermitLimit = 30,            // 30 tentativas por minuto por IP (ajuste conforme seu cenário)
                 Window = TimeSpan.FromMinutes(1),
                 QueueLimit = 0
             });
     });
 
-    // voc� pode manter pol�tica global p/ outras rotas, se quiser
+    // você pode manter política global p/ outras rotas, se quiser
 });
 
 static string? GetClientIp(HttpContext ctx)
 {
-    // tenta X-Forwarded-For (se atr�s de proxy/API Gateway), sen�o Connection.RemoteIp
+    // tenta X-Forwarded-For (se atrás de proxy/API Gateway), senão Connection.RemoteIp
     if (ctx.Request.Headers.TryGetValue("X-Forwarded-For", out var xff) && !string.IsNullOrWhiteSpace(xff))
         return xff.ToString().Split(',')[0].Trim();
 
     return ctx.Connection.RemoteIpAddress?.ToString();
 }
+// AWS SES Client
+builder.Services.AddSingleton<IAmazonSimpleEmailServiceV2>(_ =>
+{
+    var region = builder.Configuration["AWS:Region"] ?? "us-east-1";
+    return new AmazonSimpleEmailServiceV2Client(RegionEndpoint.GetBySystemName(region));
+});
 
+// Email Sender
+builder.Services.AddScoped<IEmailSender, AwsSesEmailSender>();
 var app = builder.Build();
 
 // Middlewares
@@ -169,21 +183,58 @@ adminGroup.MapGet("/users/pending", async (AppDbContext db, int skip = 0, int ta
 });
 
 // Aprovar
-adminGroup.MapPost("/users/{id:guid}/approve", async (Guid id, ApproveUserRequest req, AppDbContext db, CancellationToken ct) =>
-{
-    var user = await db.Users.FirstOrDefaultAsync(x => x.Id == id, ct);
-    if (user is null) return Results.NotFound();
+adminGroup.MapPost("/users/{id:guid}/approve",
+    async (Guid id, ApproveUserRequest req, AppDbContext db, IEmailSender emailSender, IConfiguration cfg, ILoggerFactory lf, CancellationToken ct) =>
+    {
+        var log = lf.CreateLogger("ApproveUser");
+        var user = await db.Users.FirstOrDefaultAsync(x => x.Id == id, ct);
+        if (user is null) return Results.NotFound();
 
-    if (user.Status == UserStatus.Approved)
-        return Results.BadRequest(new { error = "Usu�rio j� est� aprovado." });
+        if (user.Status == UserStatus.Approved)
+            return Results.BadRequest(new { error = "Usuário já está aprovado." });
 
-    user.Status = UserStatus.Approved;
-    user.ApprovedAt = DateTime.UtcNow;
-    user.ApprovedBy = string.IsNullOrWhiteSpace(req?.ApprovedBy) ? "admin" : req!.ApprovedBy;
+        user.Status = UserStatus.Approved;
+        user.ApprovedAt = DateTime.UtcNow;
+        user.ApprovedBy = string.IsNullOrWhiteSpace(req?.ApprovedBy) ? "admin" : req!.ApprovedBy;
 
-    await db.SaveChangesAsync(ct);
-    return Results.Ok(new { message = "Usu�rio aprovado.", user.Id, user.Status, user.ApprovedAt, user.ApprovedBy });
-});
+        // 🔑 gera código int de 6 dígitos (0..999999)
+        var code = RandomNumberGenerator.GetInt32(0, 1_000_000);
+        user.EmailVerificationCode = code; // armazenamos como int
+                                           // EmailConfirmed permanece como estiver (provável false)
+
+
+        var codeStr = code.ToString("D6"); // sempre 6 dígitos com zeros à esquerda
+        var subject = "Confirme seu e-mail - Código de verificação";
+        var html = $"""
+        <p>Olá {user.UserName},</p>
+        <p>Seu cadastro foi aprovado. Para confirmar seu e-mail, use o código abaixo no primeiro login:</p>
+        <h2 style="letter-spacing:3px;margin:16px 0;">{codeStr}</h2>
+        <p>Se não foi você, ignore esta mensagem.</p>
+        """;
+
+        try
+        {
+            await emailSender.SendAsync(user.Email, subject, html, ct);
+            log.LogInformation("Código de verificação enviado para {Email}", user.Email);
+            await db.SaveChangesAsync(ct);
+        }
+        catch (Amazon.SimpleEmailV2.Model.MessageRejectedException ex)
+        {
+            log.LogError(ex, "SES rejeitou a mensagem para {Email}", user.Email);
+            return Results.Problem("Falha ao enviar e-mail. Verifique domínio/remetente no SES.", statusCode: 502);
+        }
+
+        return Results.Ok(new
+        {
+            message = "Usuário aprovado. Código de verificação enviado por e-mail.",
+            user.Id,
+            user.Status,
+            user.ApprovedAt,
+            user.ApprovedBy
+        });
+    });
+
+
 
 // Rejeitar
 adminGroup.MapPost("/users/{id:guid}/reject", async (Guid id, RejectUserRequest req, AppDbContext db, CancellationToken ct) =>
@@ -192,26 +243,26 @@ adminGroup.MapPost("/users/{id:guid}/reject", async (Guid id, RejectUserRequest 
     if (user is null) return Results.NotFound();
 
     if (user.Status == UserStatus.Rejected)
-        return Results.BadRequest(new { error = "Usu�rio j� est� rejeitado." });
+        return Results.BadRequest(new { error = "Usuário já está rejeitado." });
 
     user.Status = UserStatus.Rejected;
     user.ApprovedAt = DateTime.UtcNow;
     user.ApprovedBy = string.IsNullOrWhiteSpace(req?.ApprovedBy) ? "admin" : req!.ApprovedBy;
 
     await db.SaveChangesAsync(ct);
-    return Results.Ok(new { message = "Usu�rio rejeitado.", user.Id, user.Status, user.ApprovedAt, user.ApprovedBy, req?.Reason });
+    return Results.Ok(new { message = "Usuário rejeitado.", user.Id, user.Status, user.ApprovedAt, user.ApprovedBy, req?.Reason });
 });
 // ====== FIM ADMIN ======
 
 app.MapPost("/auth/register", async (IAuthService auth, RegisterRequest req, CancellationToken ct) =>
 {
     if (string.IsNullOrWhiteSpace(req.UserName) || string.IsNullOrWhiteSpace(req.Email) || string.IsNullOrWhiteSpace(req.Password))
-        return Results.BadRequest(new { error = "Dados inv�lidos." });
+        return Results.BadRequest(new { error = "Dados inválidos." });
 
     try
     {
         var user = await auth.RegisterAsync(req.UserName, req.Email, req.Password, ct);
-        return Results.Created($"/users/{user.Id}", new { message = "Usu�rio criado. Aguarde aprova��o.", userId = user.Id });
+        return Results.Created($"/users/{user.Id}", new { message = "Usuário criado. Aguarde aprovação.", userId = user.Id });
     }
     catch (ArgumentException ex)
     {
@@ -232,12 +283,12 @@ app.MapPost("/auth/login", async (IAuthService auth, LoginRequest req, Cancellat
         var (user, token, exp) = await auth.LoginAsync(req.UserNameOrEmail.Trim(), req.Password, ct);
         return Results.Ok(new AuthResponse(token, exp));
     }
-    catch (InvalidOperationException ex) when (ex.Message.Contains("Usu�rio n�o aprovado"))
+    catch (InvalidOperationException ex) when (ex.Message.Contains("Usuário não aprovado"))
     {
         return Results.BadRequest(new { error = ex.Message });
 
     }
-    catch (InvalidOperationException ex) when (ex.Message.Contains("E-mail n�o verificado"))
+    catch (InvalidOperationException ex) when (ex.Message.Contains("E-mail não verificado"))
     {
         return Results.BadRequest(new { error = ex.Message });
 
@@ -273,5 +324,29 @@ app.MapGet("/readyz", async (AppDbContext db, CancellationToken ct) =>
     return ok ? Results.Ok(new { status = "ready" }) : Results.StatusCode(503);
 });
 
+app.MapPost("/auth/confirm-email", async (ConfirmEmailRequest req, AppDbContext db, CancellationToken ct) =>
+{
+    var user = await db.Users.FirstOrDefaultAsync(x => x.Id == req.UserId, ct);
+    if (user is null) return Results.NotFound(new { error = "Usuário não encontrado." });
+
+    if (user.EmailConfirmed)
+        return Results.Ok(new { message = "E-mail já confirmado." });
+
+    if (user.EmailVerificationCode is null)
+        return Results.BadRequest(new { error = "Não há código pendente para este usuário." });
+
+    if (user.EmailVerificationCode != req.Code)
+        return Results.BadRequest(new { error = "Código inválido." });
+
+    user.EmailConfirmed = true;
+    user.EmailVerificationCode = null; // limpa após confirmar
+    await db.SaveChangesAsync(ct);
+
+    return Results.Ok(new { message = "E-mail confirmado com sucesso." });
+})
+.WithTags("Auth");
+
+
 
 app.Run();
+

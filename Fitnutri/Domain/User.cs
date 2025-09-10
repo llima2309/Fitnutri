@@ -10,7 +10,7 @@ public class User
 
     // Verificação de e-mail (se já implementou; caso ainda não, pode deixar que usaremos no próximo passo)
     public bool EmailConfirmed { get; set; } = false;
-    public string? EmailVerificationToken { get; set; }
+    public int? EmailVerificationCode { get; set; }
     public DateTime? EmailVerificationExpiresAt { get; set; }
 
     // Aprovação manual

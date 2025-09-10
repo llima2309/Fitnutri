@@ -8,3 +8,5 @@ public record AuthResponse(string AccessToken, DateTime ExpiresAt);
 public record MeResponse(Guid Id, string UserName, string Email, DateTime CreatedAt, bool EmailConfirmed, UserStatus Status);
 public record ApproveUserRequest(string? ApprovedBy);
 public record RejectUserRequest(string? ApprovedBy, string? Reason);
+public record ConfirmEmailRequest(Guid UserId, int Code);
+
