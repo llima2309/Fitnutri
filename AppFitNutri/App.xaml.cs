@@ -13,8 +13,6 @@ public partial class App : Application
     }
     protected override Window CreateWindow(IActivationState? activationState)
     {
-        // Cria uma nova janela com a LoginPage como página principal
-        var loginPage = Services.GetService(typeof(LoginPage)) as Page;
-        return new Window(loginPage);
+        return new Window(new AppShell());
     }
 }

@@ -4,12 +4,14 @@ using AppFitNutri.Core.Services;
 using static System.Net.Mime.MediaTypeNames;
 using AppFitNutri.Core.Models;
 using Application = Microsoft.Maui.Controls.Application;
+using AppFitNutri.Core.Services.Login;
+using System.Net.Http.Json;
 
 namespace AppFitNutri.ViewModel;
 
 public partial class LoginViewModel : ObservableObject
 {
-    private readonly IAuthApi _authApi;
+    private readonly IApiHttp _authApi;
     private readonly ITokenStore _tokenStore;
 
     [ObservableProperty] private string? emailOrUserName;
@@ -24,7 +26,7 @@ public partial class LoginViewModel : ObservableObject
     // Delegate for alert display, to be set by the View or platform code
     public Func<string, string, string, Task>? ShowAlert { get; set; }
 
-    public LoginViewModel(IAuthApi authApi, ITokenStore tokenStore)
+    public LoginViewModel(IApiHttp authApi, ITokenStore tokenStore)
     {
         _authApi = authApi;
         _tokenStore = tokenStore;
@@ -62,17 +64,23 @@ public partial class LoginViewModel : ObservableObject
         {
             IsBusy = true;
 
-            var req = new LoginRequest { UserNameOrEmail = user, Password = pass };
-            var result = await _authApi.LoginAsync(req, CancellationToken.None);
+            var req = new LoginRequest(user, pass);
+            var result = await _authApi.PostAsyncLogin(req, CancellationToken.None);
 
-            if (result.IsSuccess)
+            if (result.IsSuccessStatusCode)
             {
-                await _tokenStore.SaveAsync(result.Token!, result.Exp);
-                await Application.Current.MainPage.DisplayAlert("Sucesso", "Login realizado com sucesso.", "OK");
+                AuthResponse? content = await result.Content.ReadFromJsonAsync<AuthResponse>();
+                if (content != null)
+                {
+                    await _tokenStore.SaveAsync(content.AccessToken, content.ExpiresAt);
+                    await Application.Current.MainPage.DisplayAlert("Sucesso", "Login realizado com sucesso.", "OK");
+                }
             }
             else
             {
-                ErrorMessage = result.Error ?? "Falha ao autenticar.";
+                var problem = await result.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+                if (problem is not null && problem.TryGetValue("error", out var message) && !string.IsNullOrWhiteSpace(message))
+                    ErrorMessage = message;
             }
         }
         catch (TaskCanceledException)

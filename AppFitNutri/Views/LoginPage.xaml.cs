@@ -9,5 +9,6 @@ public partial class LoginPage : ContentPage
     {
         InitializeComponent();
         BindingContext = vm;
+        Shell.SetNavBarIsVisible(this, false);
     }
 }

@@ -3,13 +3,14 @@
     x:Class="AppFitNutri.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:AppFitNutri"
+    xmlns:local="clr-namespace:AppFitNutri.Views"
     Shell.FlyoutBehavior="Flyout"
-    Title="AppFitNutri">
+    Title="AppFitNutri"
+    BackgroundImageSource="backgroundfitnutri.svg">
 
     <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+        Title="Login"
+        ContentTemplate="{DataTemplate local:LoginPage}"
+        Route="LoginPage" />
 
 </Shell>

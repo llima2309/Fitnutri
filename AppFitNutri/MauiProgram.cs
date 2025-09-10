@@ -1,4 +1,5 @@
 ﻿using AppFitNutri.Core.Services;
+using AppFitNutri.Core.Services.Login;
 using AppFitNutri.Services;
 using AppFitNutri.ViewModel;
 
@@ -12,12 +13,12 @@ public static class MauiProgram
         builder.UseMauiApp<App>();
 
         // HttpClient nomeado para a API de Auth
-        builder.Services.AddHttpClient<IAuthApi, AuthApiHttp>(client =>
+        builder.Services.AddHttpClient<IApiHttp, ApiHttp>(client =>
         {
-            client.BaseAddress = new Uri("http://fitnutri-alb-1998611476.us-east-1.elb.amazonaws.com");
+            client.BaseAddress = new Uri("https://api.fit-nutri.com");
             //client.DefaultRequestHeaders.Add("Accept", "application/json");
             client.DefaultRequestHeaders.Add("x-api-key", "<STRONG_CLIENT_KEY>");
-            client.Timeout = TimeSpan.FromSeconds(10);
+            client.Timeout = TimeSpan.FromSeconds(30);
         });
 
         // Token store
