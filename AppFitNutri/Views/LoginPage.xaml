@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage  
+x:Class="AppFitNutri.Views.LoginPage"  
+xmlns="http://schemas.microsoft.com/dotnet/2021/maui"  
+xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"  
+xmlns:viewmodels="clr-namespace:AppFitNutri.Core.Models;assembly=AppFitNutri.Core"  
+BackgroundImageSource="backgroundfitnutri.svg">
+
+    <Grid>
+        <ScrollView>
+            <VerticalStackLayout
+                VerticalOptions="CenterAndExpand"
+                HorizontalOptions="Center"
+                Spacing="12">
+
+                <!-- Logo -->
+                <Image Source="logoFitnutri.png"
+                       WidthRequest="150"
+                       HeightRequest="150"
+                       Margin="0,0,0,10" />
+
+                <!-- Título -->
+                <Label Text="FitNutri"
+                       FontSize="22"
+                       FontAttributes="Bold"
+                       TextColor="#13734d"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,0,0,20" />
+
+                <!-- Login/E-mail -->
+                <Frame HasShadow="False"
+                       CornerRadius="30"
+                       BackgroundColor="#D3D3D3"
+                       Padding="0"
+                       WidthRequest="300">
+                    <Entry Placeholder="Login/E-mail"
+                           PlaceholderColor="White"
+                           Text="{Binding EmailOrUserName}"
+                           Margin="16,10"
+                           Keyboard="Email" />
+                </Frame>
+
+                <!-- Senha -->
+                <Frame HasShadow="False"
+                       CornerRadius="30"
+                       BackgroundColor="#D3D3D3"
+                       Padding="0"
+                       WidthRequest="300">
+                    <Entry Placeholder="Senha"
+                           PlaceholderColor="White"
+                           IsPassword="True"
+                           Text="{Binding Password}"
+                           Margin="16,10" />
+                </Frame>
+
+                <!-- Mensagem de erro -->
+                <Label Text="{Binding ErrorMessage}"
+                       TextColor="Red"
+                       FontSize="12"
+                       HorizontalTextAlignment="Center"
+                       IsVisible="{Binding HasError}"
+                       Margin="0,4,0,0"/>
+
+                <!-- Botão Entrar -->
+                <Button Text="{Binding LoginButtonText}"
+                        Command="{Binding EntrarCommand}"
+                        WidthRequest="300"
+                        CornerRadius="30"
+                        BackgroundColor="#D3D3D3"
+                        TextColor="Black"
+                        FontAttributes="Bold"
+                        Padding="15"
+                        IsEnabled="{Binding IsNotBusy}" />
+
+                <!-- Loading simples -->
+                <ActivityIndicator IsVisible="{Binding IsBusy}"
+                                   IsRunning="{Binding IsBusy}"
+                                   HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>
