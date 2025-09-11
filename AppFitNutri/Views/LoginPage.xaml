@@ -4,7 +4,7 @@ x:Class="AppFitNutri.Views.LoginPage"
 xmlns="http://schemas.microsoft.com/dotnet/2021/maui"  
 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"  
 xmlns:viewmodels="clr-namespace:AppFitNutri.Core.Models;assembly=AppFitNutri.Core"  
-BackgroundImageSource="backgroundfitnutri.svg">
+BackgroundImageSource="backgroundfitnutri.png">
 
     <Grid>
         <ScrollView>
@@ -14,7 +14,7 @@ BackgroundImageSource="backgroundfitnutri.svg">
                 Spacing="12">
 
                 <!-- Logo -->
-                <Image Source="logoFitnutri.png"
+                <Image Source="logofitnutri.png"
                        WidthRequest="150"
                        HeightRequest="150"
                        Margin="0,0,0,10" />

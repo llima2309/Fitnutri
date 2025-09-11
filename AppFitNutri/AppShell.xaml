@@ -5,8 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:AppFitNutri.Views"
     Shell.FlyoutBehavior="Flyout"
-    Title="AppFitNutri"
-    BackgroundImageSource="backgroundfitnutri.svg">
+    Title="AppFitNutri">
 
     <ShellContent
         Title="Login"
