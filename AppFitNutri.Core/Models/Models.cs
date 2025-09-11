@@ -28,6 +28,6 @@ namespace AppFitNutri.Core.Models
         public string? Email { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool EmailConfirmed { get; set; }
-        public string? Status { get; set; } // ou seu enum em string
+        public UserStatus? Status { get; set; } // ou seu enum em string
     }
 }

@@ -8,6 +8,8 @@
 @using Microsoft.AspNetCore.Components.Forms
 @inject IApiHttp ApiHttp
 @inject NavigationManager NavigationManager
+@inject IHttpContextAccessor Http
+@inject IJSRuntime JS
 
 <EditForm Model="@loginModel" OnValidSubmit="Entrar" FormName="LoginForm">
     <AntiforgeryToken />
@@ -86,7 +88,8 @@
                 AuthResponse? content = await result.Content.ReadFromJsonAsync<AuthResponse>();
                 if (content != null)
                 {
-                    ApiHttp.SetBearerToken(content.AccessToken);
+                    await JS.InvokeVoidAsync("blazorSubmitCookie", content.AccessToken, "/admin/users/pending");
+                    return; // o endpoint fará o redirect
                     result = await ApiHttp.ValidaToken();
                     if (result.IsSuccessStatusCode)
                     {

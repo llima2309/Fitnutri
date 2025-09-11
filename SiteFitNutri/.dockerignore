@@ -1,0 +1,11 @@
+bin/
+obj/
+*.user
+*.swp
+*.suo
+*.csproj.user
+.git/
+.gitignore
+.vscode/
+.idea/
+**/node_modules/

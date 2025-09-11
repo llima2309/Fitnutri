@@ -5,41 +5,68 @@ using SiteFitNutri.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Blazor
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-// 1) Named HttpClient “api” com base address/headers
+
+// Necessário para acessar cookies da requisição atual
+builder.Services.AddHttpContextAccessor();
+
+// Handler que encaminha o cookie para a API
+builder.Services.AddTransient<ForwardFitnutriCookieHandler>();
+
+// HttpClient nomeado para a API
 builder.Services.AddHttpClient("api", client =>
 {
     client.BaseAddress = new Uri("https://api.fit-nutri.com");
     client.DefaultRequestHeaders.Add("x-api-key", "<STRONG_CLIENT_KEY>");
     client.Timeout = TimeSpan.FromSeconds(30);
-});
+})
+.AddHttpMessageHandler<ForwardFitnutriCookieHandler>(); // <-- importante
 
-// 2) ApiHttp Scoped, construído com o named client
+// ApiHttp usando o named client
 builder.Services.AddScoped<IApiHttp>(sp =>
 {
     var http = sp.GetRequiredService<IHttpClientFactory>().CreateClient("api");
-    return new ApiHttp(http); // ApiHttp guarda o DefaultRequestHeaders
+    return new ApiHttp(http);
 });
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-
-
-
 app.UseAntiforgery();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+   .AddInteractiveServerRenderMode();
+
+app.MapPost("/auth/cb", async (HttpContext ctx) =>
+{
+    var form = await ctx.Request.ReadFormAsync();
+    var token = form["token"].ToString();
+    var returnUrl = form["returnUrl"].ToString();
+
+    if (string.IsNullOrWhiteSpace(token))
+        return Results.BadRequest("missing token");
+
+    ctx.Response.Cookies.Append("fitnutri_auth", token, new CookieOptions
+    {
+        HttpOnly = true,
+        Secure = true,                 // prod = https
+        SameSite = SameSiteMode.None,    // subdomínios
+        Domain = ".fit-nutri.com",     // ajuste ao seu domínio
+        Path = "/",
+        Expires = DateTimeOffset.UtcNow.AddHours(8)
+    });
+
+    return Results.Redirect(string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl);
+});
+
 
 app.Run();

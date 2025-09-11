@@ -9,7 +9,6 @@ public interface IApiHttp
     Task<HttpResponseMessage> RegisterAsync(RegisterRequest request, CancellationToken ct);
     Task<HttpResponseMessage> ValidaToken();
     Task<List<PendingUserDto>?> GetPendingUsersAsync(int skip = 0, int take = 20, CancellationToken ct = default);
-    void SetBearerToken(string? token); // novo
 }
 // ApiHttp.cs (no Core)
 public class ApiHttp : IApiHttp
@@ -21,12 +20,7 @@ public class ApiHttp : IApiHttp
     {
         _http = http;
     }
-    public void SetBearerToken(string? token)
-    {
-        _http.DefaultRequestHeaders.Authorization = string.IsNullOrWhiteSpace(token)
-            ? null
-            : new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-    }
+   
     public Task<HttpResponseMessage> LoginAsync(LoginRequest req, CancellationToken ct = default)
         => _http.PostAsJsonAsync("/auth/login", req, ct);
 
