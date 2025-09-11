@@ -72,6 +72,11 @@ BackgroundImageSource="backgroundfitnutri.svg">
                         Padding="15"
                         IsEnabled="{Binding IsNotBusy}" />
 
+                <Button Text="Criar conta"
+        Command="{Binding IrParaRegistrarCommand}"
+         CornerRadius="30"
+        BackgroundColor="Transparent" TextColor="#13734d" />
+
                 <!-- Loading simples -->
                 <ActivityIndicator IsVisible="{Binding IsBusy}"
                                    IsRunning="{Binding IsBusy}"

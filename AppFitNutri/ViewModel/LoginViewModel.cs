@@ -65,7 +65,7 @@ public partial class LoginViewModel : ObservableObject
             IsBusy = true;
 
             var req = new LoginRequest(user, pass);
-            var result = await _authApi.PostAsyncLogin(req, CancellationToken.None);
+            var result = await _authApi.LoginAsync(req, CancellationToken.None);
 
             if (result.IsSuccessStatusCode)
             {
@@ -74,6 +74,12 @@ public partial class LoginViewModel : ObservableObject
                 {
                     await _tokenStore.SaveAsync(content.AccessToken, content.ExpiresAt);
                     await Application.Current.MainPage.DisplayAlert("Sucesso", "Login realizado com sucesso.", "OK");
+                    result = await _authApi.ValidaToken();
+                    if(result.IsSuccessStatusCode)
+                    {
+                        MeResponse meResponse = await result.Content.ReadFromJsonAsync<MeResponse>();
+                        await Application.Current.MainPage.DisplayAlert("Sucesso", meResponse.Id.ToString(), "OK");
+                    }
                 }
             }
             else
@@ -96,4 +102,7 @@ public partial class LoginViewModel : ObservableObject
             IsBusy = false;
         }
     }
+    [RelayCommand]
+    private Task IrParaRegistrarAsync() => Shell.Current.GoToAsync(nameof(AppFitNutri.Views.RegisterPage));
+
 }

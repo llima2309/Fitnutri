@@ -181,61 +181,73 @@ adminGroup.MapGet("/users/pending", async (AppDbContext db, int skip = 0, int ta
 
     return Results.Ok(users);
 });
-
+adminGroup.MapDelete("/users/{id:guid}", async (Guid id, AppDbContext db, CancellationToken ct) =>
+{
+    var user = await db.Users.FindAsync([id], ct);
+    if (user is null) return Results.NotFound();
+    db.Users.Remove(user);
+    await db.SaveChangesAsync(ct);
+    return Results.Ok(new { message = "Usuário excluído.", user.Id, user.UserName, user.Email });
+});
 // Aprovar
 adminGroup.MapPost("/users/{id:guid}/approve",
     async (Guid id, ApproveUserRequest req, AppDbContext db, IEmailSender emailSender, IConfiguration cfg, ILoggerFactory lf, CancellationToken ct) =>
     {
-        var log = lf.CreateLogger("ApproveUser");
-        var user = await db.Users.FirstOrDefaultAsync(x => x.Id == id, ct);
-        if (user is null) return Results.NotFound();
+        try
+        {
+            var log = lf.CreateLogger("ApproveUser");
+            var user = await db.Users.FirstOrDefaultAsync(x => x.Id == id, ct);
+            if (user is null) return Results.NotFound();
 
-        if (user.Status == UserStatus.Approved)
-            return Results.BadRequest(new { error = "Usuário já está aprovado." });
+            if (user.Status == UserStatus.Approved)
+                return Results.BadRequest(new { error = "Usuário já está aprovado." });
 
-        user.Status = UserStatus.Approved;
-        user.ApprovedAt = DateTime.UtcNow;
-        user.ApprovedBy = string.IsNullOrWhiteSpace(req?.ApprovedBy) ? "admin" : req!.ApprovedBy;
+            user.Status = UserStatus.Approved;
+            user.ApprovedAt = DateTime.UtcNow;
+            user.ApprovedBy = string.IsNullOrWhiteSpace(req?.ApprovedBy) ? "admin" : req!.ApprovedBy;
 
-        // 🔑 gera código int de 6 dígitos (0..999999)
-        var code = RandomNumberGenerator.GetInt32(0, 1_000_000);
-        user.EmailVerificationCode = code; // armazenamos como int
-                                           // EmailConfirmed permanece como estiver (provável false)
+            // 🔑 gera código int de 6 dígitos (0..999999)
+            var code = RandomNumberGenerator.GetInt32(0, 1_000_000);
+            user.EmailVerificationCode = code; // armazenamos como int
+                                               // EmailConfirmed permanece como estiver (provável false)
 
 
-        var codeStr = code.ToString("D6"); // sempre 6 dígitos com zeros à esquerda
-        var subject = "Confirme seu e-mail - Código de verificação";
-        var html = $"""
+            var codeStr = code.ToString("D6"); // sempre 6 dígitos com zeros à esquerda
+            var subject = "Confirme seu e-mail - Código de verificação";
+            var html = $"""
         <p>Olá {user.UserName},</p>
         <p>Seu cadastro foi aprovado. Para confirmar seu e-mail, use o código abaixo no primeiro login:</p>
         <h2 style="letter-spacing:3px;margin:16px 0;">{codeStr}</h2>
         <p>Se não foi você, ignore esta mensagem.</p>
         """;
 
-        try
-        {
-            await emailSender.SendAsync(user.Email, subject, html, ct);
-            log.LogInformation("Código de verificação enviado para {Email}", user.Email);
-            await db.SaveChangesAsync(ct);
-        }
-        catch (Amazon.SimpleEmailV2.Model.MessageRejectedException ex)
-        {
-            log.LogError(ex, "SES rejeitou a mensagem para {Email}", user.Email);
-            return Results.Problem("Falha ao enviar e-mail. Verifique domínio/remetente no SES.", statusCode: 502);
-        }
+            try
+            {
+                await emailSender.SendAsync(user.Email, subject, html, ct);
+                log.LogInformation("Código de verificação enviado para {Email}", user.Email);
+                await db.SaveChangesAsync(ct);
+            }
+            catch (Amazon.SimpleEmailV2.Model.MessageRejectedException ex)
+            {
+                log.LogError(ex, "SES rejeitou a mensagem para {Email}", user.Email);
+                return Results.Problem("Falha ao enviar e-mail. Verifique domínio/remetente no SES.", statusCode: 502);
+            }
 
-        return Results.Ok(new
+            return Results.Ok(new
+            {
+                message = "Usuário aprovado. Código de verificação enviado por e-mail.",
+                user.Id,
+                user.Status,
+                user.ApprovedAt,
+                user.ApprovedBy
+            });
+        }
+        catch (Exception ex)
         {
-            message = "Usuário aprovado. Código de verificação enviado por e-mail.",
-            user.Id,
-            user.Status,
-            user.ApprovedAt,
-            user.ApprovedBy
-        });
+            return Results.Problem(ex.Message, statusCode: 400);
+        }
+        
     });
-
-
-
 // Rejeitar
 adminGroup.MapPost("/users/{id:guid}/reject", async (Guid id, RejectUserRequest req, AppDbContext db, CancellationToken ct) =>
 {

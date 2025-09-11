@@ -26,9 +26,11 @@ public static class MauiProgram
 
         // ViewModels
         builder.Services.AddTransient<LoginViewModel>();
+        builder.Services.AddTransient<AppFitNutri.ViewModels.RegisterViewModel>();
 
         // Views
         builder.Services.AddTransient<Views.LoginPage>();
+        builder.Services.AddTransient<AppFitNutri.Views.RegisterPage>();
 
         return builder.Build();
     }

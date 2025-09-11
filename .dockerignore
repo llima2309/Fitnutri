@@ -12,3 +12,6 @@
 **/.git/
 **/.gitignore
 **/.dockerignore
+AppFitNutri/
+AppFitNutri.Core/
+AppFitNutriTest/
