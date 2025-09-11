@@ -19,7 +19,7 @@ public static class MauiProgram
             //client.DefaultRequestHeaders.Add("Accept", "application/json");
             client.DefaultRequestHeaders.Add("x-api-key", "<STRONG_CLIENT_KEY>");
             client.Timeout = TimeSpan.FromSeconds(30);
-        });
+        }).AddHttpMessageHandler<AuthHeaderHandler>(); // opcional, mas recomendado
 
         // Token store
         builder.Services.AddSingleton<ITokenStore, SecureTokenStore>();

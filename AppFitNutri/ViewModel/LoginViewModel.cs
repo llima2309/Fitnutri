@@ -72,7 +72,7 @@ public partial class LoginViewModel : ObservableObject
                 AuthResponse? content = await result.Content.ReadFromJsonAsync<AuthResponse>();
                 if (content != null)
                 {
-                    await _tokenStore.SaveAsync(content.AccessToken, content.ExpiresAt);
+                    await _tokenStore.SetTokenAsync(content.AccessToken);
                     await Application.Current.MainPage.DisplayAlert("Sucesso", "Login realizado com sucesso.", "OK");
                     result = await _authApi.ValidaToken();
                     if(result.IsSuccessStatusCode)

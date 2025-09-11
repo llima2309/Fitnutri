@@ -43,7 +43,7 @@ namespace AppFitNutriTest
                 BaseAddress = new Uri("https://api.fit-nutri.com")
             };
 
-            var cut = new ApiHttp(httpClient);
+            //var cut = new ApiHttp(httpClient);
 
             var result = await cut.LoginAsync(
                 new LoginRequest("luis", "Lf2309@@"),

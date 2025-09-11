@@ -1,0 +1,98 @@
+﻿@page "/admin/users/pending"
+@rendermode InteractiveServer
+
+@using AppFitNutri.Core.Models
+@using AppFitNutri.Core.Services.Login
+@inject IApiHttp Api
+
+<h3>Usuários pendentes</h3>
+
+@if (isBusy)
+{
+    <p>Carregando...</p>
+}
+else if (!string.IsNullOrEmpty(error))
+{
+    <p style="color:red">@error</p>
+}
+else if (users.Count == 0)
+{
+    <p>Nenhum usuário pendente.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Usuário</th>
+                <th>Email</th>
+                <th>Criado em</th>
+                <th>Email confirmado</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var u in users)
+            {
+                <tr>
+                    <td>@u.UserName</td>
+                    <td>@u.Email</td>
+                    <td>@u.CreatedAt.ToLocalTime():g</td>
+                    <td>@(u.EmailConfirmed ? "Sim" : "Não")</td>
+                    <td>@u.Status</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div style="display:flex; gap:8px">
+        <button disabled="@(skip == 0)" @onclick="Prev">Anterior</button>
+        <button disabled="@(users.Count < take)" @onclick="Next">Próximo</button>
+        <span style="align-self:center">Página @((skip / take) + 1)</span>
+    </div>
+}
+
+@code {
+    private readonly List<PendingUserDto> users = new();
+    private bool isBusy;
+    private string? error;
+    private int skip = 0;
+    private int take = 20;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        try
+        {
+            isBusy = true; error = null;
+            users.Clear();
+
+            var data = await Api.GetPendingUsersAsync(skip, take);
+            if (data is not null) users.AddRange(data);
+        }
+        catch (Exception ex)
+        {
+            error = $"Falha ao carregar: {ex.Message}";
+        }
+        finally
+        {
+            isBusy = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task Next()
+    {
+        if (users.Count < take) return;
+        skip += take;
+        await LoadAsync();
+    }
+
+    private async Task Prev()
+    {
+        if (skip == 0) return;
+        skip = Math.Max(0, skip - take);
+        await LoadAsync();
+    }
+}
