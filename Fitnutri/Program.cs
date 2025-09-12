@@ -83,7 +83,7 @@ builder.Services.AddAuthorization(opt =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("app", p =>
-        p.WithOrigins("https://app.fit-nutri.com") // ajuste se necessário
+        p.WithOrigins("https://fit-nutri.com") // ajuste se necessário
          .AllowAnyHeader()
          .AllowAnyMethod()
          .AllowCredentials());
@@ -332,7 +332,48 @@ adminGroup.MapGet("/users/pending", async (AppDbContext db, int skip = 0, int ta
 
     return Results.Ok(users);
 });
+//Usuarios Aprovados
+adminGroup.MapGet("/users/approved", async (AppDbContext db, int skip = 0, int take = 20, CancellationToken ct = default) =>
+{
+    take = Math.Clamp(take, 1, 100);
+    var users = await db.Users
+        .Where(u => u.Status == UserStatus.Approved)
+        .OrderBy(u => u.CreatedAt)
+        .Skip(skip).Take(take)
+        .Select(u => new
+        {
+            u.Id,
+            u.UserName,
+            u.Email,
+            u.CreatedAt,
+            u.EmailConfirmed,
+            u.Status
+        })
+        .ToListAsync(ct);
 
+    return Results.Ok(users);
+});
+//Usuarios Rejeitados
+adminGroup.MapGet("/users/rejects", async (AppDbContext db, int skip = 0, int take = 20, CancellationToken ct = default) =>
+{
+    take = Math.Clamp(take, 1, 100);
+    var users = await db.Users
+        .Where(u => u.Status == UserStatus.Rejected)
+        .OrderBy(u => u.CreatedAt)
+        .Skip(skip).Take(take)
+        .Select(u => new
+        {
+            u.Id,
+            u.UserName,
+            u.Email,
+            u.CreatedAt,
+            u.EmailConfirmed,
+            u.Status
+        })
+        .ToListAsync(ct);
+
+    return Results.Ok(users);
+});
 // Excluir usuário
 adminGroup.MapDelete("/users/{id:guid}", async (Guid id, AppDbContext db, CancellationToken ct) =>
 {
@@ -359,7 +400,7 @@ adminGroup.MapPost("/users/{id:guid}/approve",
             user.Status = UserStatus.Approved;
             user.ApprovedAt = DateTime.UtcNow;
             user.ApprovedBy = string.IsNullOrWhiteSpace(req?.ApprovedBy) ? "admin" : req!.ApprovedBy;
-
+            user.EmailConfirmed = true; // força confirmar e-mail
             var code = RandomNumberGenerator.GetInt32(0, 1_000_000);
             user.EmailVerificationCode = code;
 

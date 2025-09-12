@@ -10,14 +10,15 @@
     <None Include="wwwroot\images\logofitnutri.png" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\AppFitNutri.Core\AppFitNutri.Core.csproj" />
-  </ItemGroup>
 
   <ItemGroup>
     <Content Update="wwwroot\images\logofitnutri.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AppFitNutri.Core\AppFitNutri.Core.csproj" />
   </ItemGroup>
 
 </Project>

@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Necessário para acessar cookies da requisição atual
+// Necessï¿½rio para acessar cookies da requisiï¿½ï¿½o atual
 builder.Services.AddHttpContextAccessor();
 
 // Handler que encaminha o cookie para a API
@@ -59,14 +59,16 @@ app.MapPost("/auth/cb", async (HttpContext ctx) =>
     {
         HttpOnly = true,
         Secure = true,                 // prod = https
-        SameSite = SameSiteMode.None,    // subdomínios
-        Domain = ".fit-nutri.com",     // ajuste ao seu domínio
+        SameSite = SameSiteMode.None,    // subdomï¿½nios
+        Domain = ".fit-nutri.com",     // ajuste ao seu domï¿½nio
         Path = "/",
         Expires = DateTimeOffset.UtcNow.AddHours(8)
     });
 
     return Results.Redirect(string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl);
 });
+
+app.MapGet("/healthz", () => Results.Ok(new { status = "ok" }));
 
 
 app.Run();

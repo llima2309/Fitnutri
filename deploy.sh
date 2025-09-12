@@ -2,35 +2,32 @@
 set -euo pipefail
 
 ############################################
-# Config Fitnutri - ajuste conforme o seu #
+# Deploy - SITE (Blazor Server)
 ############################################
 REGION="${REGION:-us-east-1}"
 
-# Use os ARNs reais do seu ambiente:
+# ARNs do cluster/service do SITE
 CLUSTER="${CLUSTER:-arn:aws:ecs:us-east-1:763548578114:cluster/fitnutri-cluster}"
-SERVICE="${SERVICE:-arn:aws:ecs:us-east-1:763548578114:service/fitnutri-cluster/fitnutri-api-task-service-4kszczgw}"
+SERVICE="${SERVICE:-arn:aws:ecs:us-east-1:763548578114:service/fitnutri-cluster/fitnutri-site-task-service-8sgriule}"
 
-# Repositório no ECR
-ECR_REPO="${ECR_REPO:-fitnutri-api}"
+# ECR
+ECR_REPO="${ECR_REPO:-fitnutri-site}"
 
-# Tag imutável (padrão data+gitsha|local). Pode sobrescrever passando primeiro argumento.
+# Tags
 IMAGE_TAG="${1:-$(date +%Y%m%d-%H%M)-$(git rev-parse --short HEAD 2>/dev/null || echo local)}"
-
-# Alias mutável apontado pela Task Definition (ex.: prod)
 ALIAS_TAG="${ALIAS_TAG:-prod}"
 
 # Build
 PLATFORM="${PLATFORM:-linux/amd64}"
 DOCKERFILE="${DOCKERFILE:-Dockerfile}"
-BUILD_CONTEXT="${BUILD_CONTEXT:-.}"
+BUILD_CONTEXT="${BUILD_CONTEXT:-.}"   # RAIZ
 
-# Health check
-WAIT_TG_HEALTH="${WAIT_TG_HEALTH:-true}"   # true/false
-TIMEOUT="${TIMEOUT:-300}"                  # segundos
+# Health check TG (opcional)
+WAIT_TG_HEALTH="${WAIT_TG_HEALTH:-true}"
+TIMEOUT="${TIMEOUT:-300}"
 SLEEP_SEC="${SLEEP_SEC:-10}"
-############################################
 
-echo "==> Deploy Fitnutri API"
+echo "==> Deploy SITE"
 echo "Região...............: $REGION"
 echo "Cluster..............: $CLUSTER"
 echo "Service..............: $SERVICE"
@@ -39,28 +36,20 @@ echo "Tag imutável.........: $IMAGE_TAG"
 echo "Alias (Task aponta)..: $ALIAS_TAG"
 echo "Plataforma...........: $PLATFORM"
 
-# Descobre conta e monta URI do ECR
 ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
 ECR_URI="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/${ECR_REPO}"
 
-# Valida pré-requisitos básicos
 for cmd in aws docker; do
-  command -v "$cmd" >/dev/null 2>&1 || { echo "❌ Comando '$cmd' não encontrado."; exit 1; }
+  command -v "$cmd" >/dev/null 2>&1 || { echo "❌ '$cmd' não encontrado."; exit 1; }
 done
 
-# Valida Cluster ativo
+# Valida cluster/service
 STATUS_CLUSTER="$(aws ecs describe-clusters --clusters "$CLUSTER" --region "$REGION" --query 'clusters[0].status' --output text || true)"
-if [[ "$STATUS_CLUSTER" != "ACTIVE" ]]; then
-  echo "❌ Cluster não encontrado/ativo: $CLUSTER"
-  exit 1
-fi
+[[ "$STATUS_CLUSTER" == "ACTIVE" ]] || { echo "❌ Cluster não ativo: $CLUSTER"; exit 1; }
 
-# Valida Service
 FAILURES="$(aws ecs describe-services --cluster "$CLUSTER" --services "$SERVICE" --region "$REGION" --query 'failures' --output json)"
 if echo "$FAILURES" | grep -q '"reason"'; then
-  echo "❌ Service não encontrado no cluster. Detalhes:"
-  echo "$FAILURES"
-  exit 1
+  echo "❌ Service não encontrado no cluster."; echo "$FAILURES"; exit 1
 fi
 
 echo "==> Login no ECR"
@@ -68,7 +57,7 @@ aws ecr get-login-password --region "$REGION" \
   | docker login --username AWS --password-stdin "${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
 
 echo "==> Build da imagem ($PLATFORM)"
-# buildx lida melhor com multiplataforma no Mac/Windows
+echo ">> CMD: docker buildx build --platform $PLATFORM -f $DOCKERFILE -t ${ECR_REPO}:${IMAGE_TAG} $BUILD_CONTEXT --load"
 docker buildx build \
   --platform "$PLATFORM" \
   -f "$DOCKERFILE" \
@@ -76,28 +65,27 @@ docker buildx build \
   "$BUILD_CONTEXT" \
   --load
 
-echo "==> Tagging para o ECR"
+echo "==> Tagging"
 docker tag "${ECR_REPO}:${IMAGE_TAG}" "${ECR_URI}:${IMAGE_TAG}"
 docker tag "${ECR_REPO}:${IMAGE_TAG}" "${ECR_URI}:${ALIAS_TAG}"
 
-echo "==> Push das imagens"
+echo "==> Push"
 docker push "${ECR_URI}:${IMAGE_TAG}"
 docker push "${ECR_URI}:${ALIAS_TAG}"
 
-echo "==> Forçando novo deployment no ECS"
+echo "==> Forçando novo deployment"
 aws ecs update-service \
   --cluster "$CLUSTER" \
   --service "$SERVICE" \
   --force-new-deployment \
   --region "$REGION" >/dev/null
 
-echo "==> Aguardando ECS estabilizar..."
+echo "==> Aguardando estabilizar..."
 aws ecs wait services-stable \
   --cluster "$CLUSTER" \
   --services "$SERVICE" \
   --region "$REGION"
 
-# Health check no Target Group (opcional)
 if [[ "$WAIT_TG_HEALTH" == "true" ]]; then
   TG_ARN="$(aws ecs describe-services \
     --cluster "$CLUSTER" \
@@ -107,7 +95,7 @@ if [[ "$WAIT_TG_HEALTH" == "true" ]]; then
     --output text || true)"
 
   if [[ -z "$TG_ARN" || "$TG_ARN" == "None" ]]; then
-    echo "⚠️ Nenhum Target Group associado. Pulando health check ALB."
+    echo "⚠️ Nenhum Target Group associado. Pulando health check."
   else
     echo "==> Monitorando Target Group até HEALTHY (timeout ${TIMEOUT}s)"
     START="$(date +%s)"
@@ -117,25 +105,17 @@ if [[ "$WAIT_TG_HEALTH" == "true" ]]; then
         --region "$REGION" \
         --query 'TargetHealthDescriptions[].TargetHealth.State' \
         --output text || true)"
-
-      echo "Estado atual das targets: ${STATES:-<sem targets>}"
-
+      echo "Estado atual: ${STATES:-<sem targets>}"
       if [[ -n "$STATES" ]] && [[ "$STATES" =~ ^(healthy[[:space:]]*)+$ ]]; then
-        echo "✅ Todas as targets HEALTHY no ALB!"
+        echo "✅ HEALTHY!"
         break
       fi
-
-      NOW="$(date +%s)"
-      ELAPSED=$(( NOW - START ))
-      if (( ELAPSED > TIMEOUT )); then
-        echo "❌ Timeout: targets não ficaram healthy em ${TIMEOUT}s."
-        exit 1
-      fi
+      (( $(date +%s) - START > TIMEOUT )) && { echo "❌ Timeout."; exit 1; }
       sleep "$SLEEP_SEC"
     done
   fi
 fi
 
-echo "==> Deploy concluído com sucesso 🎉"
+echo "==> Deploy concluído 🎉"
 echo "    Imagem imutável: ${ECR_URI}:${IMAGE_TAG}"
 echo "    Alias atualizado: ${ECR_URI}:${ALIAS_TAG}"

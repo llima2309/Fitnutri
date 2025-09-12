@@ -2,11 +2,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-# Copia só o csproj do API para cache eficiente
+# Copia sï¿½ o csproj do API para cache eficiente
 COPY Fitnutri/Fitnutri.csproj ./Fitnutri/
 RUN dotnet restore Fitnutri/Fitnutri.csproj
 
-# Copia o restante do código do API
+# Copia o restante do cï¿½digo do API
 COPY Fitnutri/ ./Fitnutri/
 RUN dotnet publish Fitnutri/Fitnutri.csproj -c Release -o /app/publish /p:UseAppHost=false
 
