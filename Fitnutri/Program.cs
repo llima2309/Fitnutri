@@ -457,9 +457,52 @@ adminGroup.MapPost("/users/{id:guid}/reject", async (Guid id, RejectUserRequest 
     return Results.Ok(new { message = "Usuário rejeitado.", user.Id, user.Status, user.ApprovedAt, user.ApprovedBy, req?.Reason });
 });
 
+// ---------- PERFIS (admin only) ----------
+var perfisGroup = app.MapGroup("/perfis").RequireAuthorization("AdminOnly");
+
+perfisGroup.MapGet("/", async (AppDbContext db) =>
+    await db.Perfis.ToListAsync()
+);
+
+perfisGroup.MapGet("/{id}", async (AppDbContext db, Guid id) =>
+    await db.Perfis.FindAsync(id) is Perfil perfil ? Results.Ok(perfil) : Results.NotFound()
+);
+
+perfisGroup.MapPost("/", async (AppDbContext db, Perfil perfil) =>
+{
+    perfil.Id = Guid.NewGuid();
+    db.Perfis.Add(perfil);
+    await db.SaveChangesAsync();
+    return Results.Created($"/api/perfis/{perfil.Id}", perfil);
+});
+
+perfisGroup.MapPut("/{id}", async (AppDbContext db, Guid id, Perfil perfil) =>
+{
+    if (id != perfil.Id) return Results.BadRequest();
+    var exists = await db.Perfis.AnyAsync(p => p.Id == id);
+    if (!exists) return Results.NotFound();
+    db.Entry(perfil).State = EntityState.Modified;
+    await db.SaveChangesAsync();
+    return Results.NoContent();
+});
+
+perfisGroup.MapDelete("/{id}", async (AppDbContext db, Guid id) =>
+{
+    var perfil = await db.Perfis.FindAsync(id);
+    if (perfil is null) return Results.NotFound();
+    db.Perfis.Remove(perfil);
+    await db.SaveChangesAsync();
+    return Results.NoContent();
+});
+
+
+
 // ---------- HEALTH ----------
-app.MapGet("/healthz", () => Results.Ok(new { status = "ok" }));
-app.MapGet("/readyz", async (AppDbContext db, CancellationToken ct) =>
+
+var commonGroup = app.MapGroup("/");
+
+commonGroup.MapGet("/healthz", () => Results.Ok(new { status = "ok" }));
+commonGroup.MapGet("/readyz", async (AppDbContext db, CancellationToken ct) =>
 {
     var ok = await db.Database.CanConnectAsync(ct);
     return ok ? Results.Ok(new { status = "ready" }) : Results.StatusCode(503);

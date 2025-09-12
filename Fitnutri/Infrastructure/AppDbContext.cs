@@ -6,6 +6,7 @@ namespace Fitnutri.Infrastructure;
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
     public DbSet<User> Users => Set<User>();
+    public DbSet<Perfil> Perfis => Set<Perfil>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -28,5 +29,17 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         u.Property(x => x.ApprovedBy).HasMaxLength(128);
 
         u.Property(x => x.Role).HasConversion<int>().IsRequired();
+        u.HasOne(x => x.Perfil)
+            .WithMany(p => p.Usuarios)
+            .HasForeignKey(x => x.PerfilId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        var p = modelBuilder.Entity<Perfil>();
+        p.HasKey(x => x.Id);
+        // Remover ValueGeneratedNever para permitir geração automática
+        p.Property(x => x.Nome).HasMaxLength(64).IsRequired();
+        p.Property(x => x.Tipo).HasConversion<int>().IsRequired();
+
+        // Seed dos perfis removido para permitir geração automática
     }
 }

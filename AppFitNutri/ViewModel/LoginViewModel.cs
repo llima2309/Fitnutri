@@ -18,6 +18,8 @@ public partial class LoginViewModel : ObservableObject
     [ObservableProperty] private string? password;
     [ObservableProperty] private bool isBusy;
     [ObservableProperty] private string? errorMessage;
+    [ObservableProperty] private bool mostrarSenha;
+    public bool IsPassword => !MostrarSenha;
 
     public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
     public bool IsNotBusy => !IsBusy;
@@ -37,11 +39,17 @@ public partial class LoginViewModel : ObservableObject
                 OnPropertyChanged(nameof(IsNotBusy));
                 OnPropertyChanged(nameof(LoginButtonText));
             }
+
             if (e.PropertyName is nameof(ErrorMessage))
             {
                 OnPropertyChanged(nameof(HasError));
             }
         };
+    }
+
+    partial void OnMostrarSenhaChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsPassword));
     }
 
     [RelayCommand]
@@ -72,12 +80,13 @@ public partial class LoginViewModel : ObservableObject
                 AuthResponse? content = await result.Content.ReadFromJsonAsync<AuthResponse>();
                 if (content != null)
                 {
-                    await _tokenStore.SetTokenAsync(content.AccessToken);
-                    await Application.Current.MainPage.DisplayAlert("Sucesso", "Login realizado com sucesso.", "OK");
+                    await _tokenStore.SaveAsync(content.AccessToken, content.ExpiresAt);
                     result = await _authApi.ValidaToken();
-                    if(result.IsSuccessStatusCode)
+                    if (result.IsSuccessStatusCode)
                     {
                         MeResponse meResponse = await result.Content.ReadFromJsonAsync<MeResponse>();
+                        await Application.Current.MainPage.DisplayAlert("Sucesso", "Login realizado com sucesso.",
+                            "OK");
                         await Application.Current.MainPage.DisplayAlert("Sucesso", meResponse.Id.ToString(), "OK");
                     }
                 }
@@ -85,7 +94,8 @@ public partial class LoginViewModel : ObservableObject
             else
             {
                 var problem = await result.Content.ReadFromJsonAsync<Dictionary<string, string>>();
-                if (problem is not null && problem.TryGetValue("error", out var message) && !string.IsNullOrWhiteSpace(message))
+                if (problem is not null && problem.TryGetValue("error", out var message) &&
+                    !string.IsNullOrWhiteSpace(message))
                     ErrorMessage = message;
             }
         }
@@ -102,7 +112,7 @@ public partial class LoginViewModel : ObservableObject
             IsBusy = false;
         }
     }
+
     [RelayCommand]
     private Task IrParaRegistrarAsync() => Shell.Current.GoToAsync(nameof(AppFitNutri.Views.RegisterPage));
-
 }

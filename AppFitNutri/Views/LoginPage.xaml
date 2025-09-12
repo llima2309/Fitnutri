@@ -48,9 +48,21 @@ BackgroundImageSource="backgroundfitnutri.png">
                        WidthRequest="300">
                     <Entry Placeholder="Senha"
                            PlaceholderColor="White"
-                           IsPassword="True"
+                           IsPassword="{Binding IsPassword}"
                            Text="{Binding Password}"
                            Margin="16,10" />
+                </Frame>
+
+                <!-- Checkbox mostrar senha -->
+                <Frame HasShadow="False"
+                       CornerRadius="30"
+                       BackgroundColor="#D3D3D3"
+                       Padding="0"
+                       WidthRequest="300">
+                    <HorizontalStackLayout Spacing="8">
+                        <CheckBox IsChecked="{Binding MostrarSenha}" />
+                        <Label Text="Mostrar senha" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
                 </Frame>
 
                 <!-- Mensagem de erro -->

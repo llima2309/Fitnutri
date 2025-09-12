@@ -71,10 +71,17 @@
                 </Frame>
 
                 <!-- Mostrar senha -->
-                <HorizontalStackLayout Spacing="8" WidthRequest="300" Margin="0,4,0,0">
-                    <CheckBox IsChecked="{Binding MostrarSenha}" />
-                    <Label Text="Mostrar senha" VerticalTextAlignment="Center" />
-                </HorizontalStackLayout>
+                <Frame HasShadow="False"
+                       CornerRadius="30"
+                       BackgroundColor="#D3D3D3"
+                       Padding="0"
+                       WidthRequest="300"
+                       Margin="0,4,0,0">
+                    <HorizontalStackLayout Spacing="8">
+                        <CheckBox IsChecked="{Binding MostrarSenha}" />
+                        <Label Text="Mostrar senha" VerticalTextAlignment="Center" />
+                    </HorizontalStackLayout>
+                </Frame>
 
                 <!-- Mensagem de erro -->
                 <Label Text="{Binding ErrorMessage}"

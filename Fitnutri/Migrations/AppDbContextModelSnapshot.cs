@@ -22,6 +22,27 @@ namespace Fitnutri.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Fitnutri.Domain.Perfil", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<int>("Tipo")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Perfis");
+                });
+
             modelBuilder.Entity("Fitnutri.Domain.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -58,6 +79,9 @@ namespace Fitnutri.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("PerfilId")
+                        .HasColumnType("int");
+
                     b.Property<int>("Role")
                         .HasColumnType("int");
 
@@ -74,10 +98,27 @@ namespace Fitnutri.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
+                    b.HasIndex("PerfilId");
+
                     b.HasIndex("UserName")
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Fitnutri.Domain.User", b =>
+                {
+                    b.HasOne("Fitnutri.Domain.Perfil", "Perfil")
+                        .WithMany("Usuarios")
+                        .HasForeignKey("PerfilId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Perfil");
+                });
+
+            modelBuilder.Entity("Fitnutri.Domain.Perfil", b =>
+                {
+                    b.Navigation("Usuarios");
                 });
 #pragma warning restore 612, 618
         }

@@ -35,6 +35,7 @@ public partial class RegisterViewModel : ObservableObject
 
     public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
     public bool IsNotBusy => !IsBusy;
+    public bool IsPassword => !MostrarSenha;
 
     // Comandos
     [RelayCommand(CanExecute = nameof(IsNotBusy))]
@@ -85,4 +86,9 @@ public partial class RegisterViewModel : ObservableObject
 
     [RelayCommand]
     private Task VoltarLoginAsync() => Shell.Current.GoToAsync("..");
+
+    partial void OnMostrarSenhaChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsPassword));
+    }
 }
