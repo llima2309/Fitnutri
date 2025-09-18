@@ -256,6 +256,35 @@ app.MapPost("/auth/login", async (HttpContext http, IAuthService auth, LoginRequ
 }).RequireRateLimiting("login-ip")
   .WithTags("Auth");
 
+app.MapPost("/auth/confirm-email-by-identifier", async (ConfirmEmailByIdentifierRequest req, AppDbContext db, CancellationToken ct) =>
+{
+    if (string.IsNullOrWhiteSpace(req.EmailOrUsername))
+        return Results.BadRequest(new { error = "Email ou nome de usuário é obrigatório." });
+
+    // Buscar usuário por email ou username
+    var user = await db.Users.FirstOrDefaultAsync(x =>
+        x.Email == req.EmailOrUsername.Trim() ||
+        x.UserName == req.EmailOrUsername.Trim(), ct);
+
+    if (user is null)
+        return Results.NotFound(new { error = "Usuário não encontrado." });
+
+    if (user.EmailConfirmed)
+        return Results.Ok(new { message = "E-mail já confirmado." });
+
+    if (user.EmailVerificationCode is null)
+        return Results.BadRequest(new { error = "Não há código pendente para este usuário." });
+
+    if (user.EmailVerificationCode != req.Code)
+        return Results.BadRequest(new { error = "Código inválido." });
+
+    user.EmailConfirmed = true;
+    user.EmailVerificationCode = null; // limpa após confirmar
+    await db.SaveChangesAsync(ct);
+
+    return Results.Ok(new { message = "E-mail confirmado com sucesso." });
+}).WithTags("Auth");
+
 // Logout: limpa o cookie
 app.MapPost("/auth/logout", (HttpContext http) =>
 {
@@ -400,7 +429,7 @@ adminGroup.MapPost("/users/{id:guid}/approve",
             user.Status = UserStatus.Approved;
             user.ApprovedAt = DateTime.UtcNow;
             user.ApprovedBy = string.IsNullOrWhiteSpace(req?.ApprovedBy) ? "admin" : req!.ApprovedBy;
-            user.EmailConfirmed = true; // força confirmar e-mail
+            user.EmailConfirmed = false; // força confirmar e-mail
             var code = RandomNumberGenerator.GetInt32(0, 1_000_000);
             user.EmailVerificationCode = code;
 

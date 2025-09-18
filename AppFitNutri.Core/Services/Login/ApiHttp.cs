@@ -14,8 +14,8 @@ public interface IApiHttp
     Task<List<PendingUserDto>?> GetPendingUsersAsync(int skip = 0, int take = 20, CancellationToken ct = default);
     Task<List<PendingUserDto>?> GetApprovedUsersAsync(int skip = 0, int take = 20, CancellationToken ct = default);
     Task<List<PendingUserDto>?> GetRejectedUsersAsync(int skip = 0, int take = 20, CancellationToken ct = default);
-
-    
+    Task<HttpResponseMessage> ConfirmEmailAsync(Guid userId, int code, CancellationToken ct = default);
+    Task<HttpResponseMessage> ConfirmEmailByIdentifierAsync(string emailOrUsername, int code, CancellationToken ct = default);
 }
 // ApiHttp.cs (no Core)
 public class ApiHttp : IApiHttp
@@ -55,6 +55,12 @@ public class ApiHttp : IApiHttp
 
     public Task<HttpResponseMessage> DeleteUserAsync(Guid userId)
   => _http.DeleteAsync($"/admin/users/{userId}");
+
+    public Task<HttpResponseMessage> ConfirmEmailAsync(Guid userId, int code, CancellationToken ct = default)
+        => _http.PostAsJsonAsync("/auth/confirm-email", new ConfirmEmailRequest(userId, code), ct);
+
+    public Task<HttpResponseMessage> ConfirmEmailByIdentifierAsync(string emailOrUsername, int code, CancellationToken ct = default)
+        => _http.PostAsJsonAsync("/auth/confirm-email-by-identifier", new { EmailOrUsername = emailOrUsername, Code = code }, ct);
 }
 
 

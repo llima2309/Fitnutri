@@ -9,4 +9,5 @@ public record MeResponse(Guid Id, string UserName, string Email, DateTime Create
 public record ApproveUserRequest(string? ApprovedBy);
 public record RejectUserRequest(string? ApprovedBy, string? Reason);
 public record ConfirmEmailRequest(Guid UserId, int Code);
+public record ConfirmEmailByIdentifierRequest(string EmailOrUsername, int Code);
 

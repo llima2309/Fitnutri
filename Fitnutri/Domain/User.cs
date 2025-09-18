@@ -18,6 +18,6 @@ public class User
     public DateTime? ApprovedAt { get; set; }
     public string? ApprovedBy { get; set; } // pode virar Guid do admin no futuro
     public UserRole Role { get; set; } = UserRole.User; // <--- novo
-    public int? PerfilId { get; set; }
+    public Guid? PerfilId { get; set; }
     public Perfil? Perfil { get; set; }
 }

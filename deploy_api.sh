@@ -21,7 +21,7 @@ ALIAS_TAG="${ALIAS_TAG:-prod}"
 
 # Build
 PLATFORM="${PLATFORM:-linux/amd64}"
-DOCKERFILE="${DOCKERFILE:-Dockerfile}"
+DOCKERFILE="${DOCKERFILE:-DockerfileApi}"
 BUILD_CONTEXT="${BUILD_CONTEXT:-.}"
 
 # Health check

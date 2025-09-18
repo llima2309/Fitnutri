@@ -1,17 +1,17 @@
 # ===== STAGE 1: build =====
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copia s� o csproj do API para cache eficiente
+# Copia s  o csproj do API para cache eficiente
 COPY Fitnutri/Fitnutri.csproj ./Fitnutri/
 RUN dotnet restore Fitnutri/Fitnutri.csproj
 
-# Copia o restante do c�digo do API
+# Copia o restante do c digo do API
 COPY Fitnutri/ ./Fitnutri/
 RUN dotnet publish Fitnutri/Fitnutri.csproj -c Release -o /app/publish /p:UseAppHost=false
 
 # ===== STAGE 2: runtime =====
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 
 ENV ASPNETCORE_URLS=http://0.0.0.0:8080

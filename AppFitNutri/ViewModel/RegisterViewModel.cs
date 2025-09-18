@@ -2,6 +2,7 @@
 using AppFitNutri.Core;
 using AppFitNutri.Core.Models;
 using AppFitNutri.Core.Services.Login;
+using AppFitNutri.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Xunit.Abstractions;
@@ -70,6 +71,10 @@ public partial class RegisterViewModel : ObservableObject
                 return;
             }
             RegisterResponse content = await resp.Content.ReadFromJsonAsync<RegisterResponse>();
+            
+            // Aqui você pode chamar o popup de verificação se necessário
+            // await ShowEmailVerificationPopup();
+            
             await Shell.Current.DisplayAlert("Sucesso", content.message, "OK");
             await Shell.Current.GoToAsync(".."); // volta ao Login
         }
@@ -81,6 +86,32 @@ public partial class RegisterViewModel : ObservableObject
         {
             IsBusy = false;
             RegistrarCommand.NotifyCanExecuteChanged();
+        }
+    }
+
+    /// <summary>
+    /// Exemplo de como usar o popup de verificação de código
+    /// </summary>
+    private async Task ShowEmailVerificationPopup()
+    {
+        try
+        {
+            var result = await CodeVerificationService.ShowCodeVerificationPopupAsync(Email);
+            
+            if (result.Success)
+            {
+                await Shell.Current.DisplayAlert("Sucesso", "E-mail verificado com sucesso!", "OK");
+                // Prosseguir com o fluxo de registro completo
+            }
+            else
+            {
+                await Shell.Current.DisplayAlert("Aviso", "Verificação de e-mail não concluída.", "OK");
+                // Lidar com verificação não concluída
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Erro na verificação: {ex.Message}";
         }
     }
 

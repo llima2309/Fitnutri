@@ -1,11 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using AppFitNutri.Core.Services;
-using static System.Net.Mime.MediaTypeNames;
 using AppFitNutri.Core.Models;
-using Application = Microsoft.Maui.Controls.Application;
 using AppFitNutri.Core.Services.Login;
 using System.Net.Http.Json;
+using Application = Microsoft.Maui.Controls.Application;
 
 namespace AppFitNutri.ViewModel;
 
@@ -19,14 +18,11 @@ public partial class LoginViewModel : ObservableObject
     [ObservableProperty] private bool isBusy;
     [ObservableProperty] private string? errorMessage;
     [ObservableProperty] private bool mostrarSenha;
-    public bool IsPassword => !MostrarSenha;
 
+    public bool IsPassword => !MostrarSenha;
     public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
     public bool IsNotBusy => !IsBusy;
     public string LoginButtonText => IsBusy ? "Entrando..." : "Entrar";
-
-    // Delegate for alert display, to be set by the View or platform code
-    public Func<string, string, string, Task>? ShowAlert { get; set; }
 
     public LoginViewModel(IApiHttp authApi, ITokenStore tokenStore)
     {
@@ -77,26 +73,11 @@ public partial class LoginViewModel : ObservableObject
 
             if (result.IsSuccessStatusCode)
             {
-                AuthResponse? content = await result.Content.ReadFromJsonAsync<AuthResponse>();
-                if (content != null)
-                {
-                    await _tokenStore.SaveAsync(content.AccessToken, content.ExpiresAt);
-                    result = await _authApi.ValidaToken();
-                    if (result.IsSuccessStatusCode)
-                    {
-                        MeResponse meResponse = await result.Content.ReadFromJsonAsync<MeResponse>();
-                        await Application.Current.MainPage.DisplayAlert("Sucesso", "Login realizado com sucesso.",
-                            "OK");
-                        await Application.Current.MainPage.DisplayAlert("Sucesso", meResponse.Id.ToString(), "OK");
-                    }
-                }
+                await ProcessSuccessfulLogin(result);
             }
             else
             {
-                var problem = await result.Content.ReadFromJsonAsync<Dictionary<string, string>>();
-                if (problem is not null && problem.TryGetValue("error", out var message) &&
-                    !string.IsNullOrWhiteSpace(message))
-                    ErrorMessage = message;
+                await ProcessLoginError(result, user);
             }
         }
         catch (TaskCanceledException)
@@ -110,6 +91,103 @@ public partial class LoginViewModel : ObservableObject
         finally
         {
             IsBusy = false;
+        }
+    }
+
+    private async Task ProcessSuccessfulLogin(HttpResponseMessage result)
+    {
+        var content = await result.Content.ReadFromJsonAsync<AuthResponse>();
+        if (content != null)
+        {
+            await _tokenStore.SaveAsync(content.AccessToken, content.ExpiresAt);
+            var validationResult = await _authApi.ValidaToken();
+            
+            if (validationResult.IsSuccessStatusCode)
+            {
+                var meResponse = await validationResult.Content.ReadFromJsonAsync<MeResponse>();
+                await Application.Current.MainPage.DisplayAlert("Sucesso", "Login realizado com sucesso!", "OK");
+                
+                // Navegar para a página principal do app
+                // await Shell.Current.GoToAsync("//main");
+            }
+        }
+    }
+
+    private async Task ProcessLoginError(HttpResponseMessage result, string userInput)
+    {
+        var problem = await result.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+        
+        if (problem is not null && problem.TryGetValue("error", out var message) && 
+            !string.IsNullOrWhiteSpace(message))
+        {
+            // Verifica se o erro é relacionado ao e-mail não verificado
+            if (message.Contains("E-mail não verificado"))
+            {
+                await HandleEmailNotVerified(userInput);
+            }
+            else
+            {
+                ErrorMessage = message;
+            }
+        }
+        else
+        {
+            ErrorMessage = "Erro desconhecido ao fazer login.";
+        }
+    }
+
+    private async Task HandleEmailNotVerified(string userInput)
+    {
+        try
+        {
+            var choice = await Application.Current.MainPage.DisplayAlert(
+                "E-mail Não Verificado",
+                "Seu e-mail ainda não foi verificado. Você recebeu um código por e-mail quando sua conta foi aprovada. Deseja inserir o código agora?",
+                "Sim, Verificar",
+                "Cancelar");
+
+            if (choice)
+            {
+                await ShowEmailVerificationPopup(userInput);
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Erro ao processar verificação: {ex.Message}";
+        }
+    }
+
+    private async Task ShowEmailVerificationPopup(string userInput)
+    {
+        try
+        {
+            // Criar um ViewModel customizado para este cenário
+            var viewModel = new EmailVerificationViewModel(_authApi, userInput);
+            
+            viewModel.OnVerificationComplete = async (success, message) =>
+            {
+                if (success)
+                {
+                    await Application.Current.MainPage.DisplayAlert(
+                        "Sucesso", 
+                        "E-mail verificado com sucesso! Tente fazer login novamente.", 
+                        "OK");
+                }
+                else
+                {
+                    await Application.Current.MainPage.DisplayAlert(
+                        "Erro", 
+                        message ?? "Verificação não concluída.", 
+                        "OK");
+                }
+            };
+
+            var popup = new Views.CodeVerificationPopup(viewModel);
+            await Shell.Current.Navigation.PushModalAsync(popup);
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Erro na verificação: {ex.Message}";
         }
     }
 

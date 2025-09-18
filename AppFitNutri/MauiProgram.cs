@@ -32,6 +32,9 @@ public static class MauiProgram
         builder.Services.AddTransient<Views.LoginPage>();
         builder.Services.AddTransient<AppFitNutri.Views.RegisterPage>();
 
+        builder.Services.AddTransient<EmailVerificationViewModel>();  // ← REMOVER
+        builder.Services.AddTransient<Views.CodeVerificationPopup>(); // ← REMOVER (se diferente do original)
+
         return builder.Build();
     }
 }

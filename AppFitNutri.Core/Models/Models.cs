@@ -15,6 +15,8 @@ namespace AppFitNutri.Core.Models
     public record ApproveUserRequest(string? ApprovedBy);
     public record RejectUserRequest(string? ApprovedBy, string? Reason);
     public record ConfirmEmailRequest(Guid UserId, int Code);
+    public record ConfirmEmailByIdentifierRequest(string EmailOrUsername, int Code);
+    
     public enum UserStatus
     {
         Pending = 0,
