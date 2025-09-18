@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
@@ -44,6 +44,22 @@
 	<PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
 	  <CodesignKey>Apple Development: LUIS FELIPE DIAS LIMA (CHX6LF7D78)</CodesignKey>
 	  <OptimizePNGs>true</OptimizePNGs>
+	</PropertyGroup>
+
+	<!-- Android Release Signing Configuration -->
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-android|AnyCPU'">
+	  <AndroidPackageFormat>apk</AndroidPackageFormat>
+	  <AndroidKeyStore>true</AndroidKeyStore>
+	  <AndroidSigningKeyStore>fitnutri.keystore</AndroidSigningKeyStore>
+	  <AndroidSigningKeyAlias>fitnutrikey</AndroidSigningKeyAlias>
+	  <AndroidSigningKeyPass>fitnutri123</AndroidSigningKeyPass>
+	  <AndroidSigningStorePass>fitnutri123</AndroidSigningStorePass>
+	</PropertyGroup>
+
+	<!-- Android Debug Configuration - Use debug keystore -->
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-android|AnyCPU'">
+	  <AndroidPackageFormat>apk</AndroidPackageFormat>
+	  <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -95,3 +111,4 @@
 	</ItemGroup>
 
 </Project>
+
