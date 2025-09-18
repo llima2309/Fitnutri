@@ -19,13 +19,7 @@ namespace Fitnutri.Tests.Auth
                 .Options);
 
         private static IAuthService CreateSut(AppDbContext db)
-            => new AuthService(db, Options.Create(new JwtOptions
-            {
-                Issuer = "test",
-                Audience = "test",
-                Key = "this_is_a_very_long_test_key_at_least_32_chars__",
-                ExpiresMinutes = 5
-            }));
+            => Fitnutri.test.Auth.AuthServiceTestHelper.CreateAuthService(db);
 
         [Fact]
         public async Task Login_Deve_Falhar_Quando_Status_Pending()

@@ -24,16 +24,7 @@ namespace Fitnutri.test.Auth
         }
 
         private static IAuthService CreateSut(AppDbContext db)
-        {
-            var jwt = Options.Create(new JwtOptions
-            {
-                Issuer = "test",
-                Audience = "test",
-                Key = "this_is_a_very_long_test_key_at_least_32_chars__",
-                ExpiresMinutes = 5
-            });
-            return new AuthService(db, jwt);
-        }
+            => AuthServiceTestHelper.CreateAuthService(db);
 
         // Duplicamos a lógica do endpoint aqui para testar a regra sem HTTP pipeline
         private static async Task<IResult> ConfirmEmailAsync(Guid userId, int code, AppDbContext db, CancellationToken ct)

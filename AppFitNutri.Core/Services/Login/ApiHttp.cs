@@ -16,6 +16,8 @@ public interface IApiHttp
     Task<List<PendingUserDto>?> GetRejectedUsersAsync(int skip = 0, int take = 20, CancellationToken ct = default);
     Task<HttpResponseMessage> ConfirmEmailAsync(Guid userId, int code, CancellationToken ct = default);
     Task<HttpResponseMessage> ConfirmEmailByIdentifierAsync(string emailOrUsername, int code, CancellationToken ct = default);
+    Task<HttpResponseMessage> ForgotPasswordAsync(string email, CancellationToken ct = default);
+    Task<HttpResponseMessage> ResetPasswordAsync(string token, string newPassword, CancellationToken ct = default);
 }
 // ApiHttp.cs (no Core)
 public class ApiHttp : IApiHttp
@@ -61,6 +63,12 @@ public class ApiHttp : IApiHttp
 
     public Task<HttpResponseMessage> ConfirmEmailByIdentifierAsync(string emailOrUsername, int code, CancellationToken ct = default)
         => _http.PostAsJsonAsync("/auth/confirm-email-by-identifier", new { EmailOrUsername = emailOrUsername, Code = code }, ct);
+
+    public Task<HttpResponseMessage> ForgotPasswordAsync(string email, CancellationToken ct = default)
+        => _http.PostAsJsonAsync("/auth/forgot-password", new { Email = email }, ct);
+
+    public Task<HttpResponseMessage> ResetPasswordAsync(string token, string newPassword, CancellationToken ct = default)
+        => _http.PostAsJsonAsync("/auth/reset-password", new { Token = token, NewPassword = newPassword }, ct);
 }
 
 

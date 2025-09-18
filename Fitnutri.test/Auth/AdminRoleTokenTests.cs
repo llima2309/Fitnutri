@@ -16,13 +16,7 @@ public class AdminRoleTokenTests
         => new(new DbContextOptionsBuilder<AppDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
 
     private static IAuthService CreateSut(AppDbContext db)
-        => new AuthService(db, Options.Create(new JwtOptions
-        {
-            Issuer = "test",
-            Audience = "test",
-            Key = "this_is_a_very_long_test_key_at_least_32_chars__",
-            ExpiresMinutes = 5
-        }));
+        => AuthServiceTestHelper.CreateAuthService(db);
 
     [Fact]
     public async Task Login_Admin_Deve_Gerar_Token_Com_Role_Admin()

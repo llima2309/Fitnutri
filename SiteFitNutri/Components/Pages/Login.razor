@@ -44,6 +44,11 @@
             Entrar
         </button>
 
+        <!-- Link Esqueci senha -->
+        <button type="button" class="btn-link forgot-password" @onclick="IrParaEsqueciSenha">
+            Esqueci minha senha
+        </button>
+
         <!-- Botão Criar conta -->
         <button type="button" class="btn-link" @onclick="IrParaRegistrar">
             Criar conta
@@ -56,6 +61,18 @@
         }
     </div>
 </EditForm>
+
+<style>
+    .forgot-password {
+        margin: 10px 0 !important;
+        font-size: 14px !important;
+        color: #666 !important;
+    }
+
+    .forgot-password:hover {
+        color: #13734d !important;
+    }
+</style>
 
 @code {
     private LoginModel loginModel = new();
@@ -122,6 +139,11 @@
     private void IrParaRegistrar()
     {
         // Navegar para a tela de registro
+    }
+
+    private void IrParaEsqueciSenha()
+    {
+        NavigationManager.NavigateTo("/forgot-password");
     }
 
     public class LoginModel

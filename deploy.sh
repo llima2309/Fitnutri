@@ -19,7 +19,7 @@ ALIAS_TAG="${ALIAS_TAG:-prod}"
 
 # Build
 PLATFORM="${PLATFORM:-linux/amd64}"
-DOCKERFILE="${DOCKERFILE:-Dockerfile}"
+DOCKERFILE="${DOCKERFILE:-Dockerfilesite}"
 BUILD_CONTEXT="${BUILD_CONTEXT:-.}"   # RAIZ
 
 # Health check TG (opcional)

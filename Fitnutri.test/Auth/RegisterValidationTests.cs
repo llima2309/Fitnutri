@@ -19,16 +19,7 @@ public class RegisterValidationTests
     }
 
     private static IAuthService CreateSut(AppDbContext db)
-    {
-        var jwt = Options.Create(new JwtOptions
-        {
-            Issuer = "test",
-            Audience = "test",
-            Key = "this_is_a_very_long_test_key_at_least_32_chars__",
-            ExpiresMinutes = 5
-        });
-        return new AuthService(db, jwt);
-    }
+        => AuthServiceTestHelper.CreateAuthService(db);
 
     [Fact]
     public async Task Register_Com_Username_Invalido_Deve_Retornar_ArgumentException()

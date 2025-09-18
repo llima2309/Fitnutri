@@ -27,13 +27,16 @@ public static class MauiProgram
         // ViewModels
         builder.Services.AddTransient<LoginViewModel>();
         builder.Services.AddTransient<AppFitNutri.ViewModels.RegisterViewModel>();
+        builder.Services.AddTransient<ForgotPasswordViewModel>();
+        builder.Services.AddTransient<ResetPasswordViewModel>();
+        builder.Services.AddTransient<EmailVerificationViewModel>();
 
         // Views
         builder.Services.AddTransient<Views.LoginPage>();
         builder.Services.AddTransient<AppFitNutri.Views.RegisterPage>();
-
-        builder.Services.AddTransient<EmailVerificationViewModel>();  // ← REMOVER
-        builder.Services.AddTransient<Views.CodeVerificationPopup>(); // ← REMOVER (se diferente do original)
+        builder.Services.AddTransient<Views.ForgotPasswordPage>();
+        builder.Services.AddTransient<Views.ResetPasswordPage>();
+        builder.Services.AddTransient<Views.CodeVerificationPopup>();
 
         return builder.Build();
     }

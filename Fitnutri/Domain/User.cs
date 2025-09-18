@@ -13,6 +13,10 @@ public class User
     public int? EmailVerificationCode { get; set; }
     public DateTime? EmailVerificationExpiresAt { get; set; }
 
+    // Reset de senha - NOVOS CAMPOS
+    public string? PasswordResetToken { get; set; }
+    public DateTime? PasswordResetExpiresAt { get; set; }
+
     // Aprovação manual
     public UserStatus Status { get; set; } = UserStatus.Pending;
     public DateTime? ApprovedAt { get; set; }

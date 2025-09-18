@@ -18,13 +18,7 @@ namespace Fitnutri.test.Auth
                 .Options);
 
         private static IAuthService CreateSut(AppDbContext db)
-            => new AuthService(db, Options.Create(new JwtOptions
-            {
-                Issuer = "test",
-                Audience = "test",
-                Key = "this_is_a_very_long_test_key_at_least_32_chars__",
-                ExpiresMinutes = 5
-            }));
+            => AuthServiceTestHelper.CreateAuthService(db);
 
         [Fact]
         public async Task Aprovar_Usuario_Altera_Status_Para_Approved()

@@ -1,5 +1,5 @@
 # ===== build =====
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Copia apenas os csproj (cache de restore)
@@ -17,7 +17,7 @@ COPY SiteFitNutri/     SiteFitNutri/
 RUN dotnet publish SiteFitNutri/SiteFitNutri.csproj -c Release -o /app /p:UseAppHost=false
 
 # ===== runtime =====
-FROM mcr.microsoft.com/dotnet/aspnet:9.0
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
 
 # Blazor Server atrás do ALB/ELB

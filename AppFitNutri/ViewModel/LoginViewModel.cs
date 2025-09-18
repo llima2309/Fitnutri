@@ -193,4 +193,7 @@ public partial class LoginViewModel : ObservableObject
 
     [RelayCommand]
     private Task IrParaRegistrarAsync() => Shell.Current.GoToAsync(nameof(AppFitNutri.Views.RegisterPage));
+
+    [RelayCommand]
+    private Task IrParaEsqueciSenhaAsync() => Shell.Current.GoToAsync(nameof(Views.ForgotPasswordPage));
 }

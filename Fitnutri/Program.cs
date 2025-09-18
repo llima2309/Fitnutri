@@ -153,6 +153,20 @@ builder.Services.AddRateLimiter(options =>
                 QueueLimit = 0
             });
     });
+
+    // Esqueci senha por IP - NOVO RATE LIMIT
+    options.AddPolicy("forgot-password-ip", httpContext =>
+    {
+        var key = GetClientIp(httpContext) ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter(
+            key,
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5, // 5 tentativas/min/IP
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0
+            });
+    });
 });
 
 static string? GetClientIp(HttpContext ctx)
@@ -319,6 +333,44 @@ app.MapPost("/auth/confirm-email", async (ConfirmEmailRequest req, AppDbContext 
     await db.SaveChangesAsync(ct);
 
     return Results.Ok(new { message = "E-mail confirmado com sucesso." });
+}).WithTags("Auth");
+
+// NOVOS ENDPOINTS DE ESQUECI SENHA
+app.MapPost("/auth/forgot-password", async (IAuthService auth, ForgotPasswordRequest req, CancellationToken ct) =>
+{
+    if (string.IsNullOrWhiteSpace(req.Email))
+        return Results.BadRequest(new { error = "E-mail é obrigatório." });
+
+    try
+    {
+        var message = await auth.ForgotPasswordAsync(req.Email, ct);
+        return Results.Ok(new ForgotPasswordResponse(message));
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+}).RequireRateLimiting("forgot-password-ip")
+  .WithTags("Auth");
+
+app.MapPost("/auth/reset-password", async (IAuthService auth, ResetPasswordRequest req, CancellationToken ct) =>
+{
+    if (string.IsNullOrWhiteSpace(req.Token) || string.IsNullOrWhiteSpace(req.NewPassword))
+        return Results.BadRequest(new { error = "Token e nova senha são obrigatórios." });
+
+    try
+    {
+        await auth.ResetPasswordAsync(req.Token, req.NewPassword, ct);
+        return Results.Ok(new { message = "Senha redefinida com sucesso." });
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+    catch (InvalidOperationException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
 }).WithTags("Auth");
 
 // Quem sou eu (autenticado via cookie/JWT)

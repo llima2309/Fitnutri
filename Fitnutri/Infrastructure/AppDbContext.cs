@@ -23,6 +23,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         // email verification
         u.Property(x => x.EmailConfirmed).IsRequired();
         u.Property(x => x.EmailVerificationCode);
+        u.Property(x => x.EmailVerificationExpiresAt);
+
+        // password reset - CONFIGURAÇÃO DOS NOVOS CAMPOS
+        u.Property(x => x.PasswordResetToken).HasMaxLength(512);
+        u.Property(x => x.PasswordResetExpiresAt);
+
         // approval
         u.Property(x => x.Status).HasConversion<int>().IsRequired();
         u.Property(x => x.ApprovedAt);
@@ -36,10 +42,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         var p = modelBuilder.Entity<Perfil>();
         p.HasKey(x => x.Id);
-        // Remover ValueGeneratedNever para permitir geração automática
         p.Property(x => x.Nome).HasMaxLength(64).IsRequired();
         p.Property(x => x.Tipo).HasConversion<int>().IsRequired();
-
-        // Seed dos perfis removido para permitir geração automática
     }
 }
