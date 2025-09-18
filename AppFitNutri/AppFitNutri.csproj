@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
+		<TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
 		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
 		<!-- <TargetFrameworks>$(TargetFrameworks);net9.0-tizen</TargetFrameworks> -->
 
@@ -46,20 +46,8 @@
 	  <OptimizePNGs>true</OptimizePNGs>
 	</PropertyGroup>
 
-	<!-- Android Release Signing Configuration -->
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-android|AnyCPU'">
 	  <AndroidPackageFormat>apk</AndroidPackageFormat>
-	  <AndroidKeyStore>true</AndroidKeyStore>
-	  <AndroidSigningKeyStore>fitnutri.keystore</AndroidSigningKeyStore>
-	  <AndroidSigningKeyAlias>fitnutrikey</AndroidSigningKeyAlias>
-	  <AndroidSigningKeyPass>fitnutri123</AndroidSigningKeyPass>
-	  <AndroidSigningStorePass>fitnutri123</AndroidSigningStorePass>
-	</PropertyGroup>
-
-	<!-- Android Debug Configuration - Use debug keystore -->
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-android|AnyCPU'">
-	  <AndroidPackageFormat>apk</AndroidPackageFormat>
-	  <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -111,4 +99,3 @@
 	</ItemGroup>
 
 </Project>
-
