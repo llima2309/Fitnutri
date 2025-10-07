@@ -2,7 +2,7 @@ name: Deploy Fitnutri API to ECS
 
 on:
   push:
-    branches: [ "AUTH" ]
+    branches: [ "master" ]
   workflow_dispatch:
 
 permissions:
