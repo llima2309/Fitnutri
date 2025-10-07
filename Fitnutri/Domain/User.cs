@@ -26,4 +26,7 @@ public class User
     // Relacionamento one-to-many com Perfil
     public Guid? PerfilId { get; set; }
     public Perfil? Perfil { get; set; }
+    
+    // Relacionamento one-to-one com UserProfile
+    public UserProfile? Profile { get; set; }
 }

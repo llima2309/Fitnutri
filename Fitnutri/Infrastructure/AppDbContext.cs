@@ -7,6 +7,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 {
     public DbSet<User> Users => Set<User>();
     public DbSet<Perfil> Perfis => Set<Perfil>();
+    public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -42,9 +43,48 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasForeignKey(x => x.PerfilId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // Configuração do relacionamento one-to-one User -> UserProfile
+        u.HasOne(x => x.Profile)
+            .WithOne(p => p.User)
+            .HasForeignKey<UserProfile>(p => p.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         var p = modelBuilder.Entity<Perfil>();
         p.HasKey(x => x.Id);
         p.Property(x => x.Nome).HasMaxLength(64).IsRequired();
         p.Property(x => x.Tipo).HasConversion<int>().IsRequired();
+
+        // Configuração da entidade UserProfile
+        var up = modelBuilder.Entity<UserProfile>();
+        up.HasKey(x => x.Id);
+        
+        // Informações pessoais
+        up.Property(x => x.NomeCompleto).HasMaxLength(256).IsRequired();
+        up.Property(x => x.CPF).HasMaxLength(14).IsRequired();
+        up.HasIndex(x => x.CPF).IsUnique();
+        up.Property(x => x.RG).HasMaxLength(20);
+        up.Property(x => x.Genero).HasConversion<int>().IsRequired();
+        up.Property(x => x.DataNascimento).IsRequired();
+        
+        // Informações profissionais
+        up.Property(x => x.CRN).HasMaxLength(20);
+        
+        // Endereço
+        up.Property(x => x.CEP).HasMaxLength(10).IsRequired();
+        up.Property(x => x.Estado).HasConversion<int>().IsRequired();
+        up.Property(x => x.Endereco).HasMaxLength(256).IsRequired();
+        up.Property(x => x.Numero).HasMaxLength(20).IsRequired();
+        up.Property(x => x.Cidade).HasMaxLength(128).IsRequired();
+        up.Property(x => x.Complemento).HasMaxLength(128);
+        up.Property(x => x.Bairro).HasMaxLength(128);
+        
+        // Dados do ViaCEP
+        up.Property(x => x.UF).HasMaxLength(2);
+        up.Property(x => x.IBGE).HasMaxLength(20);
+        up.Property(x => x.DDD).HasMaxLength(3);
+        
+        // Timestamps
+        up.Property(x => x.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
+        up.Property(x => x.UpdatedAt);
     }
 }

@@ -3,6 +3,7 @@ using System.Threading.RateLimiting;
 using Amazon.SimpleEmailV2;
 using Amazon;
 using Fitnutri.Application.Email;
+using Fitnutri.Application.Services;
 using Fitnutri.Auth;
 using Fitnutri.Contracts;
 using Fitnutri.Domain;
@@ -91,6 +92,16 @@ builder.Services.AddCors(options =>
 
 // ===== DI =====
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+// ===== HTTP Client e ViaCEP Service =====
+builder.Services.AddHttpClient<IViaCepService, ViaCepService>(client =>
+{
+    client.BaseAddress = new Uri("https://viacep.com.br/");
+    client.Timeout = TimeSpan.FromSeconds(10);
+});
+
+// ===== Controllers =====
+builder.Services.AddControllers();
 
 // ===== Swagger + segurança (Bearer + x-api-key) =====
 builder.Services.AddEndpointsApiExplorer();
@@ -205,6 +216,9 @@ app.UseMiddleware<ApiKeyMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// ===== Controllers =====
+app.MapControllers();
 
 // ===== Endpoints =====
 

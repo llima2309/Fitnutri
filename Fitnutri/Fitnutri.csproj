@@ -29,4 +29,19 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.4" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Migrations\20250907222342_Add_UserApproval.cs" />
+    <Compile Remove="Migrations\20250907222342_Add_UserApproval.Designer.cs" />
+    <Compile Remove="Migrations\20250907233453_Add_UserRole.cs" />
+    <Compile Remove="Migrations\20250907233453_Add_UserRole.Designer.cs" />
+    <Compile Remove="Migrations\20250910005353_AddEmailVerificationCode.cs" />
+    <Compile Remove="Migrations\20250910005353_AddEmailVerificationCode.Designer.cs" />
+    <Compile Remove="Migrations\20250912011915_AddPerfilTable.cs" />
+    <Compile Remove="Migrations\20250912011915_AddPerfilTable.Designer.cs" />
+    <Compile Remove="Migrations\20250918152944_ChangePerfilIdToGuid.cs" />
+    <Compile Remove="Migrations\20250918152944_ChangePerfilIdToGuid.Designer.cs" />
+    <Compile Remove="Migrations\20250918195804_AddPasswordResetFields.cs" />
+    <Compile Remove="Migrations\20250918195804_AddPasswordResetFields.Designer.cs" />
+  </ItemGroup>
+
 </Project>
