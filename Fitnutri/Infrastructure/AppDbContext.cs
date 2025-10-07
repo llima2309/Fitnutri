@@ -1,29 +1,49 @@
 ﻿using Fitnutri.Domain;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.SqlServer;
-using System.Collections.Generic;
-using System.Reflection.Emit;
 
-namespace Fitnutri.Infrastructure
+namespace Fitnutri.Infrastructure;
+
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+    public DbSet<User> Users => Set<User>();
+    public DbSet<Perfil> Perfis => Set<Perfil>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        public DbSet<User> Users => Set<User>();
+        var u = modelBuilder.Entity<User>();
 
-        // ... rest of the file ...
+        u.HasKey(x => x.Id);
+        u.Property(x => x.UserName).HasMaxLength(32).IsRequired();
+        u.Property(x => x.Email).HasMaxLength(256).IsRequired();
+        u.HasIndex(x => x.UserName).IsUnique();
+        u.HasIndex(x => x.Email).IsUnique();
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            var u = modelBuilder.Entity<User>();
+        u.Property(x => x.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
 
-            u.HasKey(x => x.Id);
-            u.Property(x => x.UserName).HasMaxLength(64).IsRequired();
-            u.Property(x => x.Email).HasMaxLength(256).IsRequired();
-            u.Property(x => x.PasswordHash).IsRequired();
-            u.Property(x => x.CreatedAt).HasDefaultValueSql("GETUTCDATE()"); // This line requires Microsoft.EntityFrameworkCore.Metadata.Builders
+        // email verification
+        u.Property(x => x.EmailConfirmed).IsRequired();
+        u.Property(x => x.EmailVerificationCode);
+        u.Property(x => x.EmailVerificationExpiresAt);
 
-            u.HasIndex(x => x.UserName).IsUnique();
-            u.HasIndex(x => x.Email).IsUnique();
-        }
+        // password reset - CONFIGURAÇÃO DOS NOVOS CAMPOS
+        u.Property(x => x.PasswordResetToken).HasMaxLength(512);
+        u.Property(x => x.PasswordResetExpiresAt);
+
+        // approval
+        u.Property(x => x.Status).HasConversion<int>().IsRequired();
+        u.Property(x => x.ApprovedAt);
+        u.Property(x => x.ApprovedBy).HasMaxLength(128);
+
+        u.Property(x => x.Role).HasConversion<int>().IsRequired();
+        
+        // Configuração do relacionamento many-to-many User <-> Perfis
+        u.HasMany(x => x.Perfis)
+            .WithMany(p => p.Usuarios)
+            .UsingEntity(j => j.ToTable("UserPerfis"));
+
+        var p = modelBuilder.Entity<Perfil>();
+        p.HasKey(x => x.Id);
+        p.Property(x => x.Nome).HasMaxLength(64).IsRequired();
+        p.Property(x => x.Tipo).HasConversion<int>().IsRequired();
     }
 }

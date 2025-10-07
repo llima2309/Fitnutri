@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="AppFitNutri.Views.CodeVerificationPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Verificacao de Codigo"
+    BackgroundColor="#80000000">
+
+    <!-- Overlay semitransparente para simular popup -->
+    <Grid BackgroundColor="#80000000">
+        <!-- Container do popup centralizado -->
+        <Frame BackgroundColor="White"
+               CornerRadius="20"
+               HasShadow="True"
+               WidthRequest="320"
+               HeightRequest="400"
+               VerticalOptions="Center"
+               HorizontalOptions="Center"
+               Padding="20">
+
+            <VerticalStackLayout Spacing="20">
+                
+                <!-- Icone e titulo -->
+                <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                    <Frame BackgroundColor="#13734d"
+                           CornerRadius="30"
+                           WidthRequest="60"
+                           HeightRequest="60"
+                           HorizontalOptions="Center"
+                           Padding="0">
+                        <Label Text="&#x1F510;"
+                               FontSize="24"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               TextColor="White" />
+                    </Frame>
+                    
+                    <Label Text="Verificacao de Codigo"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#13734d"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+
+                <!-- Descricao -->
+                <Label Text="Digite o codigo de verificacao enviado para seu e-mail"
+                       FontSize="14"
+                       TextColor="Gray"
+                       HorizontalTextAlignment="Center"
+                       LineBreakMode="WordWrap" />
+
+                <!-- Campo de codigo -->
+                <Frame HasShadow="False"
+                       CornerRadius="15"
+                       BackgroundColor="#F5F5F5"
+                       Padding="0">
+                    <Entry x:Name="CodeEntry"
+                           Placeholder="Digite o codigo"
+                           PlaceholderColor="Gray"
+                           Text="{Binding VerificationCode}"
+                           Keyboard="Numeric"
+                           MaxLength="6"
+                           FontSize="16"
+                           HorizontalTextAlignment="Center"
+                           Margin="16,12" />
+                </Frame>
+
+                <!-- Mensagem de erro -->
+                <Label Text="{Binding ErrorMessage}"
+                       TextColor="Red"
+                       FontSize="12"
+                       HorizontalTextAlignment="Center"
+                       IsVisible="{Binding HasError}" />
+
+                <!-- Botoes -->
+                <VerticalStackLayout Spacing="10">
+                    <!-- Botao Verificar -->
+                    <Button Text="{Binding VerifyButtonText}"
+                            Command="{Binding VerifyCodeCommand}"
+                            CornerRadius="20"
+                            BackgroundColor="#13734d"
+                            TextColor="White"
+                            FontAttributes="Bold"
+                            HeightRequest="45"
+                            IsEnabled="{Binding IsNotBusy}" />
+
+                    <!-- Botao Reenviar codigo -->
+                    <Button Text="Reenviar codigo"
+                            Command="{Binding ResendCodeCommand}"
+                            CornerRadius="20"
+                            BackgroundColor="Transparent"
+                            TextColor="#13734d"
+                            FontAttributes="Bold"
+                            HeightRequest="45"
+                            IsEnabled="{Binding IsNotBusy}" />
+
+                    <!-- Botao Cancelar -->
+                    <Button Text="Cancelar"
+                            Command="{Binding CancelCommand}"
+                            CornerRadius="20"
+                            BackgroundColor="Transparent"
+                            TextColor="Gray"
+                            HeightRequest="45" />
+                </VerticalStackLayout>
+
+                <!-- Loading -->
+                <ActivityIndicator IsVisible="{Binding IsBusy}"
+                                   IsRunning="{Binding IsBusy}"
+                                   Color="#13734d"
+                                   HorizontalOptions="Center" />
+
+            </VerticalStackLayout>
+        </Frame>
+    </Grid>
+</ContentPage>

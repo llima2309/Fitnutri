@@ -1,0 +1,9 @@
+.git/
+**/bin/
+**/obj/
+.vscode/
+.idea/
+**/node_modules/
+*.user
+*.suo
+*.csproj.user

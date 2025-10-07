@@ -1,0 +1,157 @@
+﻿@page "/login"
+@page "/"
+@rendermode InteractiveServer
+@using System.ComponentModel.DataAnnotations
+@using AppFitNutri.Core.Models
+@using AppFitNutri.Core.Services
+@using AppFitNutri.Core.Services.Login
+@using Microsoft.AspNetCore.Components.Forms
+@inject IApiHttp ApiHttp
+@inject NavigationManager NavigationManager
+@inject IHttpContextAccessor Http
+@inject IJSRuntime JS
+
+<EditForm Model="@loginModel" OnValidSubmit="Entrar" FormName="LoginForm">
+    <AntiforgeryToken />
+    <DataAnnotationsValidator />
+    <div class="login-container">
+        
+        <!-- Logo -->
+        <img src="/images/logofitnutri.png" class="logo" />
+
+        <!-- Título -->
+        <h2 class="titulo">FitNutri</h2>
+
+        <!-- Login/E-mail -->
+        <InputText @bind-Value="loginModel.EmailOrUserName"
+                   placeholder="Login/E-mail"
+                   class="input" />
+
+        <!-- Senha -->
+        <InputText @bind-Value="loginModel.Password"
+                   placeholder="Senha"
+                   class="input"
+                   type="password" />
+
+        <!-- Mensagem de erro -->
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <p class="erro">@ErrorMessage</p>
+        }
+
+        <!-- Botão Entrar -->
+        <button type="submit" class="btn" disabled="@IsBusy">
+            Entrar
+        </button>
+
+        <!-- Link Esqueci senha -->
+        <button type="button" class="btn-link forgot-password" @onclick="IrParaEsqueciSenha">
+            Esqueci minha senha
+        </button>
+
+        <!-- Botão Criar conta -->
+        <button type="button" class="btn-link" @onclick="IrParaRegistrar">
+            Criar conta
+        </button>
+
+        <!-- Loading -->
+        @if (IsBusy)
+        {
+            <p>Carregando...</p>
+        }
+    </div>
+</EditForm>
+
+<style>
+    .forgot-password {
+        margin: 10px 0 !important;
+        font-size: 14px !important;
+        color: #666 !important;
+    }
+
+    .forgot-password:hover {
+        color: #13734d !important;
+    }
+</style>
+
+@code {
+    private LoginModel loginModel = new();
+    private bool IsBusy = false;
+    private string? ErrorMessage;
+
+    private async Task Entrar()
+    {
+        if (IsBusy) return;
+
+        ErrorMessage = null;
+
+        var user = (loginModel.EmailOrUserName ?? "").Trim();
+        var pass = loginModel.Password ?? "";
+
+        if (string.IsNullOrWhiteSpace(user) || string.IsNullOrWhiteSpace(pass))
+        {
+            ErrorMessage = "Informe login/e-mail e senha.";
+            return;
+        }
+
+        try
+        {
+            IsBusy = true;
+            var req = new LoginRequest(user, pass);
+            var result = await ApiHttp.LoginAsync(req, CancellationToken.None);
+
+            if (result.IsSuccessStatusCode)
+            {
+                AuthResponse? content = await result.Content.ReadFromJsonAsync<AuthResponse>();
+                if (content != null)
+                {
+                    await JS.InvokeVoidAsync("blazorSubmitCookie", content.AccessToken, "/admin/users/pending");
+                    return; // o endpoint fará o redirect
+                    result = await ApiHttp.ValidaToken();
+                    if (result.IsSuccessStatusCode)
+                    {
+                        // Navegar para a página de usuários pendentes após login bem-sucedido
+                        NavigationManager.NavigateTo("/admin/users/pending", forceLoad: true);
+                    }
+                }
+            }
+            else
+            {
+                var problem = await result.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+                if (problem is not null && problem.TryGetValue("error", out var message) && !string.IsNullOrWhiteSpace(message))
+                    ErrorMessage = message;
+            }
+        }
+        catch (TaskCanceledException)
+        {
+            ErrorMessage = "Tempo de resposta excedido. Tente novamente.";
+        }
+        catch (Exception)
+        {
+            ErrorMessage = "Erro inesperado. Verifique sua conexão.";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private void IrParaRegistrar()
+    {
+        // Navegar para a tela de registro
+    }
+
+    private void IrParaEsqueciSenha()
+    {
+        NavigationManager.NavigateTo("/forgot-password");
+    }
+
+    public class LoginModel
+    {
+        [Required]
+        public string? EmailOrUserName { get; set; }
+
+        [Required]
+        public string? Password { get; set; }
+    }
+}

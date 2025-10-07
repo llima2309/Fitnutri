@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="AppFitNutri.Views.RegisterPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundImageSource="backgroundfitnutri.png">
+
+    <Grid>
+        <ScrollView>
+            <VerticalStackLayout
+                VerticalOptions="CenterAndExpand"
+                HorizontalOptions="Center"
+                Spacing="12">
+                <!-- Título -->
+                <Label Text="Criar conta"
+                       FontSize="22"
+                       FontAttributes="Bold"
+                       TextColor="#13734d"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,0,0,20" />
+
+                <!-- Usuário -->
+                <Frame HasShadow="False"
+                       CornerRadius="30"
+                       BackgroundColor="#D3D3D3"
+                       Padding="0"
+                       WidthRequest="300">
+                    <Entry Placeholder="Usuário"
+                           PlaceholderColor="White"
+                           Text="{Binding UserName}"
+                           Margin="16,10" />
+                </Frame>
+
+                <!-- E-mail -->
+                <Frame HasShadow="False"
+                       CornerRadius="30"
+                       BackgroundColor="#D3D3D3"
+                       Padding="0"
+                       WidthRequest="300">
+                    <Entry Placeholder="E-mail"
+                           PlaceholderColor="White"
+                           Keyboard="Email"
+                           Text="{Binding Email}"
+                           Margin="16,10" />
+                </Frame>
+
+                <!-- Senha -->
+                <Frame HasShadow="False"
+                       CornerRadius="30"
+                       BackgroundColor="#D3D3D3"
+                       Padding="0"
+                       WidthRequest="300">
+                    <Entry Placeholder="Senha"
+                           PlaceholderColor="White"
+                           IsPassword="{Binding MostrarSenha, Converter={StaticResource BoolInverseConverter}}"
+                           Text="{Binding Password}"
+                           Margin="16,10" />
+                </Frame>
+
+                <!-- Confirmar senha -->
+                <Frame HasShadow="False"
+                       CornerRadius="30"
+                       BackgroundColor="#D3D3D3"
+                       Padding="0"
+                       WidthRequest="300">
+                    <Entry Placeholder="Confirmar senha"
+                           PlaceholderColor="White"
+                           IsPassword="{Binding MostrarSenha, Converter={StaticResource BoolInverseConverter}}"
+                           Text="{Binding ConfirmPassword}"
+                           Margin="16,10" />
+                </Frame>
+
+                <!-- Mostrar senha -->
+                <Frame HasShadow="False"
+                       CornerRadius="30"
+                       BackgroundColor="#D3D3D3"
+                       Padding="0"
+                       WidthRequest="300"
+                       Margin="0,4,0,0">
+                    <HorizontalStackLayout Spacing="8">
+                        <CheckBox IsChecked="{Binding MostrarSenha}" />
+                        <Label Text="Mostrar senha" VerticalTextAlignment="Center" />
+                    </HorizontalStackLayout>
+                </Frame>
+
+                <!-- Mensagem de erro -->
+                <Label Text="{Binding ErrorMessage}"
+                       TextColor="Red"
+                       FontSize="12"
+                       HorizontalTextAlignment="Center"
+                       IsVisible="{Binding HasError}"
+                       Margin="0,4,0,0"/>
+
+                <!-- Botão Registrar -->
+                <Button Text="Registrar"
+                        Command="{Binding RegistrarCommand}"
+                        WidthRequest="300"
+                        CornerRadius="30"
+                        BackgroundColor="#D3D3D3"
+                        TextColor="Black"
+                        FontAttributes="Bold"
+                        Padding="15"
+                        IsEnabled="{Binding IsNotBusy}" />
+
+                <!-- Loading -->
+                <ActivityIndicator IsVisible="{Binding IsBusy}"
+                                   IsRunning="{Binding IsBusy}"
+                                   HorizontalOptions="Center" />
+
+                <!-- Voltar ao login -->
+                <Button Text="Já tenho conta"
+                        Command="{Binding VoltarLoginCommand}"
+                        WidthRequest="300"
+                        CornerRadius="30"
+                        BackgroundColor="Transparent"
+                        TextColor="#13734d" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

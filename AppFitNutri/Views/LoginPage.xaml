@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage  
+x:Class="AppFitNutri.Views.LoginPage"  
+xmlns="http://schemas.microsoft.com/dotnet/2021/maui"  
+xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"  
+xmlns:viewmodels="clr-namespace:AppFitNutri.Core.Models;assembly=AppFitNutri.Core"  
+BackgroundImageSource="backgroundfitnutri.png">
+
+    <Grid>
+        <ScrollView>
+            <VerticalStackLayout
+                VerticalOptions="CenterAndExpand"
+                HorizontalOptions="Center"
+                Spacing="12">
+
+                <!-- Logo -->
+                <Image Source="logofitnutri.png"
+                       WidthRequest="150"
+                       HeightRequest="150"
+                       Margin="0,0,0,10" />
+
+                <!-- Título -->
+                <Label Text="FitNutri"
+                       FontSize="22"
+                       FontAttributes="Bold"
+                       TextColor="#13734d"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,0,0,20" />
+
+                <!-- Login/E-mail -->
+                <Frame HasShadow="False"
+                       CornerRadius="30"
+                       BackgroundColor="#D3D3D3"
+                       Padding="0"
+                       WidthRequest="300">
+                    <Entry Placeholder="Login/E-mail"
+                           PlaceholderColor="White"
+                           Text="{Binding EmailOrUserName}"
+                           Margin="16,10"
+                           Keyboard="Email" />
+                </Frame>
+
+                <!-- Senha -->
+                <Frame HasShadow="False"
+                       CornerRadius="30"
+                       BackgroundColor="#D3D3D3"
+                       Padding="0"
+                       WidthRequest="300">
+                    <Entry Placeholder="Senha"
+                           PlaceholderColor="White"
+                           IsPassword="{Binding IsPassword}"
+                           Text="{Binding Password}"
+                           Margin="16,10" />
+                </Frame>
+
+                <!-- Checkbox mostrar senha -->
+                <Frame HasShadow="False"
+                       CornerRadius="30"
+                       BackgroundColor="#D3D3D3"
+                       Padding="0"
+                       WidthRequest="300">
+                    <HorizontalStackLayout Spacing="8">
+                        <CheckBox IsChecked="{Binding MostrarSenha}" />
+                        <Label Text="Mostrar senha" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Frame>
+
+                <!-- Mensagem de erro -->
+                <Label Text="{Binding ErrorMessage}"
+                       TextColor="Red"
+                       FontSize="12"
+                       HorizontalTextAlignment="Center"
+                       IsVisible="{Binding HasError}"
+                       Margin="0,4,0,0"/>
+
+                <!-- Botão Entrar -->
+                <Button Text="{Binding LoginButtonText}"
+                        Command="{Binding EntrarCommand}"
+                        WidthRequest="300"
+                        CornerRadius="30"
+                        BackgroundColor="#D3D3D3"
+                        TextColor="Black"
+                        FontAttributes="Bold"
+                        Padding="15"
+                        IsEnabled="{Binding IsNotBusy}" />
+
+                <!-- Botão Esqueci minha senha -->
+                <Button Text="Esqueci minha senha"
+                        Command="{Binding IrParaEsqueciSenhaCommand}"
+                        CornerRadius="30"
+                        BackgroundColor="Transparent"
+                        TextColor="#666"
+                        FontSize="14"
+                        Margin="0,5,0,0" />
+
+                <Button Text="Criar conta"
+        Command="{Binding IrParaRegistrarCommand}"
+         CornerRadius="30"
+        BackgroundColor="Transparent" TextColor="#13734d" />
+
+                <!-- Loading simples -->
+                <ActivityIndicator IsVisible="{Binding IsBusy}"
+                                   IsRunning="{Binding IsBusy}"
+                                   HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>
