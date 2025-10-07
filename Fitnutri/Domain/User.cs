@@ -23,6 +23,7 @@ public class User
     public string? ApprovedBy { get; set; } // pode virar Guid do admin no futuro
     public UserRole Role { get; set; } = UserRole.User; // <--- novo
     
-    // Relacionamento many-to-many com Perfis
-    public ICollection<Perfil> Perfis { get; set; } = new List<Perfil>();
+    // Relacionamento one-to-many com Perfil
+    public Guid? PerfilId { get; set; }
+    public Perfil? Perfil { get; set; }
 }

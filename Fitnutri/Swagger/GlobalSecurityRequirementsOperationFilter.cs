@@ -15,7 +15,7 @@ public class GlobalSecurityRequirementsOperationFilter : IOperationFilter
         var bearer = new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" } };
         var apiKey = new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "ApiKey" } };
 
-        if (path.StartsWith("users/me") || path.StartsWith("admin"))
+        if (path.StartsWith("users/me") || path.StartsWith("admin") || path.StartsWith("user/perfil"))
         {
             // Rotas que exigem Bearer + ApiKey
             operation.Security.Add(new OpenApiSecurityRequirement { [bearer] = Array.Empty<string>() });

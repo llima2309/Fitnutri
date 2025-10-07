@@ -13,7 +13,6 @@ public class Perfil
     public Guid Id { get; set; }
     public PerfilTipo Tipo { get; set; }
     public string Nome { get; set; } = default!;
-    // Relacionamento com usuários
+    // Relacionamento one-to-many: um perfil pode ter vários usuários
     public ICollection<User> Usuarios { get; set; } = new List<User>();
 }
-

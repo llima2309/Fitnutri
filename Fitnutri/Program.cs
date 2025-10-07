@@ -578,7 +578,6 @@ perfisGroup.MapDelete("/{id}", async (AppDbContext db, Guid id) =>
 
 // ---------- PERFIS USUÁRIO (autenticado) ----------
 var userPerfilGroup = app.MapGroup("/user/perfil").RequireAuthorization().WithTags("UserPerfil");
-
 // Associar perfil ao usuário
 userPerfilGroup.MapPost("/associar", async (AssociarPerfilRequest req, AppDbContext db, HttpContext ctx, CancellationToken ct) =>
 {
@@ -586,14 +585,14 @@ userPerfilGroup.MapPost("/associar", async (AssociarPerfilRequest req, AppDbCont
     if (sub is null) return Results.Unauthorized();
 
     var userId = Guid.Parse(sub);
-    var user = await db.Users.Include(u => u.Perfis).FirstOrDefaultAsync(u => u.Id == userId, ct);
+    var user = await db.Users.Include(u => u.Perfil).FirstOrDefaultAsync(u => u.Id == userId, ct);
     
     if (user is null)
         return Results.NotFound(new { error = "Usuário não encontrado" });
 
-    // Verificar se já tem perfil do tipo solicitado
-    if (user.Perfis.Any(p => p.Tipo == req.TipoPerfil))
-        return Results.BadRequest(new { error = "Usuário já possui um perfil deste tipo" });
+    // Verificar se já tem perfil
+    if (user.Perfil != null)
+        return Results.BadRequest(new { error = "Usuário já possui um perfil" });
 
     // Buscar ou criar o perfil pelo tipo
     var perfil = await db.Perfis.FirstOrDefaultAsync(p => p.Tipo == req.TipoPerfil, ct);
@@ -616,7 +615,8 @@ userPerfilGroup.MapPost("/associar", async (AssociarPerfilRequest req, AppDbCont
     }
 
     // Associar o perfil ao usuário
-    user.Perfis.Add(perfil);
+    user.PerfilId = perfil.Id;
+    user.Perfil = perfil;
     await db.SaveChangesAsync(ct);
 
     return Results.Ok(new { 
@@ -636,17 +636,20 @@ userPerfilGroup.MapGet("/meus-perfis", async (AppDbContext db, HttpContext ctx, 
     if (sub is null) return Results.Unauthorized();
 
     var userId = Guid.Parse(sub);
-    var user = await db.Users.Include(u => u.Perfis).FirstOrDefaultAsync(u => u.Id == userId, ct);
+    var user = await db.Users.Include(u => u.Perfil).FirstOrDefaultAsync(u => u.Id == userId, ct);
     
     if (user is null)
         return Results.NotFound(new { error = "Usuário não encontrado" });
 
-    var perfis = user.Perfis.Select(p => new
+    var perfis = user.Perfil != null ? new[]
     {
-        id = p.Id,
-        tipo = p.Tipo,
-        nome = p.Nome
-    });
+        new
+        {
+            id = user.Perfil.Id,
+            tipo = user.Perfil.Tipo,
+            nome = user.Perfil.Nome
+        }
+    } : Array.Empty<object>();
 
     return Results.Ok(perfis);
 });
@@ -671,16 +674,17 @@ userPerfilGroup.MapDelete("/remover/{perfilId:guid}", async (Guid perfilId, AppD
     if (sub is null) return Results.Unauthorized();
 
     var userId = Guid.Parse(sub);
-    var user = await db.Users.Include(u => u.Perfis).FirstOrDefaultAsync(u => u.Id == userId, ct);
+    var user = await db.Users.Include(u => u.Perfil).FirstOrDefaultAsync(u => u.Id == userId, ct);
     
     if (user is null)
         return Results.NotFound(new { error = "Usuário não encontrado" });
 
-    var perfil = user.Perfis.FirstOrDefault(p => p.Id == perfilId);
-    if (perfil == null)
+    var perfil = user.Perfil;
+    if (perfil == null || perfil.Id != perfilId)
         return Results.NotFound(new { error = "Perfil não encontrado ou não pertence ao usuário" });
 
-    user.Perfis.Remove(perfil);
+    user.Perfil = null;
+    user.PerfilId = null;
     await db.SaveChangesAsync(ct);
 
     return Results.Ok(new { message = "Perfil removido com sucesso" });
