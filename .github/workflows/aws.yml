@@ -1,0 +1,172 @@
+name: Deploy Fitnutri API to ECS
+
+on:
+  push:
+    branches: [ "AUTH" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  # ARNs reais do seu ambiente:
+  ECS_CLUSTER_ARN: arn:aws:ecs:us-east-1:763548578114:cluster/fitnutri-cluster
+  ECS_SERVICE_ARN: arn:aws:ecs:us-east-1:763548578114:service/fitnutri-cluster/fitnutri-api-task-service-4kszczgw
+  ECR_REPO: fitnutri-api
+  # Build
+  PLATFORM: linux/amd64
+  DOCKERFILE: DockerfileApi
+  BUILD_CONTEXT: .
+  # Tags
+  ALIAS_TAG: prod
+  # Healthcheck ALB (opcional)
+  WAIT_TG_HEALTH: "true"
+  TIMEOUT: "300"
+  SLEEP_SEC: "10"
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Resolve account and ECR URI + compute immutable tag
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+          echo "ACCOUNT_ID=$ACCOUNT_ID" >> $GITHUB_ENV
+          ECR_URI="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}"
+          echo "ECR_URI=$ECR_URI" >> $GITHUB_ENV
+          IMAGE_TAG="$(date +%Y%m%d-%H%M)-${GITHUB_SHA::7}"
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          echo "Deploying to: $ECR_URI"
+          echo "Immutable tag: $IMAGE_TAG"
+
+      - name: Assert Task Definition uses alias tag (:prod)
+        shell: bash
+        run: |
+          # Descobre a task definition atual do service
+          TASK_DEF_NAME=$(aws ecs describe-services \
+            --cluster "${ECS_CLUSTER_ARN}" \
+            --services "${ECS_SERVICE_ARN}" \
+            --query 'services[0].taskDefinition' --output text)
+
+          echo "TaskDefinition: $TASK_DEF_NAME"
+
+          IMG=$(aws ecs describe-task-definition \
+            --task-definition "$TASK_DEF_NAME" \
+            --query 'taskDefinition.containerDefinitions[0].image' \
+            --output text)
+
+          echo "Container image in TaskDef: $IMG"
+
+          if [[ "$IMG" != *":${ALIAS_TAG}" ]]; then
+            echo "❌ A Task Definition não referencia a tag alias ':${ALIAS_TAG}'."
+            echo "   Atualize a imagem da Task Definition para terminar com ':${ALIAS_TAG}'"
+            echo "   Ex.: ${ECR_REPO}:${ALIAS_TAG} ou <account>.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:${ALIAS_TAG}"
+            exit 1
+          fi
+
+      - name: Build and Push (immutable + alias)
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "==> Build & Push"
+          docker buildx build \
+            --platform "${PLATFORM}" \
+            -f "${DOCKERFILE}" \
+            -t "${ECR_URI}:${IMAGE_TAG}" \
+            -t "${ECR_URI}:${ALIAS_TAG}" \
+            "${BUILD_CONTEXT}" \
+            --push
+
+      - name: Force new deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "==> Forçando novo deployment no ECS"
+          aws ecs update-service \
+            --cluster "${ECS_CLUSTER_ARN}" \
+            --service "${ECS_SERVICE_ARN}" \
+            --force-new-deployment \
+            --region "${AWS_REGION}" >/dev/null
+
+      - name: Wait for ECS service stability
+        shell: bash
+        run: |
+          echo "==> Aguardando ECS estabilizar..."
+          aws ecs wait services-stable \
+            --cluster "${ECS_CLUSTER_ARN}" \
+            --services "${ECS_SERVICE_ARN}" \
+            --region "${AWS_REGION}"
+
+      - name: Optional ALB Target Group health check
+        if: env.WAIT_TG_HEALTH == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "==> Checando Target Group do ALB até ficar HEALTHY (timeout ${TIMEOUT}s)"
+          TG_ARN=$(aws ecs describe-services \
+            --cluster "${ECS_CLUSTER_ARN}" \
+            --services "${ECS_SERVICE_ARN}" \
+            --region "${AWS_REGION}" \
+            --query 'services[0].loadBalancers[0].targetGroupArn' \
+            --output text || true)
+
+          if [[ -z "$TG_ARN" || "$TG_ARN" == "None" ]]; then
+            echo "⚠️ Nenhum Target Group associado. Pulando health check."
+            exit 0
+          fi
+
+          START=$(date +%s)
+          while true; do
+            STATES=$(aws elbv2 describe-target-health \
+              --target-group-arn "$TG_ARN" \
+              --region "${AWS_REGION}" \
+              --query 'TargetHealthDescriptions[].TargetHealth.State' \
+              --output text || true)
+
+            echo "Estados atuais: ${STATES:-<sem targets>}"
+
+            if [[ -n "$STATES" ]] && [[ "$STATES" =~ ^(healthy[[:space:]]*)+$ ]]; then
+              echo "✅ Todas as targets HEALTHY!"
+              break
+            fi
+
+            NOW=$(date +%s)
+            if (( NOW - START > TIMEOUT )); then
+              echo "❌ Timeout: targets não ficaram healthy em ${TIMEOUT}s."
+              exit 1
+            fi
+            sleep "${SLEEP_SEC}"
+          done
+
+      - name: Done
+        run: |
+          echo "==> Deploy concluído com sucesso 🎉"
+          echo "    Imagem imutável: ${ECR_URI}:${IMAGE_TAG}"
+          echo "    Alias atualizado: ${ECR_URI}:${ALIAS_TAG}"
