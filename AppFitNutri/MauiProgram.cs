@@ -21,6 +21,14 @@ public static class MauiProgram
             client.Timeout = TimeSpan.FromSeconds(30);
         });
 
+        // HttpClient para ProfileService
+        builder.Services.AddHttpClient<IProfileService, ProfileService>(client =>
+        {
+            client.BaseAddress = new Uri("https://api.fit-nutri.com");
+            client.DefaultRequestHeaders.Add("x-api-key", "<STRONG_CLIENT_KEY>");
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
+
         // Token store
         builder.Services.AddSingleton<ITokenStore, SecureTokenStore>();
 
@@ -37,6 +45,7 @@ public static class MauiProgram
         builder.Services.AddTransient<Views.ForgotPasswordPage>();
         builder.Services.AddTransient<Views.ResetPasswordPage>();
         builder.Services.AddTransient<Views.CodeVerificationPopup>();
+        builder.Services.AddTransient<Views.ProfileSelectionPage>();
 
         return builder.Build();
     }

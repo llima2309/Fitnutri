@@ -17,4 +17,9 @@
      ContentTemplate="{DataTemplate local:RegisterPage}"
      Route="RegisterPage" />
 
+    <ShellContent
+     Title="ProfileSelection"
+     ContentTemplate="{DataTemplate local:ProfileSelectionPage}"
+     Route="ProfileSelectionPage" />
+
 </Shell>

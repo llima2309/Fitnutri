@@ -12,6 +12,7 @@ public partial class LoginViewModel : ObservableObject
 {
     private readonly IApiHttp _authApi;
     private readonly ITokenStore _tokenStore;
+    private readonly IProfileService _profileService;
 
     [ObservableProperty] private string? emailOrUserName;
     [ObservableProperty] private string? password;
@@ -24,10 +25,11 @@ public partial class LoginViewModel : ObservableObject
     public bool IsNotBusy => !IsBusy;
     public string LoginButtonText => IsBusy ? "Entrando..." : "Entrar";
 
-    public LoginViewModel(IApiHttp authApi, ITokenStore tokenStore)
+    public LoginViewModel(IApiHttp authApi, ITokenStore tokenStore, IProfileService profileService)
     {
         _authApi = authApi;
         _tokenStore = tokenStore;
+        _profileService = profileService;
         PropertyChanged += (_, e) =>
         {
             if (e.PropertyName is nameof(IsBusy))
@@ -107,9 +109,34 @@ public partial class LoginViewModel : ObservableObject
                 var meResponse = await validationResult.Content.ReadFromJsonAsync<MeResponse>();
                 await Application.Current.MainPage.DisplayAlert("Sucesso", "Login realizado com sucesso!", "OK");
                 
-                // Navegar para a página principal do app
-                // await Shell.Current.GoToAsync("//main");
+                // Verificar se o usuário tem perfil associado
+                if (await CheckUserHasProfile())
+                {
+                    // Usuário tem perfil, navegar para a página principal
+                    await Shell.Current.GoToAsync("//MainPage");
+                }
+                else
+                {
+                    // Usuário não tem perfil, navegar para seleção de perfil
+                    await Shell.Current.GoToAsync($"//{nameof(Views.ProfileSelectionPage)}");
+                }
             }
+        }
+    }
+
+    private async Task<bool> CheckUserHasProfile()
+    {
+        try
+        {
+            // Verificar se o usuário tem perfis associados através da API
+            var perfis = await _profileService.ObterMeusPerfisAsync();
+            return perfis?.Any() == true;
+        }
+        catch (Exception ex)
+        {
+            // Em caso de erro, assumir que precisa selecionar perfil
+            System.Diagnostics.Debug.WriteLine($"Erro ao verificar perfil: {ex.Message}");
+            return false;
         }
     }
 

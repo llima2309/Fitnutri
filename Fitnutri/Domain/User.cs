@@ -22,6 +22,7 @@ public class User
     public DateTime? ApprovedAt { get; set; }
     public string? ApprovedBy { get; set; } // pode virar Guid do admin no futuro
     public UserRole Role { get; set; } = UserRole.User; // <--- novo
-    public Guid? PerfilId { get; set; }
-    public Perfil? Perfil { get; set; }
+    
+    // Relacionamento many-to-many com Perfis
+    public ICollection<Perfil> Perfis { get; set; } = new List<Perfil>();
 }

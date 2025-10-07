@@ -84,9 +84,6 @@ namespace Fitnutri.Migrations
                         .HasMaxLength(512)
                         .HasColumnType("nvarchar(512)");
 
-                    b.Property<Guid?>("PerfilId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("Role")
                         .HasColumnType("int");
 
@@ -103,27 +100,40 @@ namespace Fitnutri.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.HasIndex("PerfilId");
-
                     b.HasIndex("UserName")
                         .IsUnique();
 
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Fitnutri.Domain.User", b =>
+            modelBuilder.Entity("PerfilUser", b =>
                 {
-                    b.HasOne("Fitnutri.Domain.Perfil", "Perfil")
-                        .WithMany("Usuarios")
-                        .HasForeignKey("PerfilId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                    b.Property<Guid>("PerfisId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Navigation("Perfil");
+                    b.Property<Guid>("UsuariosId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("PerfisId", "UsuariosId");
+
+                    b.HasIndex("UsuariosId");
+
+                    b.ToTable("UserPerfis", (string)null);
                 });
 
-            modelBuilder.Entity("Fitnutri.Domain.Perfil", b =>
+            modelBuilder.Entity("PerfilUser", b =>
                 {
-                    b.Navigation("Usuarios");
+                    b.HasOne("Fitnutri.Domain.Perfil", null)
+                        .WithMany()
+                        .HasForeignKey("PerfisId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Fitnutri.Domain.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsuariosId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

@@ -16,3 +16,8 @@ public record ForgotPasswordRequest(string Email);
 public record ResetPasswordRequest(string Token, string NewPassword);
 public record ForgotPasswordResponse(string Message);
 
+// DTOs para perfil
+public record AssociarPerfilRequest(PerfilTipo TipoPerfil);
+public record PerfilResponse(Guid Id, PerfilTipo Tipo, string Nome);
+public record MeusPerfisResponse(IEnumerable<PerfilResponse> Perfis);
+public record TipoPerfilDisponivel(int Id, string Nome, string Descricao);

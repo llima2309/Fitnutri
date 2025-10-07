@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="AppFitNutri.Views.ProfileSelectionPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Title="Selecione seu Perfil"
+             BackgroundColor="#F8F9FA">
+    
+    <ScrollView>
+        <Grid Padding="20" RowSpacing="30">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <StackLayout Grid.Row="0" Spacing="10">
+                <Label Text="Bem-vindo ao FitNutri!"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       TextColor="#2C3E50"
+                       HorizontalOptions="Center" />
+                
+                <Label Text="Para continuar, selecione o tipo de perfil que melhor descreve você:"
+                       FontSize="16"
+                       TextColor="#7F8C8D"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center" />
+            </StackLayout>
+
+            <!-- Profile Options -->
+            <StackLayout Grid.Row="1" Spacing="20" VerticalOptions="CenterAndExpand">
+                
+                <!-- Paciente -->
+                <Border BackgroundColor="White"
+                        Stroke="#E74C3C"
+                        StrokeThickness="2"
+                        StrokeShape="RoundRectangle 15"
+                        Padding="0">
+                    <Border.Shadow>
+                        <Shadow Brush="Black"
+                                Offset="0,2"
+                                Radius="8"
+                                Opacity="0.1" />
+                    </Border.Shadow>
+                    <Button x:Name="PatientButton"
+                            BackgroundColor="Transparent"
+                            TextColor="#2C3E50"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            HeightRequest="120"
+                            Clicked="OnPatientSelected">
+                        <Button.Text>
+                            <![CDATA[👤 PACIENTE
+
+Busco orientação nutricional
+e acompanhamento profissional]]>
+                        </Button.Text>
+                    </Button>
+                </Border>
+
+                <!-- Nutricionista -->
+                <Border BackgroundColor="White"
+                        Stroke="#27AE60"
+                        StrokeThickness="2"
+                        StrokeShape="RoundRectangle 15"
+                        Padding="0">
+                    <Border.Shadow>
+                        <Shadow Brush="Black"
+                                Offset="0,2"
+                                Radius="8"
+                                Opacity="0.1" />
+                    </Border.Shadow>
+                    <Button x:Name="NutritionistButton"
+                            BackgroundColor="Transparent"
+                            TextColor="#2C3E50"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            HeightRequest="120"
+                            Clicked="OnNutritionistSelected">
+                        <Button.Text>
+                            <![CDATA[🥗 NUTRICIONISTA
+
+Sou profissional da área
+e quero atender pacientes]]>
+                        </Button.Text>
+                    </Button>
+                </Border>
+
+                <!-- Personal Trainer -->
+                <Border BackgroundColor="White"
+                        Stroke="#3498DB"
+                        StrokeThickness="2"
+                        StrokeShape="RoundRectangle 15"
+                        Padding="0">
+                    <Border.Shadow>
+                        <Shadow Brush="Black"
+                                Offset="0,2"
+                                Radius="8"
+                                Opacity="0.1" />
+                    </Border.Shadow>
+                    <Button x:Name="PersonalTrainerButton"
+                            BackgroundColor="Transparent"
+                            TextColor="#2C3E50"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            HeightRequest="120"
+                            Clicked="OnPersonalTrainerSelected">
+                        <Button.Text>
+                            <![CDATA[💪 PERSONAL TRAINER
+
+Sou educador físico e quero
+acompanhar meus alunos]]>
+                        </Button.Text>
+                    </Button>
+                </Border>
+
+            </StackLayout>
+
+            <!-- Footer -->
+            <StackLayout Grid.Row="2" Spacing="15">
+                <Label Text="Você poderá alterar seu perfil posteriormente nas configurações."
+                       FontSize="12"
+                       TextColor="#BDC3C7"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center" />
+                
+                <Button x:Name="ContinueButton"
+                        Text="CONTINUAR"
+                        BackgroundColor="#34495E"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        FontSize="16"
+                        CornerRadius="25"
+                        HeightRequest="50"
+                        IsEnabled="False"
+                        Clicked="OnContinueClicked" />
+            </StackLayout>
+
+        </Grid>
+    </ScrollView>
+    
+</ContentPage>

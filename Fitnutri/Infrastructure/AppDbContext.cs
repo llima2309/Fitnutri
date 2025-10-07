@@ -35,10 +35,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         u.Property(x => x.ApprovedBy).HasMaxLength(128);
 
         u.Property(x => x.Role).HasConversion<int>().IsRequired();
-        u.HasOne(x => x.Perfil)
+        
+        // Configuração do relacionamento many-to-many User <-> Perfis
+        u.HasMany(x => x.Perfis)
             .WithMany(p => p.Usuarios)
-            .HasForeignKey(x => x.PerfilId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .UsingEntity(j => j.ToTable("UserPerfis"));
 
         var p = modelBuilder.Entity<Perfil>();
         p.HasKey(x => x.Id);

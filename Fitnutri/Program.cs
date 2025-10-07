@@ -576,6 +576,115 @@ perfisGroup.MapDelete("/{id}", async (AppDbContext db, Guid id) =>
     return Results.NoContent();
 });
 
+// ---------- PERFIS USUÁRIO (autenticado) ----------
+var userPerfilGroup = app.MapGroup("/user/perfil").RequireAuthorization().WithTags("UserPerfil");
+
+// Associar perfil ao usuário
+userPerfilGroup.MapPost("/associar", async (AssociarPerfilRequest req, AppDbContext db, HttpContext ctx, CancellationToken ct) =>
+{
+    var sub = ctx.User.FindFirst("sub")?.Value;
+    if (sub is null) return Results.Unauthorized();
+
+    var userId = Guid.Parse(sub);
+    var user = await db.Users.Include(u => u.Perfis).FirstOrDefaultAsync(u => u.Id == userId, ct);
+    
+    if (user is null)
+        return Results.NotFound(new { error = "Usuário não encontrado" });
+
+    // Verificar se já tem perfil do tipo solicitado
+    if (user.Perfis.Any(p => p.Tipo == req.TipoPerfil))
+        return Results.BadRequest(new { error = "Usuário já possui um perfil deste tipo" });
+
+    // Buscar ou criar o perfil pelo tipo
+    var perfil = await db.Perfis.FirstOrDefaultAsync(p => p.Tipo == req.TipoPerfil, ct);
+    if (perfil == null)
+    {
+        // Criar o perfil se não existir
+        perfil = new Perfil
+        {
+            Id = Guid.NewGuid(),
+            Tipo = req.TipoPerfil,
+            Nome = req.TipoPerfil switch
+            {
+                PerfilTipo.Nutricionista => "Nutricionista",
+                PerfilTipo.PersonalTrainer => "Personal Trainer",
+                PerfilTipo.Paciente => "Paciente",
+                _ => "Perfil"
+            }
+        };
+        db.Perfis.Add(perfil);
+    }
+
+    // Associar o perfil ao usuário
+    user.Perfis.Add(perfil);
+    await db.SaveChangesAsync(ct);
+
+    return Results.Ok(new { 
+        message = "Perfil associado com sucesso",
+        perfil = new { 
+            id = perfil.Id,
+            tipo = perfil.Tipo,
+            nome = perfil.Nome
+        }
+    });
+});
+
+// Obter perfis do usuário
+userPerfilGroup.MapGet("/meus-perfis", async (AppDbContext db, HttpContext ctx, CancellationToken ct) =>
+{
+    var sub = ctx.User.FindFirst("sub")?.Value;
+    if (sub is null) return Results.Unauthorized();
+
+    var userId = Guid.Parse(sub);
+    var user = await db.Users.Include(u => u.Perfis).FirstOrDefaultAsync(u => u.Id == userId, ct);
+    
+    if (user is null)
+        return Results.NotFound(new { error = "Usuário não encontrado" });
+
+    var perfis = user.Perfis.Select(p => new
+    {
+        id = p.Id,
+        tipo = p.Tipo,
+        nome = p.Nome
+    });
+
+    return Results.Ok(perfis);
+});
+
+// Obter tipos de perfil disponíveis
+userPerfilGroup.MapGet("/tipos-disponiveis", () =>
+{
+    var tiposDisponiveis = new[]
+    {
+        new { id = 2, nome = "Nutricionista", descricao = "Profissional da área que quer atender pacientes" },
+        new { id = 3, nome = "Personal Trainer", descricao = "Educador físico que quer acompanhar alunos" },
+        new { id = 4, nome = "Paciente", descricao = "Busca orientação nutricional e acompanhamento" }
+    };
+
+    return Results.Ok(tiposDisponiveis);
+});
+
+// Remover perfil do usuário
+userPerfilGroup.MapDelete("/remover/{perfilId:guid}", async (Guid perfilId, AppDbContext db, HttpContext ctx, CancellationToken ct) =>
+{
+    var sub = ctx.User.FindFirst("sub")?.Value;
+    if (sub is null) return Results.Unauthorized();
+
+    var userId = Guid.Parse(sub);
+    var user = await db.Users.Include(u => u.Perfis).FirstOrDefaultAsync(u => u.Id == userId, ct);
+    
+    if (user is null)
+        return Results.NotFound(new { error = "Usuário não encontrado" });
+
+    var perfil = user.Perfis.FirstOrDefault(p => p.Id == perfilId);
+    if (perfil == null)
+        return Results.NotFound(new { error = "Perfil não encontrado ou não pertence ao usuário" });
+
+    user.Perfis.Remove(perfil);
+    await db.SaveChangesAsync(ct);
+
+    return Results.Ok(new { message = "Perfil removido com sucesso" });
+});
 
 
 // ---------- HEALTH ----------
