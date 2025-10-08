@@ -6,7 +6,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write  # Necessário para criar tags Git
+  packages: read
 
 env:
   AWS_REGION: us-east-1
@@ -20,6 +21,8 @@ env:
   BUILD_CONTEXT: .
   # Tags
   ALIAS_TAG: prod
+  # Project path for version extraction
+  PROJECT_PATH: Fitnutri/Fitnutri.csproj
   # Healthcheck ALB (opcional)
   WAIT_TG_HEALTH: "true"
   TIMEOUT: "300"
@@ -34,6 +37,35 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Extract Assembly Version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "==> Extracting version from $PROJECT_PATH"
+          
+          # Extrai a versão do arquivo .csproj
+          VERSION=$(grep -o '<Version>[^<]*</Version>' "$PROJECT_PATH" | sed 's/<Version>//g' | sed 's/<\/Version>//g')
+          
+          if [ -z "$VERSION" ]; then
+            echo "❌ Versão não encontrada no arquivo $PROJECT_PATH"
+            exit 1
+          fi
+          
+          echo "PROJECT_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Versão encontrada: $VERSION"
+          
+          # Cria tag com a versão + timestamp para garantir unicidade
+          TIMESTAMP=$(date +%Y%m%d-%H%M)
+          VERSION_TAG="v${VERSION}-${TIMESTAMP}"
+          echo "VERSION_TAG=$VERSION_TAG" >> $GITHUB_ENV
+          echo "Tag de versão: $VERSION_TAG"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -52,7 +84,7 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Resolve account and ECR URI + compute immutable tag
+      - name: Resolve account and ECR URI + compute tags
         id: meta
         shell: bash
         run: |
@@ -61,10 +93,15 @@ jobs:
           echo "ACCOUNT_ID=$ACCOUNT_ID" >> $GITHUB_ENV
           ECR_URI="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}"
           echo "ECR_URI=$ECR_URI" >> $GITHUB_ENV
-          IMAGE_TAG="$(date +%Y%m%d-%H%M)-${GITHUB_SHA::7}"
+          
+          # Tag imutável usando versão + commit
+          IMAGE_TAG="${PROJECT_VERSION}-${GITHUB_SHA::7}"
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          
           echo "Deploying to: $ECR_URI"
-          echo "Immutable tag: $IMAGE_TAG"
+          echo "Version tag: $VERSION_TAG"
+          echo "Image tag: $IMAGE_TAG"
+          echo "Project version: $PROJECT_VERSION"
 
       - name: Assert Task Definition uses alias tag (:prod)
         shell: bash
@@ -91,18 +128,36 @@ jobs:
             exit 1
           fi
 
-      - name: Build and Push (immutable + alias)
+      - name: Build and Push (version + alias tags)
         shell: bash
         run: |
           set -euo pipefail
-          echo "==> Build & Push"
+          echo "==> Build & Push com múltiplas tags"
           docker buildx build \
             --platform "${PLATFORM}" \
             -f "${DOCKERFILE}" \
             -t "${ECR_URI}:${IMAGE_TAG}" \
+            -t "${ECR_URI}:${PROJECT_VERSION}" \
             -t "${ECR_URI}:${ALIAS_TAG}" \
+            -t "${ECR_URI}:latest" \
             "${BUILD_CONTEXT}" \
             --push
+
+      - name: Create Git Tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "==> Criando tag Git: $VERSION_TAG"
+          
+          # Configura git (necessário para criar tags)
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # Cria tag anotada com informações do deploy
+          git tag -a "$VERSION_TAG" -m "Deploy v$PROJECT_VERSION - $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          
+          # Push da tag para o repositório
+          git push origin "$VERSION_TAG"
 
       - name: Force new deployment
         shell: bash
@@ -123,8 +178,14 @@ jobs:
             --cluster "${ECS_CLUSTER_ARN}" \
             --services "${ECS_SERVICE_ARN}" \
             --region "${AWS_REGION}"
+
       - name: Done
         run: |
           echo "==> Deploy concluído com sucesso 🎉"
-          echo "    Imagem imutável: ${ECR_URI}:${IMAGE_TAG}"
-          echo "    Alias atualizado: ${ECR_URI}:${ALIAS_TAG}"
+          echo "    Versão do projeto: v${PROJECT_VERSION}"
+          echo "    Tag Git criada: ${VERSION_TAG}"
+          echo "    Tags Docker criadas:"
+          echo "      - ${ECR_URI}:${IMAGE_TAG} (imutável)"
+          echo "      - ${ECR_URI}:${PROJECT_VERSION} (versão)"
+          echo "      - ${ECR_URI}:${ALIAS_TAG} (alias)"
+          echo "      - ${ECR_URI}:latest"

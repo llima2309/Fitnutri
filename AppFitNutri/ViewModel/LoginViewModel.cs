@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using AppFitNutri.Core.Services;
 using AppFitNutri.Core.Models;
 using AppFitNutri.Core.Services.Login;
+using AppFitNutri.Services;
 using System.Net.Http.Json;
 using Application = Microsoft.Maui.Controls.Application;
 
@@ -13,6 +14,7 @@ public partial class LoginViewModel : ObservableObject
     private readonly IApiHttp _authApi;
     private readonly ITokenStore _tokenStore;
     private readonly IProfileService _profileService;
+    private readonly IUserProfileService _userProfileService;
 
     [ObservableProperty] private string? emailOrUserName;
     [ObservableProperty] private string? password;
@@ -25,11 +27,12 @@ public partial class LoginViewModel : ObservableObject
     public bool IsNotBusy => !IsBusy;
     public string LoginButtonText => IsBusy ? "Entrando..." : "Entrar";
 
-    public LoginViewModel(IApiHttp authApi, ITokenStore tokenStore, IProfileService profileService)
+    public LoginViewModel(IApiHttp authApi, ITokenStore tokenStore, IProfileService profileService, IUserProfileService userProfileService)
     {
         _authApi = authApi;
         _tokenStore = tokenStore;
         _profileService = profileService;
+        _userProfileService = userProfileService;
         PropertyChanged += (_, e) =>
         {
             if (e.PropertyName is nameof(IsBusy))
@@ -98,45 +101,33 @@ public partial class LoginViewModel : ObservableObject
 
     private async Task ProcessSuccessfulLogin(HttpResponseMessage result)
     {
-        var content = await result.Content.ReadFromJsonAsync<AuthResponse>();
-        if (content != null)
+        try
         {
-            await _tokenStore.SaveAsync(content.AccessToken, content.ExpiresAt);
-            var validationResult = await _authApi.ValidaToken();
-            
-            if (validationResult.IsSuccessStatusCode)
+            var loginResponse = await result.Content.ReadFromJsonAsync<AuthResponse>();
+            if (loginResponse != null)
             {
-                var meResponse = await validationResult.Content.ReadFromJsonAsync<MeResponse>();
-                await Application.Current.MainPage.DisplayAlert("Sucesso", "Login realizado com sucesso!", "OK");
+                await _tokenStore.SaveAsync(loginResponse.AccessToken, loginResponse.ExpiresAt);
                 
-                // Verificar se o usuário tem perfil associado
-                if (await CheckUserHasProfile())
+                // Verificar se o usuário tem perfil cadastrado
+                var userProfile = await _userProfileService.GetProfileAsync();
+                
+                if (userProfile == null)
                 {
-                    // Usuário tem perfil, navegar para a página principal
-                    await Shell.Current.GoToAsync("//MainPage");
+                    // Usuário não tem perfil, ir para seleção de perfil primeiro
+                    await Shell.Current.GoToAsync("//ProfileSelectionPage");
                 }
                 else
                 {
-                    // Usuário não tem perfil, navegar para seleção de perfil
-                    await Shell.Current.GoToAsync($"//{nameof(Views.ProfileSelectionPage)}");
+                    // Usuário já tem perfil completo, ir para HomePage
+                    await Shell.Current.GoToAsync("//HomePage");
                 }
+                
+                await Application.Current.MainPage.DisplayAlert("Sucesso", "Login realizado com sucesso!", "OK");
             }
-        }
-    }
-
-    private async Task<bool> CheckUserHasProfile()
-    {
-        try
-        {
-            // Verificar se o usuário tem perfis associados através da API
-            var perfis = await _profileService.ObterMeusPerfisAsync();
-            return perfis?.Any() == true;
         }
         catch (Exception ex)
         {
-            // Em caso de erro, assumir que precisa selecionar perfil
-            System.Diagnostics.Debug.WriteLine($"Erro ao verificar perfil: {ex.Message}");
-            return false;
+            ErrorMessage = $"Erro ao processar login: {ex.Message}";
         }
     }
 

@@ -62,55 +62,24 @@ public class ProfileSelectionViewModel : INotifyPropertyChanged
 
     private async void OnContinueExecute()
     {
-        await OnContinueAsync();
-    }
-
-    private async Task OnContinueAsync()
-    {
-        if (SelectedProfileType == 0)
-            return;
-
         try
         {
             IsLoading = true;
-
-            // Chamar a API para associar o perfil
-            await _profileService.AssociarPerfilAsync(SelectedProfileType);
-
-            // Navegar para a página principal baseada no tipo de perfil
-            await NavigateToMainPageAsync();
+            
+            // Navegar diretamente para a tela de cadastro de perfil completo
+            // O tipo de perfil selecionado pode ser passado como parâmetro se necessário
+            await Shell.Current.GoToAsync("//UserProfileRegistrationPage");
         }
         catch (Exception ex)
         {
-            if (Application.Current?.MainPage != null)
-            {
-                await Application.Current.MainPage.DisplayAlert("Erro", 
-                    $"Erro ao salvar perfil: {ex.Message}", "OK");
-            }
+            await Application.Current.MainPage.DisplayAlert(
+                "Erro", 
+                $"Erro ao continuar: {ex.Message}", 
+                "OK");
         }
         finally
         {
             IsLoading = false;
-        }
-    }
-
-    private async Task NavigateToMainPageAsync()
-    {
-        // Navegar baseado no tipo de perfil selecionado
-        switch (SelectedProfileType)
-        {
-            case 2: // Nutricionista
-            case 3: // Personal Trainer
-                // Navegar para dashboard de profissional
-                await Shell.Current.GoToAsync("//MainPage");
-                break;
-            case 4: // Paciente
-                // Navegar para dashboard de paciente
-                await Shell.Current.GoToAsync("//MainPage");
-                break;
-            default:
-                await Shell.Current.GoToAsync("//MainPage");
-                break;
         }
     }
 

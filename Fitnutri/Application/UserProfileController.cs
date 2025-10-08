@@ -82,12 +82,33 @@ public class UserProfileController : ControllerBase
     {
         var userId = GetUserId();
         
+        // Debug: Log do UserId extraído do token
+        _logger.LogInformation("==> UserId extraído do token: {UserId}", userId);
+        
+        // Verificar se o UserId é válido
+        if (userId == Guid.Empty)
+        {
+            _logger.LogWarning("==> UserId inválido ou não encontrado no token");
+            return BadRequest(new { message = "Token inválido ou UserId não encontrado" });
+        }
+        
+        // Verificar se o usuário existe na tabela Users
+        var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
+        if (!userExists)
+        {
+            _logger.LogWarning("==> Usuário com ID {UserId} não existe na tabela Users", userId);
+            return BadRequest(new { message = "Usuário não encontrado" });
+        }
+        
+        _logger.LogInformation("==> Usuário com ID {UserId} encontrado na tabela Users", userId);
+        
         // Verificar se já existe perfil para este usuário
         var existingProfile = await _context.UserProfiles
             .FirstOrDefaultAsync(p => p.UserId == userId);
 
         if (existingProfile != null)
         {
+            _logger.LogWarning("==> Usuário {UserId} já possui um perfil cadastrado", userId);
             return BadRequest(new { message = "Usuário já possui um perfil cadastrado" });
         }
 
@@ -97,8 +118,17 @@ public class UserProfileController : ControllerBase
 
         if (existingCpf != null)
         {
+            _logger.LogWarning("==> CPF {CPF} já está cadastrado para outro usuário", request.CPF);
             return BadRequest(new { message = "CPF já está cadastrado para outro usuário" });
         }
+
+        // Debug: Log dos dados recebidos
+        _logger.LogInformation("==> Dados recebidos para criação do perfil:");
+        _logger.LogInformation("    Nome: {Nome}", request.NomeCompleto);
+        _logger.LogInformation("    CPF: {CPF}", request.CPF);
+        _logger.LogInformation("    RG: {RG}", request.RG);
+        _logger.LogInformation("    Gênero: {Genero}", request.Genero);
+        _logger.LogInformation("    Data Nascimento: {DataNascimento}", request.DataNascimento);
 
         // Buscar dados do CEP
         var addressData = await _viaCepService.GetAddressByCepAsync(request.CEP);
@@ -126,10 +156,20 @@ public class UserProfileController : ControllerBase
             DDD = addressData?.DDD
         };
 
-        _context.UserProfiles.Add(profile);
-        await _context.SaveChangesAsync();
+        _logger.LogInformation("==> Criando perfil com ID {ProfileId} para usuário {UserId}", profile.Id, userId);
 
-        _logger.LogInformation("Perfil criado para usuário {UserId}", userId);
+        _context.UserProfiles.Add(profile);
+        
+        try
+        {
+            await _context.SaveChangesAsync();
+            _logger.LogInformation("==> Perfil criado com sucesso para usuário {UserId}", userId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "==> ERRO ao salvar perfil para usuário {UserId}: {ErrorMessage}", userId, ex.Message);
+            throw;
+        }
 
         return CreatedAtAction(nameof(GetProfile), MapToResponse(profile));
     }
@@ -207,7 +247,7 @@ public class UserProfileController : ControllerBase
 
     private Guid GetUserId()
     {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userIdClaim = User.FindFirst("sub")?.Value;
         return userIdClaim == null ? Guid.Empty : Guid.Parse(userIdClaim!);
     }
 

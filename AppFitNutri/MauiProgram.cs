@@ -16,7 +16,6 @@ public static class MauiProgram
         builder.Services.AddHttpClient<IApiHttp, ApiHttp>(client =>
         {
             client.BaseAddress = new Uri("https://api.fit-nutri.com");
-            //client.DefaultRequestHeaders.Add("Accept", "application/json");
             client.DefaultRequestHeaders.Add("x-api-key", "<STRONG_CLIENT_KEY>");
             client.Timeout = TimeSpan.FromSeconds(30);
         });
@@ -29,8 +28,17 @@ public static class MauiProgram
             client.Timeout = TimeSpan.FromSeconds(30);
         });
 
+        // HttpClient para UserProfileService
+        builder.Services.AddHttpClient<IUserProfileService, UserProfileService>(client =>
+        {
+            client.BaseAddress = new Uri("https://api.fit-nutri.com");
+            client.DefaultRequestHeaders.Add("x-api-key", "<STRONG_CLIENT_KEY>");
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
+
         // Token store
         builder.Services.AddSingleton<ITokenStore, SecureTokenStore>();
+        builder.Services.AddSingleton<SecureTokenStore>();
 
         // ViewModels
         builder.Services.AddTransient<LoginViewModel>();
@@ -38,6 +46,9 @@ public static class MauiProgram
         builder.Services.AddTransient<ForgotPasswordViewModel>();
         builder.Services.AddTransient<ResetPasswordViewModel>();
         builder.Services.AddTransient<EmailVerificationViewModel>();
+        builder.Services.AddTransient<ProfileSelectionViewModel>();
+        builder.Services.AddTransient<UserProfileRegistrationViewModel>();
+        builder.Services.AddTransient<HomePageViewModel>();
 
         // Views
         builder.Services.AddTransient<Views.LoginPage>();
@@ -46,6 +57,8 @@ public static class MauiProgram
         builder.Services.AddTransient<Views.ResetPasswordPage>();
         builder.Services.AddTransient<Views.CodeVerificationPopup>();
         builder.Services.AddTransient<Views.ProfileSelectionPage>();
+        builder.Services.AddTransient<Views.UserProfileRegistrationPage>();
+        builder.Services.AddTransient<Views.HomePage>();
 
         return builder.Build();
     }

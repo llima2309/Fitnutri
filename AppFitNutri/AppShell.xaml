@@ -22,4 +22,14 @@
      ContentTemplate="{DataTemplate local:ProfileSelectionPage}"
      Route="ProfileSelectionPage" />
 
+    <ShellContent
+     Title="UserProfileRegistration"
+     ContentTemplate="{DataTemplate local:UserProfileRegistrationPage}"
+     Route="UserProfileRegistrationPage" />
+
+    <ShellContent
+     Title="Home"
+     ContentTemplate="{DataTemplate local:HomePage}"
+     Route="HomePage" />
+
 </Shell>

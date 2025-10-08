@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="AppFitNutri.Views.UserProfileRegistrationPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:AppFitNutri.ViewModel"
+             x:DataType="viewmodel:UserProfileRegistrationViewModel"
+             Title="Cadastro de Perfil"
+             BackgroundColor="#F8F9FA">
+    
+    <ScrollView>
+        <Grid Padding="20" RowSpacing="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <StackLayout Grid.Row="0" Spacing="10">
+                <Label Text="Complete seu Cadastro"
+                       FontSize="24"
+                       FontAttributes="Bold"
+                       TextColor="Black"
+                       HorizontalOptions="Center" />
+                
+                <Label Text="Preencha os dados abaixo para finalizar seu perfil"
+                       FontSize="14"
+                       TextColor="Black"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center" />
+            </StackLayout>
+
+            <!-- Form -->
+            <StackLayout Grid.Row="1" Spacing="15">
+
+                <!-- Dados Pessoais Section -->
+                <Label Text="DADOS PESSOAIS"
+                       FontSize="16"
+                       FontAttributes="Bold"
+                       TextColor="Black"
+                       Margin="0,20,0,5" />
+
+                <!-- Nome Completo -->
+                <Border BackgroundColor="White"
+                        Stroke="#BDC3C7"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 8"
+                        Padding="15,10">
+                    <StackLayout Spacing="5">
+                        <Label Text="Nome Completo *"
+                               FontSize="12"
+                               TextColor="Black" />
+                        <Entry Text="{Binding NomeCompleto}"
+                               Placeholder="Digite seu nome completo"
+                               FontSize="16"
+                               TextColor="Black"
+                               BackgroundColor="Transparent" />
+                    </StackLayout>
+                </Border>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <!-- CPF -->
+                    <Border Grid.Column="0"
+                            BackgroundColor="White"
+                            Stroke="#BDC3C7"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="15,10">
+                        <StackLayout Spacing="5">
+                            <Label Text="CPF *"
+                                   FontSize="12"
+                                   TextColor="Black" />
+                            <Entry Text="{Binding CPF}"
+                                   Placeholder="000.000.000-00"
+                                   Keyboard="Default"
+                                   ReturnType="Done"
+                                   MaxLength="14"
+                                   FontSize="16"
+                                   TextColor="Black"
+                                   BackgroundColor="Transparent" />
+                        </StackLayout>
+                    </Border>
+
+                    <!-- RG -->
+                    <Border Grid.Column="1"
+                            BackgroundColor="White"
+                            Stroke="#BDC3C7"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="15,10">
+                        <StackLayout Spacing="5">
+                            <Label Text="RG"
+                                   FontSize="12"
+                                   TextColor="Black" />
+                            <Entry Text="{Binding RG}"
+                                   Placeholder="00.000.000-00"
+                                   MaxLength="14"
+                                   ReturnType="Done"
+                                   FontSize="16"
+                                   TextColor="Black"
+                                   BackgroundColor="Transparent" />
+                        </StackLayout>
+                    </Border>
+                </Grid>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <!-- Gênero -->
+                    <Border Grid.Column="0"
+                            BackgroundColor="White"
+                            Stroke="#BDC3C7"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="15,10">
+                        <StackLayout Spacing="5">
+                            <Label Text="Gênero *"
+                                   FontSize="12"
+                                   TextColor="Black" />
+                            <Picker ItemsSource="{Binding GeneroOptions}"
+                                    SelectedItem="{Binding SelectedGenero}"
+                                    ItemDisplayBinding="{Binding Display}"
+                                    Title="Selecione"
+                                    FontSize="16"
+                                    TextColor="Black"
+                                    BackgroundColor="Transparent" />
+                        </StackLayout>
+                    </Border>
+
+                    <!-- Data de Nascimento -->
+                    <Border Grid.Column="1"
+                            BackgroundColor="White"
+                            Stroke="#BDC3C7"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="15,10">
+                        <StackLayout Spacing="5">
+                            <Label Text="Data de Nascimento *"
+                                   FontSize="12"
+                                   TextColor="Black" />
+                            <DatePicker Date="{Binding DataNascimento}"
+                                        FontSize="16"
+                                        TextColor="Black"
+                                        BackgroundColor="Transparent" />
+                        </StackLayout>
+                    </Border>
+                </Grid>
+
+                <!-- CRN (apenas para nutricionistas) -->
+                <Border BackgroundColor="White"
+                        Stroke="#BDC3C7"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 8"
+                        Padding="15,10">
+                    <StackLayout Spacing="5">
+                        <Label Text="CRN (apenas para nutricionistas)"
+                               FontSize="12"
+                               TextColor="Black" />
+                        <Entry Text="{Binding CRN}"
+                               Placeholder="Digite seu CRN"
+                               FontSize="16"
+                               TextColor="Black"
+                               BackgroundColor="Transparent" />
+                    </StackLayout>
+                </Border>
+
+                <!-- Endereço Section -->
+                <Label Text="ENDEREÇO"
+                       FontSize="16"
+                       FontAttributes="Bold"
+                       TextColor="Black"
+                       Margin="0,20,0,5" />
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <!-- CEP -->
+                    <Border Grid.Column="0"
+                            BackgroundColor="White"
+                            Stroke="#BDC3C7"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="15,10">
+                        <StackLayout Spacing="5">
+                            <Label Text="CEP *"
+                                   FontSize="12"
+                                   TextColor="Black" />
+                            <Entry Text="{Binding CEP}"
+                                   Placeholder="00000-000"
+                                   Keyboard="Default"
+                                   ReturnType="Done"
+                                   MaxLength="9"
+                                   FontSize="16"
+                                   TextColor="Black"
+                                   BackgroundColor="Transparent" />
+                        </StackLayout>
+                    </Border>
+
+                    <!-- Estado -->
+                    <Border Grid.Column="1"
+                            BackgroundColor="White"
+                            Stroke="#BDC3C7"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="15,10">
+                        <StackLayout Spacing="5">
+                            <Label Text="Estado *"
+                                   FontSize="12"
+                                   TextColor="Black" />
+                            <Picker ItemsSource="{Binding EstadoOptions}"
+                                    SelectedItem="{Binding SelectedEstado}"
+                                    ItemDisplayBinding="{Binding Display}"
+                                    Title="Selecione"
+                                    FontSize="16"
+                                    TextColor="Black"
+                                    BackgroundColor="Transparent" />
+                        </StackLayout>
+                    </Border>
+                </Grid>
+
+                <Grid ColumnDefinitions="2*,*" ColumnSpacing="10">
+                    <!-- Endereço -->
+                    <Border Grid.Column="0"
+                            BackgroundColor="White"
+                            Stroke="#BDC3C7"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="15,10">
+                        <StackLayout Spacing="5">
+                            <Label Text="Endereço *"
+                                   FontSize="12"
+                                   TextColor="Black" />
+                            <Entry Text="{Binding Endereco}"
+                                   Placeholder="Rua, Avenida..."
+                                   FontSize="16"
+                                   TextColor="Black"
+                                   BackgroundColor="Transparent" />
+                        </StackLayout>
+                    </Border>
+
+                    <!-- Número -->
+                    <Border Grid.Column="1"
+                            BackgroundColor="White"
+                            Stroke="#BDC3C7"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="15,10">
+                        <StackLayout Spacing="5">
+                            <Label Text="Número *"
+                                   FontSize="12"
+                                   TextColor="Black" />
+                            <Entry Text="{Binding Numero}"
+                                   Placeholder="Nº"
+                                   FontSize="16"
+                                   TextColor="Black"
+                                   BackgroundColor="Transparent" />
+                        </StackLayout>
+                    </Border>
+                </Grid>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <!-- Cidade -->
+                    <Border Grid.Column="0"
+                            BackgroundColor="White"
+                            Stroke="#BDC3C7"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="15,10">
+                        <StackLayout Spacing="5">
+                            <Label Text="Cidade *"
+                                   FontSize="12"
+                                   TextColor="Black" />
+                            <Entry Text="{Binding Cidade}"
+                                   Placeholder="Nome da cidade"
+                                   FontSize="16"
+                                   TextColor="Black"
+                                   BackgroundColor="Transparent" />
+                        </StackLayout>
+                    </Border>
+
+                    <!-- Bairro -->
+                    <Border Grid.Column="1"
+                            BackgroundColor="White"
+                            Stroke="#BDC3C7"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="15,10">
+                        <StackLayout Spacing="5">
+                            <Label Text="Bairro *"
+                                   FontSize="12"
+                                   TextColor="Black" />
+                            <Entry Text="{Binding Bairro}"
+                                   Placeholder="Nome do bairro"
+                                   FontSize="16"
+                                   TextColor="Black"
+                                   BackgroundColor="Transparent" />
+                        </StackLayout>
+                    </Border>
+                </Grid>
+
+                <!-- Complemento -->
+                <Border BackgroundColor="White"
+                        Stroke="#BDC3C7"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 8"
+                        Padding="15,10">
+                    <StackLayout Spacing="5">
+                        <Label Text="Complemento"
+                               FontSize="12"
+                               TextColor="Black" />
+                        <Entry Text="{Binding Complemento}"
+                               Placeholder="Apartamento, bloco, etc."
+                               FontSize="16"
+                               TextColor="Black"
+                               BackgroundColor="Transparent" />
+                    </StackLayout>
+                </Border>
+
+                <!-- Error Message -->
+                <Label Text="{Binding ErrorMessage}"
+                       FontSize="14"
+                       TextColor="#E74C3C"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"
+                       IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}"
+                       Margin="0,10" />
+
+            </StackLayout>
+
+            <!-- Botão Salvar -->
+            <Button Grid.Row="2"
+                    Text="Finalizar Cadastro"
+                    Command="{Binding SaveCommand}"
+                    BackgroundColor="#27AE60"
+                    TextColor="White"
+                    FontSize="18"
+                    FontAttributes="Bold"
+                    HeightRequest="50"
+                    CornerRadius="25"
+                    IsEnabled="{Binding IsLoading, Converter={StaticResource BoolInverseConverter}}"
+                    Margin="0,20,0,10">
+                <Button.Shadow>
+                    <Shadow Brush="Black"
+                            Offset="0,2"
+                            Radius="8"
+                            Opacity="0.2" />
+                </Button.Shadow>
+            </Button>
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator Grid.Row="2"
+                              IsVisible="{Binding IsLoading}"
+                              IsRunning="{Binding IsLoading}"
+                              Color="#27AE60"
+                              VerticalOptions="Center"
+                              HorizontalOptions="Center" />
+
+        </Grid>
+    </ScrollView>
+</ContentPage>
