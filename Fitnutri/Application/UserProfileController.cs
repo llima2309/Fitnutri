@@ -245,6 +245,39 @@ public class UserProfileController : ControllerBase
         return NoContent();
     }
 
+    [HttpGet("profissionais/{tipoProfissional}")]
+    public async Task<ActionResult<IEnumerable<ProfissionalResponse>>> GetProfissionaisByTipo(int tipoProfissional)
+    {
+        if (!Enum.IsDefined(typeof(PerfilTipo), tipoProfissional))
+        {
+            return BadRequest(new { message = "Tipo de profissional inválido" });
+        }
+
+        var tipo = (PerfilTipo)tipoProfissional;
+        
+        // Buscar apenas Nutricionistas ou Personal Trainers
+        if (tipo != PerfilTipo.Nutricionista && tipo != PerfilTipo.PersonalTrainer)
+        {
+            return BadRequest(new { message = "Tipo deve ser Nutricionista (2) ou Personal Trainer (3)" });
+        }
+
+        var profissionais = await _context.Users
+            .Include(u => u.Perfil)
+            .Include(u => u.Profile)
+            .Where(u => u.Perfil != null && u.Perfil.Tipo == tipo && u.Profile != null)
+            .Select(u => new ProfissionalResponse(
+                u.Id,
+                u.Profile!.NomeCompleto,
+                u.Perfil!.Tipo,
+                u.Profile.CRN,
+                u.Profile.Cidade,
+                u.Profile.Estado
+            ))
+            .ToListAsync();
+
+        return Ok(profissionais);
+    }
+
     private Guid GetUserId()
     {
         var userIdClaim = User.FindFirst("sub")?.Value;

@@ -87,3 +87,13 @@ public record AddressFromCepResponse(
 // DTOs para enums
 public record GeneroOption(int Id, string Nome);
 public record EstadoOption(int Id, string Nome, string Sigla);
+
+// DTO para listagem de profissionais
+public record ProfissionalResponse(
+    Guid Id,
+    string NomeCompleto,
+    PerfilTipo TipoProfissional,
+    string? CRN,
+    string Cidade,
+    Estado Estado
+);

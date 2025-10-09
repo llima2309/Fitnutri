@@ -36,6 +36,14 @@ public static class MauiProgram
             client.Timeout = TimeSpan.FromSeconds(30);
         });
 
+        // HttpClient para ProfissionaisService
+        builder.Services.AddHttpClient<IProfissionaisService, ProfissionaisService>(client =>
+        {
+            client.BaseAddress = new Uri("https://api.fit-nutri.com");
+            client.DefaultRequestHeaders.Add("x-api-key", "<STRONG_CLIENT_KEY>");
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
+
         // Token store
         builder.Services.AddSingleton<ITokenStore, SecureTokenStore>();
         builder.Services.AddSingleton<SecureTokenStore>();
@@ -49,6 +57,8 @@ public static class MauiProgram
         builder.Services.AddTransient<ProfileSelectionViewModel>();
         builder.Services.AddTransient<UserProfileRegistrationViewModel>();
         builder.Services.AddTransient<HomePageViewModel>();
+        builder.Services.AddTransient<AgendamentosViewModel>();
+        builder.Services.AddTransient<ListaProfissionaisViewModel>();
 
         // Views
         builder.Services.AddTransient<Views.LoginPage>();
@@ -59,6 +69,8 @@ public static class MauiProgram
         builder.Services.AddTransient<Views.ProfileSelectionPage>();
         builder.Services.AddTransient<Views.UserProfileRegistrationPage>();
         builder.Services.AddTransient<Views.HomePage>();
+        builder.Services.AddTransient<Views.AgendamentosPage>();
+        builder.Services.AddTransient<Views.ListaProfissionaisPage>();
 
         return builder.Build();
     }

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="AppFitNutri.Views.AgendamentosPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:AppFitNutri.ViewModel"
+             x:DataType="viewmodel:AgendamentosViewModel"
+             Title="Agendamentos"
+             Shell.NavBarIsVisible="True">
+
+    <!-- Gradient Background -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#4A90E2" Offset="0.0" />
+            <GradientStop Color="#7ED321" Offset="0.5" />
+            <GradientStop Color="#4A90E2" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <Grid Padding="20" RowSpacing="30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackLayout Grid.Row="0" Spacing="10" Margin="0,20,0,0">
+            <Label Text="Escolha o tipo de profissional"
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center" />
+            
+            <Label Text="Selecione com qual tipo de profissional você deseja agendar uma consulta"
+                   FontSize="16"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"
+                   Opacity="0.9" />
+        </StackLayout>
+
+        <!-- Opções de Profissionais -->
+        <StackLayout Grid.Row="1" Spacing="30" VerticalOptions="Center">
+            
+            <!-- Nutricionista -->
+            <Border BackgroundColor="White"
+                    StrokeShape="RoundRectangle 20"
+                    Padding="30"
+                    HorizontalOptions="FillAndExpand">
+                <Border.Shadow>
+                    <Shadow Brush="Black"
+                            Offset="0,4"
+                            Radius="12"
+                            Opacity="0.3" />
+                </Border.Shadow>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SelecionarNutricionistaCommand}" />
+                </Border.GestureRecognizers>
+                
+                <Grid ColumnSpacing="20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Ícone -->
+                    <Border Grid.Column="0"
+                            BackgroundColor="#E8F5E8"
+                            StrokeShape="RoundRectangle 15"
+                            WidthRequest="60"
+                            HeightRequest="60">
+                        <Label Text="🥗"
+                               FontSize="30"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+
+                    <!-- Informações -->
+                    <StackLayout Grid.Column="1" VerticalOptions="Center" Spacing="5">
+                        <Label Text="Nutricionista"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               TextColor="#2C3E50" />
+                        <Label Text="Consulta nutricional para orientação alimentar e dietas personalizadas"
+                               FontSize="14"
+                               TextColor="#7F8C8D"
+                               LineBreakMode="WordWrap" />
+                    </StackLayout>
+
+                    <!-- Seta -->
+                    <Label Grid.Column="2"
+                           Text="›"
+                           FontSize="24"
+                           TextColor="#3498DB"
+                           VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+            <!-- Personal Trainer -->
+            <Border BackgroundColor="White"
+                    StrokeShape="RoundRectangle 20"
+                    Padding="30"
+                    HorizontalOptions="FillAndExpand">
+                <Border.Shadow>
+                    <Shadow Brush="Black"
+                            Offset="0,4"
+                            Radius="12"
+                            Opacity="0.3" />
+                </Border.Shadow>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SelecionarPersonalTrainerCommand}" />
+                </Border.GestureRecognizers>
+                
+                <Grid ColumnSpacing="20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Ícone -->
+                    <Border Grid.Column="0"
+                            BackgroundColor="#FFF3E0"
+                            StrokeShape="RoundRectangle 15"
+                            WidthRequest="60"
+                            HeightRequest="60">
+                        <Label Text="🏋️"
+                               FontSize="30"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+
+                    <!-- Informações -->
+                    <StackLayout Grid.Column="1" VerticalOptions="Center" Spacing="5">
+                        <Label Text="Personal Trainer"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               TextColor="#2C3E50" />
+                        <Label Text="Treino personalizado e acompanhamento físico especializado"
+                               FontSize="14"
+                               TextColor="#7F8C8D"
+                               LineBreakMode="WordWrap" />
+                    </StackLayout>
+
+                    <!-- Seta -->
+                    <Label Grid.Column="2"
+                           Text="›"
+                           FontSize="24"
+                           TextColor="#E67E22"
+                           VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+        </StackLayout>
+    </Grid>
+</ContentPage>
