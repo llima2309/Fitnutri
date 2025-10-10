@@ -66,6 +66,7 @@ public static class MauiProgram
         builder.Services.AddTransient<Views.ForgotPasswordPage>();
         builder.Services.AddTransient<Views.ResetPasswordPage>();
         builder.Services.AddTransient<Views.CodeVerificationPopup>();
+        builder.Services.AddTransient<Views.LoadingPage>();
         builder.Services.AddTransient<Views.ProfileSelectionPage>();
         builder.Services.AddTransient<Views.UserProfileRegistrationPage>();
         builder.Services.AddTransient<Views.HomePage>();

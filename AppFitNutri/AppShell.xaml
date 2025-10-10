@@ -32,14 +32,4 @@
      ContentTemplate="{DataTemplate local:HomePage}"
      Route="HomePage" />
 
-    <ShellContent
-     Title="Agendamentos"
-     ContentTemplate="{DataTemplate local:AgendamentosPage}"
-     Route="AgendamentosPage" />
-
-    <ShellContent
-     Title="Lista de Profissionais"
-     ContentTemplate="{DataTemplate local:ListaProfissionaisPage}"
-     Route="ListaProfissionaisPage" />
-
 </Shell>

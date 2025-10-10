@@ -72,6 +72,7 @@ public partial class LoginViewModel : ObservableObject
         try
         {
             IsBusy = true;
+            await LoadingService.ShowLoadingAsync();
 
             var req = new LoginRequest(user, pass);
             var result = await _authApi.LoginAsync(req, CancellationToken.None);
@@ -96,6 +97,7 @@ public partial class LoginViewModel : ObservableObject
         finally
         {
             IsBusy = false;
+            await LoadingService.HideLoadingAsync();
         }
     }
 

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="AppFitNutri.Views.LoadingPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Carregando"
+    BackgroundColor="#80000000">
+
+    <!-- Overlay semitransparente para simular popup -->
+    <Grid BackgroundColor="#80000000">
+        <!-- Container do popup centralizado -->
+        <Border BackgroundColor="White"
+                StrokeShape="RoundRectangle 20"
+                WidthRequest="200"
+                HeightRequest="180"
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                Padding="20">
+            <Border.Shadow>
+                <Shadow Brush="Black" Offset="0,4" Radius="8" Opacity="0.3" />
+            </Border.Shadow>
+
+            <VerticalStackLayout Spacing="15" HorizontalOptions="Center" VerticalOptions="Center">
+                
+                <!-- Ícone de loading -->
+                <Border BackgroundColor="#4A90E2"
+                        StrokeShape="RoundRectangle 30"
+                        WidthRequest="60"
+                        HeightRequest="60"
+                        HorizontalOptions="Center"
+                        Padding="0">
+                    <ActivityIndicator IsVisible="True"
+                                     IsRunning="True"
+                                     Color="White"
+                                     WidthRequest="30"
+                                     HeightRequest="30"
+                                     HorizontalOptions="Center"
+                                     VerticalOptions="Center" />
+                </Border>
+                
+                <!-- Texto de carregamento -->
+                <Label Text="Carregando..."
+                       FontSize="16"
+                       FontAttributes="Bold"
+                       TextColor="#4A90E2"
+                       HorizontalTextAlignment="Center" />
+                       
+                <!-- Texto secundário -->
+                <Label Text="Aguarde um momento"
+                       FontSize="12"
+                       TextColor="Gray"
+                       HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</ContentPage>
