@@ -142,6 +142,7 @@ public class UserProfileController : ControllerBase
             RG = request.RG,
             Genero = request.Genero,
             DataNascimento = request.DataNascimento,
+            Telefone = request.Telefone,
             CRN = request.CRN,
             CEP = request.CEP,
             Estado = request.Estado,
@@ -199,6 +200,7 @@ public class UserProfileController : ControllerBase
         profile.RG = request.RG;
         profile.Genero = request.Genero;
         profile.DataNascimento = request.DataNascimento;
+        profile.Telefone = request.Telefone;
         profile.CRN = request.CRN;
         profile.CEP = request.CEP;
         profile.Estado = request.Estado;
@@ -293,6 +295,7 @@ public class UserProfileController : ControllerBase
             profile.RG,
             profile.Genero,
             profile.DataNascimento,
+            profile.Telefone,
             profile.CRN,
             profile.CEP,
             profile.Estado,

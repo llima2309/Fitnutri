@@ -66,15 +66,40 @@ public class ProfileSelectionViewModel : INotifyPropertyChanged
         {
             IsLoading = true;
             
-            // Navegar diretamente para a tela de cadastro de perfil completo
-            // O tipo de perfil selecionado pode ser passado como parâmetro se necessário
+            // Associar o perfil selecionado através da API
+            var perfilAssociado = await _profileService.AssociarPerfilAsync(SelectedProfileType);
+            
+            // Exibir mensagem de sucesso
+            await Application.Current.MainPage.DisplayAlert(
+                "Sucesso", 
+                $"Perfil associado com sucesso! Agora complete seu cadastro.", 
+                "OK");
+            
+            // Navegar para a página de completar cadastro após associar o perfil
             await Shell.Current.GoToAsync("//UserProfileRegistrationPage");
+        }
+        catch (UnauthorizedAccessException)
+        {
+            await Application.Current.MainPage.DisplayAlert(
+                "Erro de Autenticação", 
+                "Sua sessão expirou. Por favor, faça login novamente.", 
+                "OK");
+            
+            // Navegar de volta para a tela de login
+            await Shell.Current.GoToAsync("//LoginPage");
+        }
+        catch (InvalidOperationException ex)
+        {
+            await Application.Current.MainPage.DisplayAlert(
+                "Erro", 
+                $"Erro ao associar perfil: {ex.Message}", 
+                "OK");
         }
         catch (Exception ex)
         {
             await Application.Current.MainPage.DisplayAlert(
                 "Erro", 
-                $"Erro ao continuar: {ex.Message}", 
+                $"Erro inesperado: {ex.Message}", 
                 "OK");
         }
         finally

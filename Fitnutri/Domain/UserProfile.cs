@@ -49,6 +49,7 @@ public class UserProfile
     public string? RG { get; set; }
     public Genero Genero { get; set; }
     public DateTime DataNascimento { get; set; }
+    public string? Telefone { get; set; }
     
     // Informações Profissionais (para nutricionistas)
     public string? CRN { get; set; }

@@ -17,7 +17,7 @@
 
             <!-- Header -->
             <StackLayout Grid.Row="0" Spacing="10">
-                <Label Text="Complete seu Cadastro"
+                <Label Text="{Binding PageTitle}"
                        FontSize="24"
                        FontAttributes="Bold"
                        TextColor="Black"
@@ -27,7 +27,15 @@
                        FontSize="14"
                        TextColor="Black"
                        HorizontalOptions="Center"
-                       HorizontalTextAlignment="Center" />
+                       HorizontalTextAlignment="Center"
+                       IsVisible="{Binding IsEditMode, Converter={StaticResource BoolInverseConverter}}" />
+                       
+                <Label Text="Atualize suas informações pessoais"
+                       FontSize="14"
+                       TextColor="Black"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"
+                       IsVisible="{Binding IsEditMode}" />
             </StackLayout>
 
             <!-- Form -->
@@ -102,6 +110,27 @@
                         </StackLayout>
                     </Border>
                 </Grid>
+
+                <!-- Telefone -->
+                <Border BackgroundColor="White"
+                        Stroke="#BDC3C7"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 8"
+                        Padding="15,10">
+                    <StackLayout Spacing="5">
+                        <Label Text="Telefone"
+                               FontSize="12"
+                               TextColor="Black" />
+                        <Entry Text="{Binding Telefone}"
+                               Placeholder="(00) 00000-0000"
+                               Keyboard="Telephone"
+                               ReturnType="Done"
+                               MaxLength="15"
+                               FontSize="16"
+                               TextColor="Black"
+                               BackgroundColor="Transparent" />
+                    </StackLayout>
+                </Border>
 
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                     <!-- Gênero -->
@@ -325,7 +354,7 @@
 
             <!-- Botão Salvar -->
             <Button Grid.Row="2"
-                    Text="Finalizar Cadastro"
+                    Text="{Binding ButtonText}"
                     Command="{Binding SaveCommand}"
                     BackgroundColor="#27AE60"
                     TextColor="White"

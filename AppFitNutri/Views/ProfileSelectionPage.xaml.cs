@@ -1,4 +1,3 @@
-using Microsoft.Maui.Controls;
 using AppFitNutri.ViewModel;
 using AppFitNutri.Core.Services;
 
@@ -18,23 +17,23 @@ public partial class ProfileSelectionPage : ContentPage
 
     private void OnPatientSelected(object sender, EventArgs e)
     {
-        SelectProfile(4, PatientButton); // Paciente = 4
+        SelectProfile(PatientButton); // Paciente = 4
         _viewModel.SelectProfileCommand.Execute(4);
     }
 
     private void OnNutritionistSelected(object sender, EventArgs e)
     {
-        SelectProfile(2, NutritionistButton); // Nutricionista = 2
+        SelectProfile(NutritionistButton); // Nutricionista = 2
         _viewModel.SelectProfileCommand.Execute(2);
     }
 
     private void OnPersonalTrainerSelected(object sender, EventArgs e)
     {
-        SelectProfile(3, PersonalTrainerButton); // PersonalTrainer = 3
+        SelectProfile(PersonalTrainerButton); // PersonalTrainer = 3
         _viewModel.SelectProfileCommand.Execute(3);
     }
 
-    private void SelectProfile(int profileType, Button selectedButton)
+    private void SelectProfile(Button selectedButton)
     {
         // Reset all buttons to default state
         ResetButtonStyles();
@@ -48,10 +47,6 @@ public partial class ProfileSelectionPage : ContentPage
             parentBorder.Stroke = Color.FromArgb("#27AE60");
             parentBorder.StrokeThickness = 3;
         }
-        
-        // Enable continue button
-        ContinueButton.IsEnabled = true;
-        ContinueButton.BackgroundColor = Color.FromArgb("#27AE60");
     }
 
     private void ResetButtonStyles()
@@ -78,21 +73,6 @@ public partial class ProfileSelectionPage : ContentPage
         {
             trainerBorder.Stroke = Color.FromArgb("#3498DB");
             trainerBorder.StrokeThickness = 2;
-        }
-    }
-
-    private async void OnContinueClicked(object sender, EventArgs e)
-    {
-        if (_viewModel.SelectedProfileType == 0)
-        {
-            await DisplayAlert("Atenção", "Por favor, selecione um tipo de perfil.", "OK");
-            return;
-        }
-
-        // Execute the continue command from ViewModel
-        if (_viewModel.ContinueCommand.CanExecute(null))
-        {
-            _viewModel.ContinueCommand.Execute(null);
         }
     }
 }

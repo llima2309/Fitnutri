@@ -14,7 +14,10 @@ namespace AppFitNutri
             Routing.RegisterRoute(nameof(ResetPasswordPage), typeof(ResetPasswordPage));
             Routing.RegisterRoute(nameof(ProfileSelectionPage), typeof(ProfileSelectionPage));
             Routing.RegisterRoute(nameof(AgendamentosPage), typeof(AgendamentosPage));
-
+            Routing.RegisterRoute(nameof(ListaProfissionaisPage), typeof(ListaProfissionaisPage));
+            Routing.RegisterRoute(nameof(PerfilPage), typeof(PerfilPage));
+            Routing.RegisterRoute(nameof(UserProfileRegistrationPage), typeof(UserProfileRegistrationPage));
+            
         }
     }
 }

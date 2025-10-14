@@ -43,6 +43,47 @@ public class CreateUserProfileRequest
     [Required(ErrorMessage = "Data de nascimento é obrigatória")]
     public DateTime DataNascimento { get; set; }
 
+    public string? Telefone { get; set; }
+
+    public string? CRN { get; set; }
+
+    [Required(ErrorMessage = "CEP é obrigatório")]
+    [RegularExpression(@"^\d{5}-?\d{3}$", ErrorMessage = "CEP deve estar no formato 00000-000")]
+    public string CEP { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Estado é obrigatório")]
+    public Estado Estado { get; set; }
+
+    [Required(ErrorMessage = "Endereço é obrigatório")]
+    public string Endereco { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Número é obrigatório")]
+    public string Numero { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Cidade é obrigatória")]
+    public string Cidade { get; set; } = string.Empty;
+
+    public string? Complemento { get; set; }
+
+    [Required(ErrorMessage = "Bairro é obrigatório")]
+    public string Bairro { get; set; } = string.Empty;
+}
+
+public class UpdateUserProfileRequest
+{
+    [Required(ErrorMessage = "Nome completo é obrigatório")]
+    public string NomeCompleto { get; set; } = string.Empty;
+
+    public string? RG { get; set; }
+
+    [Required(ErrorMessage = "Gênero é obrigatório")]
+    public Genero Genero { get; set; }
+
+    [Required(ErrorMessage = "Data de nascimento é obrigatória")]
+    public DateTime DataNascimento { get; set; }
+
+    public string? Telefone { get; set; }
+
     public string? CRN { get; set; }
 
     [Required(ErrorMessage = "CEP é obrigatório")]
@@ -76,6 +117,7 @@ public class UserProfileResponse
     public string? RG { get; set; }
     public Genero Genero { get; set; }
     public DateTime DataNascimento { get; set; }
+    public string? Telefone { get; set; }
     public string? CRN { get; set; }
     public string CEP { get; set; } = string.Empty;
     public Estado Estado { get; set; }

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="AppFitNutri.Views.PerfilPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:AppFitNutri.ViewModel"
+             x:DataType="viewmodel:PerfilViewModel"
+             Title="Perfil"
+             Shell.NavBarIsVisible="True">
+    
+    <!-- Gradient Background -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#4A90E2" Offset="0.0" />
+            <GradientStop Color="#7ED321" Offset="0.5" />
+            <GradientStop Color="#4A90E2" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <ScrollView Padding="20">
+        <StackLayout Spacing="20">
+            
+            <!-- Profile Header -->
+            <Border BackgroundColor="White" 
+                    StrokeShape="RoundRectangle 20"
+                    Padding="20">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
+                </Border.Shadow>
+                <StackLayout Spacing="15">
+                    <!-- Profile Picture -->
+                    <Border BackgroundColor="#E0E0E0"
+                            StrokeShape="RoundRectangle 50"
+                            WidthRequest="100"
+                            HeightRequest="100"
+                            HorizontalOptions="Center">
+                        <Label Text="👤"
+                               FontSize="50"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               TextColor="#666" />
+                    </Border>
+                    
+                    <!-- User Name -->
+                    <Label Text="{Binding UserName}"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           TextColor="#333" />
+                    
+                    <!-- User Email -->
+                    <Label Text="{Binding UserEmail}"
+                           FontSize="16"
+                           HorizontalOptions="Center"
+                           TextColor="#666" />
+                </StackLayout>
+            </Border>
+
+            <!-- User Information -->
+            <Border BackgroundColor="White" 
+                    StrokeShape="RoundRectangle 20"
+                    Padding="20">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
+                </Border.Shadow>
+                <StackLayout Spacing="15">
+                    <Label Text="Informações Pessoais"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#333" />
+                    
+                    <!-- Phone -->
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                        <Label Grid.Column="0"
+                               Text="📱"
+                               FontSize="20"
+                               VerticalOptions="Center" />
+                        <Label Grid.Column="1"
+                               Text="{Binding UserPhone}"
+                               FontSize="16"
+                               VerticalOptions="Center"
+                               TextColor="#666" />
+                    </Grid>
+                    
+                    <!-- Age -->
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                        <Label Grid.Column="0"
+                               Text="🎂"
+                               FontSize="20"
+                               VerticalOptions="Center" />
+                        <Label Grid.Column="1"
+                               Text="{Binding UserAge}"
+                               FontSize="16"
+                               VerticalOptions="Center"
+                               TextColor="#666" />
+                    </Grid>
+                    
+                    <!-- Gender -->
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                        <Label Grid.Column="0"
+                               Text="⚧"
+                               FontSize="20"
+                               VerticalOptions="Center" />
+                        <Label Grid.Column="1"
+                               Text="{Binding UserGender}"
+                               FontSize="16"
+                               VerticalOptions="Center"
+                               TextColor="#666" />
+                    </Grid>
+                </StackLayout>
+            </Border>
+
+            <!-- App Settings -->
+            <Border BackgroundColor="White" 
+                    StrokeShape="RoundRectangle 20"
+                    Padding="20">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
+                </Border.Shadow>
+                <StackLayout Spacing="15">
+                    <Label Text="Configurações"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#333" />
+                    
+                    <!-- Edit Profile Button -->
+                    <Button Text="✏️ Editar Perfil"
+                            BackgroundColor="#4A90E2"
+                            TextColor="White"
+                            CornerRadius="15"
+                            HeightRequest="50"
+                            Command="{Binding EditProfileCommand}">
+                        <Button.Shadow>
+                            <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
+                        </Button.Shadow>
+                    </Button>
+                    
+                    <!-- Change Password Button -->
+                    <Button Text="🔒 Alterar Senha"
+                            BackgroundColor="#7ED321"
+                            TextColor="White"
+                            CornerRadius="15"
+                            HeightRequest="50"
+                            Command="{Binding ChangePasswordCommand}">
+                        <Button.Shadow>
+                            <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
+                        </Button.Shadow>
+                    </Button>
+                    
+                    <!-- Notifications Button -->
+                    <Button Text="🔔 Notificações"
+                            BackgroundColor="#FF9500"
+                            TextColor="White"
+                            CornerRadius="15"
+                            HeightRequest="50"
+                            Command="{Binding NotificationsCommand}">
+                        <Button.Shadow>
+                            <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
+                        </Button.Shadow>
+                    </Button>
+                </StackLayout>
+            </Border>
+
+            <!-- Logout Section -->
+            <Border BackgroundColor="White" 
+                    StrokeShape="RoundRectangle 20"
+                    Padding="20">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
+                </Border.Shadow>
+                <StackLayout Spacing="15">
+                    <Label Text="Sessão"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#333" />
+                    
+                    <!-- Logout Button -->
+                    <Button Text="🚪 Sair"
+                            BackgroundColor="#FF3B30"
+                            TextColor="White"
+                            CornerRadius="15"
+                            HeightRequest="50"
+                            Command="{Binding LogoutCommand}">
+                        <Button.Shadow>
+                            <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
+                        </Button.Shadow>
+                    </Button>
+                </StackLayout>
+            </Border>
+            
+            <!-- App Version -->
+            <Label Text="{Binding AppVersion}"
+                   FontSize="12"
+                   HorizontalOptions="Center"
+                   TextColor="White"
+                   Opacity="0.7"
+                   Margin="0,20,0,0" />
+                   
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

@@ -17,6 +17,7 @@ public class UserProfileRegistrationViewModel : INotifyPropertyChanged
     private string _nomeCompleto = string.Empty;
     private string _cpf = string.Empty;
     private string _rg = string.Empty;
+    private string _telefone = string.Empty;
     private GeneroOption? _selectedGenero;
     private DateTime _dataNascimento = DateTime.Now.AddYears(-18);
     private string _crn = string.Empty;
@@ -30,6 +31,10 @@ public class UserProfileRegistrationViewModel : INotifyPropertyChanged
     private string _complemento = string.Empty;
     private string _bairro = string.Empty;
 
+    // Modo de edição
+    private bool _isEditMode = false;
+    private UserProfileResponse? _existingProfile;
+
     // Collections
     public ObservableCollection<GeneroOption> GeneroOptions { get; } = new();
     public ObservableCollection<EstadoOption> EstadoOptions { get; } = new();
@@ -41,7 +46,67 @@ public class UserProfileRegistrationViewModel : INotifyPropertyChanged
         SaveCommand = new Command(async () => await SaveProfile(), () => !IsLoading);
         SearchCepCommand = new Command<string>(async (cep) => await SearchCep(cep));
         
-        _ = LoadOptionsAsync();
+        _ = LoadOptionsAndProfileAsync();
+    }
+
+    private async Task LoadOptionsAndProfileAsync()
+    {
+        try
+        {
+            IsLoading = true;
+            ErrorMessage = string.Empty;
+
+            System.Diagnostics.Debug.WriteLine("==> Carregando opções e verificando perfil existente");
+
+            // Carregar opções e verificar se já existe perfil em paralelo
+            var generoTask = _userProfileService.GetGeneroOptionsAsync();
+            var estadoTask = _userProfileService.GetEstadoOptionsAsync();
+            var profileTask = _userProfileService.GetProfileAsync();
+
+            var generoOptions = await generoTask;
+            var estadoOptions = await estadoTask;
+            var existingProfile = await profileTask;
+
+            // Carregar opções
+            GeneroOptions.Clear();
+            foreach (var option in generoOptions)
+            {
+                GeneroOptions.Add(option);
+            }
+
+            EstadoOptions.Clear();
+            foreach (var option in estadoOptions)
+            {
+                EstadoOptions.Add(option);
+            }
+
+            // Verificar se já existe perfil e entrar no modo de edição
+            if (existingProfile != null)
+            {
+                _isEditMode = true;
+                _existingProfile = existingProfile;
+                LoadExistingProfileData();
+                System.Diagnostics.Debug.WriteLine("==> Modo de edição ativado - perfil existente encontrado");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("==> Modo de criação ativado - nenhum perfil existente");
+            }
+
+            // Notificar mudanças nas propriedades dinâmicas
+            OnPropertyChanged(nameof(IsEditMode));
+            OnPropertyChanged(nameof(PageTitle));
+            OnPropertyChanged(nameof(ButtonText));
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Erro ao carregar dados: {ex.Message}";
+            System.Diagnostics.Debug.WriteLine($"==> ERRO no LoadOptionsAndProfileAsync: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
 
     public ICommand SaveCommand { get; }
@@ -95,6 +160,16 @@ public class UserProfileRegistrationViewModel : INotifyPropertyChanged
         set
         {
             _rg = FormatRg(value);
+            OnPropertyChanged();
+        }
+    }
+
+    public string Telefone
+    {
+        get => _telefone;
+        set
+        {
+            _telefone = FormatTelefone(value);
             OnPropertyChanged();
         }
     }
@@ -319,39 +394,64 @@ public class UserProfileRegistrationViewModel : INotifyPropertyChanged
             if (!ValidateFields())
                 return;
 
-            var request = new CreateUserProfileRequest
+            if (_isEditMode)
             {
-                NomeCompleto = NomeCompleto,
-                CPF = CPF,
-                RG = string.IsNullOrWhiteSpace(RG) ? null : RG,
-                Genero = (Genero)SelectedGenero!.Value,
-                DataNascimento = DataNascimento,
-                CRN = string.IsNullOrWhiteSpace(CRN) ? null : CRN,
-                CEP = CEP,
-                Estado = (Estado)SelectedEstado!.Value,
-                Endereco = Endereco,
-                Numero = Numero,
-                Cidade = Cidade,
-                Complemento = string.IsNullOrWhiteSpace(Complemento) ? null : Complemento,
-                Bairro = Bairro
-            };
+                // Modo de edição - usar UpdateProfileAsync
+                var updateRequest = new UpdateUserProfileRequest
+                {
+                    NomeCompleto = NomeCompleto,
+                    RG = string.IsNullOrWhiteSpace(RG) ? null : RG,
+                    Telefone = string.IsNullOrWhiteSpace(Telefone) ? null : Telefone,
+                    Genero = (Genero)SelectedGenero!.Value,
+                    DataNascimento = DataNascimento,
+                    CRN = string.IsNullOrWhiteSpace(CRN) ? null : CRN,
+                    CEP = CEP,
+                    Estado = (Estado)SelectedEstado!.Value,
+                    Endereco = Endereco,
+                    Numero = Numero,
+                    Cidade = Cidade,
+                    Complemento = string.IsNullOrWhiteSpace(Complemento) ? null : Complemento,
+                    Bairro = Bairro
+                };
 
-            // Debug output do JSON de criação do UserProfile
-            var jsonRequest = System.Text.Json.JsonSerializer.Serialize(request, new System.Text.Json.JsonSerializerOptions 
-            { 
-                WriteIndented = true,
-                PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
-            });
-            System.Diagnostics.Debug.WriteLine("==> JSON CreateUserProfileRequest:");
-            System.Diagnostics.Debug.WriteLine(jsonRequest);
-
-            var result = await _userProfileService.CreateProfileAsync(request);
-            
-            if (result != null)
+                System.Diagnostics.Debug.WriteLine("==> Atualizando perfil existente");
+                var result = await _userProfileService.UpdateProfileAsync(updateRequest);
+                
+                if (result != null)
+                {
+                    System.Diagnostics.Debug.WriteLine("==> Perfil atualizado com sucesso!");
+                    await Shell.Current.GoToAsync("..");
+                }
+            }
+            else
             {
-                System.Diagnostics.Debug.WriteLine("==> UserProfile criado com sucesso!");
-                // Navegar para a HomePage
-                await Shell.Current.GoToAsync("//HomePage");
+                // Modo de criação - usar CreateProfileAsync
+                var createRequest = new CreateUserProfileRequest
+                {
+                    NomeCompleto = NomeCompleto,
+                    CPF = CPF,
+                    RG = string.IsNullOrWhiteSpace(RG) ? null : RG,
+                    Telefone = string.IsNullOrWhiteSpace(Telefone) ? null : Telefone,
+                    Genero = (Genero)SelectedGenero!.Value,
+                    DataNascimento = DataNascimento,
+                    CRN = string.IsNullOrWhiteSpace(CRN) ? null : CRN,
+                    CEP = CEP,
+                    Estado = (Estado)SelectedEstado!.Value,
+                    Endereco = Endereco,
+                    Numero = Numero,
+                    Cidade = Cidade,
+                    Complemento = string.IsNullOrWhiteSpace(Complemento) ? null : Complemento,
+                    Bairro = Bairro
+                };
+
+                System.Diagnostics.Debug.WriteLine("==> Criando novo perfil");
+                var result = await _userProfileService.CreateProfileAsync(createRequest);
+                
+                if (result != null)
+                {
+                    System.Diagnostics.Debug.WriteLine("==> Perfil criado com sucesso!");
+                    await Shell.Current.GoToAsync("//HomePage");
+                }
             }
         }
         catch (Exception ex)
@@ -365,6 +465,10 @@ public class UserProfileRegistrationViewModel : INotifyPropertyChanged
             IsLoading = false;
         }
     }
+
+    public bool IsEditMode => _isEditMode;
+    public string PageTitle => _isEditMode ? "Editar Perfil" : "Cadastro de Perfil";
+    public string ButtonText => _isEditMode ? "Salvar Alterações" : "Finalizar Cadastro";
 
     private bool ValidateFields()
     {
@@ -549,6 +653,62 @@ public class UserProfileRegistrationViewModel : INotifyPropertyChanged
                 return FormatRg(mainDigits);
             }
         }
+    }
+
+    private static string FormatTelefone(string telefone)
+    {
+        // Remove tudo que não for dígito
+        var digits = new string(telefone.Where(char.IsDigit).ToArray());
+
+        // Limita a 11 dígitos (considerando código de área + número)
+        if (digits.Length > 11)
+            digits = digits.Substring(0, 11);
+
+        // Formata como (XX) XXXXX-XXXX ou (XX) XXXX-XXXX
+        if (digits.Length == 11)
+            return $"({digits.Substring(0, 2)}) {digits.Substring(2, 5)}-{digits.Substring(7)}";
+        if (digits.Length == 10)
+            return $"({digits.Substring(0, 2)}) {digits.Substring(2, 4)}-{digits.Substring(6)}";
+
+        return digits;
+    }
+
+    private void LoadExistingProfileData()
+    {
+        if (_existingProfile == null)
+            return;
+
+        NomeCompleto = _existingProfile.NomeCompleto;
+        CPF = _existingProfile.CPF;
+        RG = _existingProfile.RG ?? string.Empty;
+        Telefone = _existingProfile.Telefone ?? string.Empty;
+        SelectedGenero = GeneroOptions.FirstOrDefault(g => g.Value == (int)_existingProfile.Genero);
+        DataNascimento = _existingProfile.DataNascimento;
+        CRN = _existingProfile.CRN ?? string.Empty;
+        CEP = _existingProfile.CEP;
+        SelectedEstado = EstadoOptions.FirstOrDefault(e => e.Value == (int)_existingProfile.Estado);
+        Endereco = _existingProfile.Endereco;
+        Numero = _existingProfile.Numero;
+        Cidade = _existingProfile.Cidade;
+        Complemento = _existingProfile.Complemento ?? string.Empty;
+        Bairro = _existingProfile.Bairro;
+
+        // Debug output dos dados carregados
+        System.Diagnostics.Debug.WriteLine("==> Dados do perfil carregados:");
+        System.Diagnostics.Debug.WriteLine($"    NomeCompleto: '{NomeCompleto}'");
+        System.Diagnostics.Debug.WriteLine($"    CPF: '{CPF}'");
+        System.Diagnostics.Debug.WriteLine($"    RG: '{RG}'");
+        System.Diagnostics.Debug.WriteLine($"    Telefone: '{Telefone}'");
+        System.Diagnostics.Debug.WriteLine($"    Genero: '{SelectedGenero?.Display}'");
+        System.Diagnostics.Debug.WriteLine($"    DataNascimento: '{DataNascimento}'");
+        System.Diagnostics.Debug.WriteLine($"    CRN: '{CRN}'");
+        System.Diagnostics.Debug.WriteLine($"    CEP: '{CEP}'");
+        System.Diagnostics.Debug.WriteLine($"    Estado: '{SelectedEstado?.Display}'");
+        System.Diagnostics.Debug.WriteLine($"    Endereco: '{Endereco}'");
+        System.Diagnostics.Debug.WriteLine($"    Numero: '{Numero}'");
+        System.Diagnostics.Debug.WriteLine($"    Cidade: '{Cidade}'");
+        System.Diagnostics.Debug.WriteLine($"    Complemento: '{Complemento}'");
+        System.Diagnostics.Debug.WriteLine($"    Bairro: '{Bairro}'");
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

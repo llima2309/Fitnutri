@@ -75,35 +75,57 @@ public class ListaProfissionaisViewModel : INotifyPropertyChanged
 
     private async Task CarregarProfissionais()
     {
-        if (TipoProfissional == 0) return;
+        if (TipoProfissional == 0) 
+        {
+            System.Diagnostics.Debug.WriteLine("TipoProfissional é 0, não carregando");
+            return;
+        }
 
+        System.Diagnostics.Debug.WriteLine($"Iniciando carregamento para tipo: {TipoProfissional}");
         IsLoading = true;
         
         try
         {
             var profissionais = await _profissionaisService.GetProfissionaisByTipoAsync(TipoProfissional);
+            System.Diagnostics.Debug.WriteLine($"Recebidos {profissionais?.Count ?? 0} profissionais da API");
             
             // Atualizar na UI thread
             MainThread.BeginInvokeOnMainThread(() =>
             {
+                System.Diagnostics.Debug.WriteLine($"Limpando collection. Continha {Profissionais.Count} itens antes");
                 Profissionais.Clear();
-                foreach (var profissional in profissionais)
+                
+                if (profissionais != null)
                 {
-                    Profissionais.Add(profissional);
+                    foreach (var profissional in profissionais)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Adicionando: {profissional.NomeCompleto}");
+                        Profissionais.Add(profissional);
+                    }
                 }
+                
+                System.Diagnostics.Debug.WriteLine($"Collection agora tem {Profissionais.Count} itens");
+                
+                // Forçar notificação de mudança na propriedade
+                OnPropertyChanged(nameof(Profissionais));
             });
         }
         catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"Erro ao carregar profissionais: {ex.Message}");
             MainThread.BeginInvokeOnMainThread(async () =>
             {
-                await Application.Current?.MainPage?.DisplayAlert("Erro", 
-                    $"Erro ao carregar profissionais: {ex.Message}", "OK");
+                if (Application.Current?.MainPage != null)
+                {
+                    await Application.Current.MainPage.DisplayAlert("Erro",
+                        $"Erro ao carregar profissionais: {ex.Message}", "OK");
+                }
             });
         }
         finally
         {
             IsLoading = false;
+            System.Diagnostics.Debug.WriteLine("Carregamento finalizado");
         }
     }
 

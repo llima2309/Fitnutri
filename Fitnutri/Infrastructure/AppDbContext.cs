@@ -65,6 +65,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         up.Property(x => x.RG).HasMaxLength(20);
         up.Property(x => x.Genero).HasConversion<int>().IsRequired();
         up.Property(x => x.DataNascimento).IsRequired();
+        up.Property(x => x.Telefone).HasMaxLength(20);
         
         // Informações profissionais
         up.Property(x => x.CRN).HasMaxLength(20);

@@ -22,6 +22,7 @@ public interface IUserProfileService
 {
     Task<UserProfileResponse?> GetProfileAsync();
     Task<UserProfileResponse?> CreateProfileAsync(CreateUserProfileRequest request);
+    Task<UserProfileResponse?> UpdateProfileAsync(UpdateUserProfileRequest request);
     Task<AddressFromCepResponse?> GetAddressByCepAsync(string cep);
     Task<List<GeneroOption>> GetGeneroOptionsAsync();
     Task<List<EstadoOption>> GetEstadoOptionsAsync();
@@ -83,6 +84,27 @@ public class UserProfileService : IUserProfileService
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Erro ao criar perfil: {ex.Message}");
+            throw;
+        }
+    }
+
+    public async Task<UserProfileResponse?> UpdateProfileAsync(UpdateUserProfileRequest request)
+    {
+        try
+        {
+            await SetAuthorizationHeaderAsync();
+            var json = JsonSerializer.Serialize(request, _jsonOptions);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PutAsync("api/userprofile", content);
+            response.EnsureSuccessStatusCode();
+
+            var responseJson = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<UserProfileResponse>(responseJson, _jsonOptions);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Erro ao atualizar perfil: {ex.Message}");
             throw;
         }
     }

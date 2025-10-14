@@ -185,6 +185,10 @@ namespace Fitnutri.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<string>("Telefone")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<string>("UF")
                         .HasMaxLength(2)
                         .HasColumnType("nvarchar(2)");

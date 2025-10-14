@@ -2,6 +2,8 @@
 <ContentPage x:Class="AppFitNutri.Views.ProfileSelectionPage"
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:AppFitNutri.ViewModel"
+             x:DataType="viewmodel:ProfileSelectionViewModel"
              Title="Selecione seu Perfil"
              BackgroundColor="#F8F9FA">
     
@@ -125,6 +127,12 @@ acompanhar meus alunos]]>
                        HorizontalOptions="Center"
                        HorizontalTextAlignment="Center" />
                 
+                <!-- Loading Indicator -->
+                <ActivityIndicator IsVisible="{Binding IsLoading}"
+                                   IsRunning="{Binding IsLoading}"
+                                   Color="#27AE60"
+                                   HeightRequest="30" />
+                
                 <Button x:Name="ContinueButton"
                         Text="CONTINUAR"
                         BackgroundColor="#34495E"
@@ -133,8 +141,8 @@ acompanhar meus alunos]]>
                         FontSize="16"
                         CornerRadius="25"
                         HeightRequest="50"
-                        IsEnabled="False"
-                        Clicked="OnContinueClicked" />
+                        IsEnabled="{Binding CanContinue}"
+                        Command="{Binding ContinueCommand}" />
             </StackLayout>
 
         </Grid>

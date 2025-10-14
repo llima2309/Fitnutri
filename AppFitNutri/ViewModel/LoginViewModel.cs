@@ -48,7 +48,7 @@ public partial class LoginViewModel : ObservableObject
         };
     }
 
-    partial void OnMostrarSenhaChanged(bool value)
+    partial void OnMostrarSenhaChanged(bool _)
     {
         OnPropertyChanged(nameof(IsPassword));
     }
@@ -110,21 +110,35 @@ public partial class LoginViewModel : ObservableObject
             {
                 await _tokenStore.SaveAsync(loginResponse.AccessToken, loginResponse.ExpiresAt);
                 
-                // Verificar se o usuário tem perfil cadastrado
-                var userProfile = await _userProfileService.GetProfileAsync();
+                // Verificar se o usuário já tem perfis associados
+                var perfisAssociados = await _profileService.ObterMeusPerfisAsync();
                 
-                if (userProfile == null)
+                if (perfisAssociados.Count == 0)
                 {
-                    // Usuário não tem perfil, ir para seleção de perfil primeiro
+                    // Usuário não tem perfil associado, ir para seleção de perfil
                     await Shell.Current.GoToAsync("//ProfileSelectionPage");
                 }
                 else
                 {
-                    // Usuário já tem perfil completo, ir para HomePage
-                    await Shell.Current.GoToAsync("//HomePage");
+                    // Usuário já tem perfil associado, verificar se tem perfil completo
+                    var userProfile = await _userProfileService.GetProfileAsync();
+                    
+                    if (userProfile == null)
+                    {
+                        // Tem perfil associado mas não completou o cadastro, ir para completar
+                        await Shell.Current.GoToAsync("//UserProfileRegistrationPage");
+                    }
+                    else
+                    {
+                        // Usuário já tem perfil completo, ir para HomePage
+                        await Shell.Current.GoToAsync("//HomePage");
+                    }
                 }
                 
-                await Application.Current.MainPage.DisplayAlert("Sucesso", "Login realizado com sucesso!", "OK");
+                if (Application.Current?.MainPage != null)
+                {
+                    //await Application.Current.MainPage.DisplayAlert("Sucesso", "Login realizado com sucesso!", "OK");
+                }
             }
         }
         catch (Exception ex)

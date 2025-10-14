@@ -23,34 +23,37 @@
         </Grid.RowDefinitions>
 
         <!-- Header with Logo and Title -->
-        <StackLayout Grid.Row="0" Spacing="20" Margin="0,40,0,0">
-            <!-- Logo Icon -->
-            <Border BackgroundColor="White"
-                    StrokeShape="RoundRectangle 25"
-                    WidthRequest="100"
-                    HeightRequest="100"
-                    HorizontalOptions="Center">
-                <Border.Shadow>
-                    <Shadow Brush="Black"
-                            Offset="0,4"
-                            Radius="8"
-                            Opacity="0.3" />
-                </Border.Shadow>
-                <Image Source="logofitnutri.png"
-                       Aspect="AspectFit"
-                       WidthRequest="80"
-                       HeightRequest="80"
-                       HorizontalOptions="Center"
-                       VerticalOptions="Center" />
-            </Border>
-            
-            <!-- Title -->
-            <Label Text="FitNutri"
-                   FontSize="24"
-                   FontAttributes="Bold"
-                   TextColor="White"
-                   HorizontalOptions="Center" />
-        </StackLayout>
+        <Grid Grid.Row="0" Margin="0,40,0,0">
+            <!-- Logo and Title Section -->
+            <StackLayout Spacing="20" HorizontalOptions="Center">
+                <!-- Logo Icon -->
+                <Border BackgroundColor="White"
+                        StrokeShape="RoundRectangle 25"
+                        WidthRequest="100"
+                        HeightRequest="100"
+                        HorizontalOptions="Center">
+                    <Border.Shadow>
+                        <Shadow Brush="Black"
+                                Offset="0,4"
+                                Radius="8"
+                                Opacity="0.3" />
+                    </Border.Shadow>
+                    <Image Source="logofitnutri.png"
+                           Aspect="AspectFit"
+                           WidthRequest="80"
+                           HeightRequest="80"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+                
+                <!-- Title -->
+                <Label Text="FitNutri"
+                       FontSize="24"
+                       FontAttributes="Bold"
+                       TextColor="White"
+                       HorizontalOptions="Center" />
+            </StackLayout>
+        </Grid>
 
         <!-- Menu Buttons -->
         <Grid Grid.Row="1" 

@@ -11,7 +11,6 @@ public class HomePageViewModel : INotifyPropertyChanged
 
     public HomePageViewModel()
     {
-        LogoutCommand = new Command(OnLogout);
         AgendamentosCommand = new Command(OnAgendamentos);
         VideoChamadaCommand = new Command(OnVideoChamada);
         VideoAulasCommand = new Command(OnVideoAulas);
@@ -20,7 +19,6 @@ public class HomePageViewModel : INotifyPropertyChanged
         PerfilCommand = new Command(OnPerfil);
     }
 
-    public ICommand LogoutCommand { get; }
     public ICommand AgendamentosCommand { get; }
     public ICommand VideoChamadaCommand { get; }
     public ICommand VideoAulasCommand { get; }
@@ -49,8 +47,9 @@ public class HomePageViewModel : INotifyPropertyChanged
         {
             // Handle exception
             System.Diagnostics.Debug.WriteLine($"Error in OnAgendamentos: {ex.Message}");
-            if (Application.Current?.MainPage != null)
-                await Application.Current.MainPage.DisplayAlert("Erro", "Erro ao abrir agendamentos", "OK");
+            var currentPage = Shell.Current.CurrentPage;
+            if (currentPage != null)
+                await currentPage.DisplayAlert("Erro", "Erro ao abrir agendamentos", "OK");
         }
     }
 
@@ -59,8 +58,9 @@ public class HomePageViewModel : INotifyPropertyChanged
         try
         {
             // TODO: Implementar navegação para página de video chamada
-            if (Application.Current?.MainPage != null)
-                await Application.Current.MainPage.DisplayAlert("Video Chamada", "Funcionalidade em desenvolvimento", "OK");
+            var currentPage = Shell.Current.CurrentPage;
+            if (currentPage != null)
+                await currentPage.DisplayAlert("Video Chamada", "Funcionalidade em desenvolvimento", "OK");
         }
         catch (Exception ex)
         {
@@ -73,8 +73,9 @@ public class HomePageViewModel : INotifyPropertyChanged
         try
         {
             // TODO: Implementar navegação para página de video aulas
-            if (Application.Current?.MainPage != null)
-                await Application.Current.MainPage.DisplayAlert("Video Aulas", "Funcionalidade em desenvolvimento", "OK");
+            var currentPage = Shell.Current.CurrentPage;
+            if (currentPage != null)
+                await currentPage.DisplayAlert("Video Aulas", "Funcionalidade em desenvolvimento", "OK");
         }
         catch (Exception ex)
         {
@@ -87,8 +88,9 @@ public class HomePageViewModel : INotifyPropertyChanged
         try
         {
             // TODO: Implementar navegação para página de treinos
-            if (Application.Current?.MainPage != null)
-                await Application.Current.MainPage.DisplayAlert("Treinos", "Funcionalidade em desenvolvimento", "OK");
+            var currentPage = Shell.Current.CurrentPage;
+            if (currentPage != null)
+                await currentPage.DisplayAlert("Treinos", "Funcionalidade em desenvolvimento", "OK");
         }
         catch (Exception ex)
         {
@@ -101,8 +103,9 @@ public class HomePageViewModel : INotifyPropertyChanged
         try
         {
             // TODO: Implementar navegação para página de dieta
-            if (Application.Current?.MainPage != null)
-                await Application.Current.MainPage.DisplayAlert("Dieta", "Funcionalidade em desenvolvimento", "OK");
+            var currentPage = Shell.Current.CurrentPage;
+            if (currentPage != null)
+                await currentPage.DisplayAlert("Dieta", "Funcionalidade em desenvolvimento", "OK");
         }
         catch (Exception ex)
         {
@@ -114,26 +117,12 @@ public class HomePageViewModel : INotifyPropertyChanged
     {
         try
         {
-            // TODO: Implementar navegação para página de perfil
-            if (Application.Current?.MainPage != null)
-                await Application.Current.MainPage.DisplayAlert("Perfil", "Funcionalidade em desenvolvimento", "OK");
+            // Navegar para a página de perfil
+            await Shell.Current.GoToAsync(nameof(PerfilPage));
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Error in OnPerfil: {ex.Message}");
-        }
-    }
-
-    private async void OnLogout()
-    {
-        try
-        {
-            // Implementar logout se necessário
-            await Shell.Current.GoToAsync("//LoginPage");
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Error in OnLogout: {ex.Message}");
         }
     }
 
