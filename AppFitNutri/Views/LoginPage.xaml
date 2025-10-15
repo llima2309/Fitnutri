@@ -54,10 +54,9 @@ xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
         <!-- Login Form -->
         <ScrollView Grid.Row="1">
             <VerticalStackLayout
-                VerticalOptions="CenterAndExpand"
-                HorizontalOptions="Center"
+                VerticalOptions="Fill"
+                HorizontalOptions="Fill"
                 Spacing="20">
-
                 <!-- Login/E-mail -->
                 <Border BackgroundColor="White"
                         StrokeShape="RoundRectangle 15"
@@ -71,8 +70,8 @@ xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
                            PlaceholderColor="Gray"
                            TextColor="Black"
                            Text="{Binding EmailOrUserName}"
-                           Margin="16,10"
-                           Keyboard="Email" />
+                           Margin="16,3,0,0"
+                           Keyboard="Email"/>
                 </Border>
 
                 <!-- Senha -->
@@ -90,7 +89,8 @@ xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
                                TextColor="Black"
                                IsPassword="{Binding IsPassword}"
                                Text="{Binding Password}"
-                               Margin="16,10,40,10" />
+                               Margin="16,3,0,0" 
+                               />
                         <!-- Mostrar senha como ícone, sem borda -->
                         <Image Source="eye_icon.png"
                                WidthRequest="28"

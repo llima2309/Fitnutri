@@ -42,6 +42,61 @@
         <!-- Opções de Profissionais -->
         <StackLayout Grid.Row="1" Spacing="30" VerticalOptions="Center">
             
+            <!-- Meus Agendamentos -->
+            <Border BackgroundColor="White"
+                    StrokeShape="RoundRectangle 20"
+                    Padding="30"
+                    HorizontalOptions="FillAndExpand">
+                <Border.Shadow>
+                    <Shadow Brush="Black"
+                            Offset="0,4"
+                            Radius="12"
+                            Opacity="0.3" />
+                </Border.Shadow>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SelecionarMeusAgendamentosCommand}" />
+                </Border.GestureRecognizers>
+                
+                <Grid ColumnSpacing="20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Ícone -->
+                    <Border Grid.Column="0"
+                            BackgroundColor="#E3F2FD"
+                            StrokeShape="RoundRectangle 15"
+                            WidthRequest="60"
+                            HeightRequest="60">
+                        <Label Text="📅"
+                               FontSize="30"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+
+                    <!-- Informações -->
+                    <StackLayout Grid.Column="1" VerticalOptions="Center" Spacing="5">
+                        <Label Text="Meus Agendamentos"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               TextColor="#2C3E50" />
+                        <Label Text="Veja, reagende ou cancele seus agendamentos"
+                               FontSize="14"
+                               TextColor="#7F8C8D"
+                               LineBreakMode="WordWrap" />
+                    </StackLayout>
+
+                    <!-- Seta -->
+                    <Label Grid.Column="2"
+                           Text="›"
+                           FontSize="24"
+                           TextColor="#3498DB"
+                           VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
             <!-- Nutricionista -->
             <Border BackgroundColor="White"
                     StrokeShape="RoundRectangle 20"

@@ -8,6 +8,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<User> Users => Set<User>();
     public DbSet<Perfil> Perfis => Set<Perfil>();
     public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
+    public DbSet<Agendamento> Agendamentos => Set<Agendamento>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -87,5 +88,22 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         // Timestamps
         up.Property(x => x.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
         up.Property(x => x.UpdatedAt);
+
+        // ===== Agendamento =====
+        var ag = modelBuilder.Entity<Agendamento>();
+        ag.HasKey(x => x.Id);
+        ag.Property(x => x.ProfissionalId).IsRequired();
+        ag.Property(x => x.ClienteUserId).IsRequired();
+        ag.Property(x => x.Data).HasColumnType("date").IsRequired();
+        ag.Property(x => x.Hora).HasColumnType("time").IsRequired();
+        ag.Property(x => x.DuracaoMinutos).HasDefaultValue(60).IsRequired();
+        ag.Property(x => x.Status).HasConversion<int>().IsRequired();
+        ag.Property(x => x.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
+
+        // Evita double-booking do mesmo profissional no mesmo slot
+        // Índice único filtrado: permite re-agendar se o anterior estiver Cancelado (Status = 2)
+        ag.HasIndex(x => new { x.ProfissionalId, x.Data, x.Hora })
+            .IsUnique()
+            .HasFilter("[Status] <> 2");
     }
 }

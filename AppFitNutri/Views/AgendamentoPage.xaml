@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="AppFitNutri.Views.AgendamentoPage"
+             x:Name="ThisPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Title="Agendamento"
+             Shell.NavBarIsVisible="True">
+
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#4A90E2" Offset="0.0" />
+            <GradientStop Color="#7ED321" Offset="0.5" />
+            <GradientStop Color="#4A90E2" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <!-- Profissional -->
+            <Border BackgroundColor="White" StrokeShape="RoundRectangle 25" Padding="15">
+                <HorizontalStackLayout Spacing="12">
+                    <Label Text="👤" FontSize="28" />
+                    <VerticalStackLayout>
+                        <Label Text="{Binding Profissional.NomeCompleto}" FontAttributes="Bold" FontSize="16" TextColor="#2C3E50" />
+                        <Label Text="{Binding Profissional.CidadeEstado}" FontSize="12" TextColor="#7F8C8D" />
+                        <Label Text="{Binding Profissional.RegistroProfissional}" FontSize="12" TextColor="#3498DB" IsVisible="{Binding Profissional.TemRegistro}" />
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+            </Border>
+
+            <!-- Seleção de Data -->
+            <Label Text="Escolha a data" TextColor="White" FontSize="14" />
+            <Border BackgroundColor="White" StrokeShape="RoundRectangle 12" Padding="10">
+                <DatePicker Date="{Binding SelectedDate, Mode=TwoWay}"
+                            MinimumDate="{Binding MinDate}"
+                            MaximumDate="{Binding MaxDate}"
+                            TextColor="#2C3E50"/>
+            </Border>
+
+            <!-- Seleção de Horário -->
+            <Label Text="Escolha um horário" TextColor="White" FontSize="14" />
+            <CollectionView ItemsSource="{Binding AvailableTimes}"
+                            SelectionMode="Single"
+                            SelectedItem="{Binding SelectedTime, Mode=TwoWay}">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="3" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border x:Name="TimeChip" Padding="10" StrokeShape="RoundRectangle 12" BackgroundColor="White" Margin="0,0,10,10">
+                            <Grid>
+                                <Label x:Name="TimeText" Text="{Binding .}" HorizontalTextAlignment="Center" TextColor="#2C3E50" />
+                            </Grid>
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroupList>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal">
+                                            <VisualState.Setters>
+                                                <Setter TargetName="TimeChip" Property="BackgroundColor" Value="White" />
+                                                <Setter TargetName="TimeText" Property="Label.TextColor" Value="#2C3E50" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="Selected">
+                                            <VisualState.Setters>
+                                                <Setter TargetName="TimeChip" Property="BackgroundColor" Value="#27AE60" />
+                                                <Setter TargetName="TimeText" Property="Label.TextColor" Value="White" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateGroupList>
+                            </VisualStateManager.VisualStateGroups>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Resumo da Seleção -->
+            <Border BackgroundColor="White" StrokeShape="RoundRectangle 12" Padding="12">
+                <HorizontalStackLayout>
+                    <Label Text="🗓️" FontSize="18"/>
+                    <Label Text="{Binding SelectedSummary}" TextColor="#2C3E50" Margin="8,0,0,0"/>
+                </HorizontalStackLayout>
+            </Border>
+
+            <!-- Ações -->
+            <HorizontalStackLayout Spacing="12">
+                <Button Text="Cancelar" Command="{Binding CancelCommand}" BackgroundColor="#E74C3C" TextColor="White" HorizontalOptions="FillAndExpand" />
+                <Button Text="Confirmar" Command="{Binding ConfirmCommand}" IsEnabled="{Binding CanConfirm}" BackgroundColor="#27AE60" TextColor="White" HorizontalOptions="FillAndExpand" />
+            </HorizontalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

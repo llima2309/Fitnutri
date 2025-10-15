@@ -17,6 +17,8 @@ namespace AppFitNutri
             Routing.RegisterRoute(nameof(ListaProfissionaisPage), typeof(ListaProfissionaisPage));
             Routing.RegisterRoute(nameof(PerfilPage), typeof(PerfilPage));
             Routing.RegisterRoute(nameof(UserProfileRegistrationPage), typeof(UserProfileRegistrationPage));
+            Routing.RegisterRoute(nameof(AgendamentoPage), typeof(AgendamentoPage));
+            Routing.RegisterRoute(nameof(MeusAgendamentosPage), typeof(MeusAgendamentosPage));
             
         }
     }

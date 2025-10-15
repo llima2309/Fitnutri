@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="AppFitNutri.Views.MeusAgendamentosPage"
+             x:Name="ThisPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:AppFitNutri.Models"
+             xmlns:viewmodel="clr-namespace:AppFitNutri.ViewModel"
+             x:DataType="viewmodel:MeusAgendamentosViewModel"
+             Title="Meus Agendamentos"
+             Shell.NavBarIsVisible="True">
+
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#4A90E2" Offset="0.0" />
+            <GradientStop Color="#7ED321" Offset="0.5" />
+            <GradientStop Color="#4A90E2" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <Grid Padding="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Label Text="Seus agendamentos"
+               FontSize="22" FontAttributes="Bold"
+               TextColor="White"/>
+
+        <RefreshView Grid.Row="1" Command="{Binding AtualizarCommand}" IsRefreshing="{Binding IsLoading}">
+            <CollectionView ItemsSource="{Binding Itens}">
+                <CollectionView.EmptyView>
+                    <StackLayout Padding="20" VerticalOptions="CenterAndExpand">
+                        <Label Text="Nenhum agendamento encontrado" TextColor="White"/>
+                    </StackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:AgendamentoItem">
+                        <Border BackgroundColor="White" StrokeShape="RoundRectangle 12" Padding="12" Margin="0,8,0,0">
+                            <Grid ColumnSpacing="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" BackgroundColor="#E3F2FD" StrokeShape="RoundRectangle 10" WidthRequest="48" HeightRequest="48">
+                                    <Label Text="🗓️" FontSize="22" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                    <Label Text="{Binding DataTexto}" FontAttributes="Bold" TextColor="#2C3E50"/>
+                                    <Label Text="{Binding HoraTexto}" TextColor="#2C3E50"/>
+                                    <Label Text="{Binding StatusTexto}" TextColor="#7F8C8D" FontSize="12"/>
+                                </VerticalStackLayout>
+                                <HorizontalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center">
+                                    <Button Text="Cancelar"
+                                            Command="{Binding BindingContext.CancelarCommand, Source={x:Reference ThisPage}}"
+                                            CommandParameter="{Binding .}"
+                                            IsEnabled="{Binding PodeCancelar}"
+                                            BackgroundColor="#E74C3C" TextColor="White"/>
+                                </HorizontalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

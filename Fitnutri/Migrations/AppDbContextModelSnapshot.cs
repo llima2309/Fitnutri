@@ -22,6 +22,46 @@ namespace Fitnutri.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Fitnutri.Domain.Agendamento", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ClienteUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
+
+                    b.Property<DateOnly>("Data")
+                        .HasColumnType("date");
+
+                    b.Property<int>("DuracaoMinutos")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(60);
+
+                    b.Property<TimeOnly>("Hora")
+                        .HasColumnType("time");
+
+                    b.Property<Guid>("ProfissionalId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProfissionalId", "Data", "Hora")
+                        .IsUnique()
+                        .HasFilter("[Status] <> 2");
+
+                    b.ToTable("Agendamentos");
+                });
+
             modelBuilder.Entity("Fitnutri.Domain.Perfil", b =>
                 {
                     b.Property<Guid>("Id")

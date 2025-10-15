@@ -11,10 +11,12 @@ public class AgendamentosViewModel : INotifyPropertyChanged
     {
         SelecionarNutricionistaCommand = new Command(OnSelecionarNutricionista);
         SelecionarPersonalTrainerCommand = new Command(OnSelecionarPersonalTrainer);
+        SelecionarMeusAgendamentosCommand = new Command(OnSelecionarMeusAgendamentos);
     }
 
     public ICommand SelecionarNutricionistaCommand { get; }
     public ICommand SelecionarPersonalTrainerCommand { get; }
+    public ICommand SelecionarMeusAgendamentosCommand { get; }
 
     private async void OnSelecionarNutricionista()
     {
@@ -31,7 +33,7 @@ public class AgendamentosViewModel : INotifyPropertyChanged
         }
         catch (Exception ex)
         {
-            await Application.Current?.MainPage?.DisplayAlert("Erro", $"Erro ao navegar: {ex.Message}", "OK");
+            await Shell.Current.DisplayAlert("Erro", $"Erro ao navegar: {ex.Message}", "OK");
         }
     }
 
@@ -50,7 +52,20 @@ public class AgendamentosViewModel : INotifyPropertyChanged
         }
         catch (Exception ex)
         {
-            await Application.Current?.MainPage?.DisplayAlert("Erro", $"Erro ao navegar: {ex.Message}", "OK");
+            await Shell.Current.DisplayAlert("Erro", $"Erro ao navegar: {ex.Message}", "OK");
+        }
+    }
+
+    private async void OnSelecionarMeusAgendamentos()
+    {
+        try
+        {
+            // Navegação para a página de Meus Agendamentos via rota
+            await Shell.Current.GoToAsync("MeusAgendamentosPage");
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlert("Erro", $"Erro ao navegar: {ex.Message}", "OK");
         }
     }
 

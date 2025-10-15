@@ -135,9 +135,14 @@ public class ListaProfissionaisViewModel : INotifyPropertyChanged
 
         try
         {
-            // TODO: Implementar navegação para página de detalhes do profissional ou agendamento
-            await Application.Current?.MainPage?.DisplayAlert("Profissional Selecionado", 
-                $"Você selecionou: {profissional.NomeCompleto}\n\nFuncionalidade de agendamento em desenvolvimento.", "OK");
+            // Navegação para a página de agendamento, passando o objeto Profissional como parâmetro
+            var parameters = new Dictionary<string, object>
+            {
+                { "Profissional", profissional }
+            };
+
+            // Usar nome de rota (string) para evitar dependência de símbolo em tempo de compilação
+            await Shell.Current.GoToAsync("AgendamentoPage", parameters);
         }
         catch (Exception ex)
         {

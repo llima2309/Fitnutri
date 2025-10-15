@@ -705,6 +705,144 @@ userPerfilGroup.MapDelete("/remover/{perfilId:guid}", async (Guid perfilId, AppD
 });
 
 
+// ---------- AGENDAMENTOS ----------
+var agGroup = app.MapGroup("/agendamentos").WithTags("Agendamentos");
+
+// Disponibilidade de horários por profissional e data (intervalo de 1h entre 09:00 e 17:00)
+agGroup.MapGet("/disponibilidade", async (Guid profissionalId, DateOnly data, AppDbContext db, CancellationToken ct) =>
+{
+    var horarios = new List<string>();
+    for (int h = 9; h <= 17; h++)
+    {
+        var slot = new TimeOnly(h, 0);
+        var ocupado = await db.Agendamentos
+            .AnyAsync(a => a.ProfissionalId == profissionalId && a.Data == data && a.Hora == slot && a.Status != AgendamentoStatus.Cancelado, ct);
+        if (!ocupado)
+            horarios.Add(slot.ToString("HH:mm"));
+    }
+    return Results.Ok(new Fitnutri.Contracts.DisponibilidadeResponse(horarios));
+}).RequireAuthorization();
+
+// Criar agendamento
+agGroup.MapPost("/", async (HttpContext ctx, AppDbContext db, Fitnutri.Contracts.CriarAgendamentoRequest req, CancellationToken ct) =>
+{
+    var sub = ctx.User.FindFirst("sub")?.Value;
+    if (sub is null) return Results.Unauthorized();
+    var clienteId = Guid.Parse(sub);
+
+    // Impede duplo agendamento no mesmo slot
+    var exists = await db.Agendamentos.AnyAsync(a => a.ProfissionalId == req.ProfissionalId && a.Data == req.Data && a.Hora == req.Hora && a.Status != AgendamentoStatus.Cancelado, ct);
+    if (exists)
+        return Results.Conflict(new { error = "Horário indisponível." });
+
+    var novo = new Fitnutri.Domain.Agendamento
+    {
+        Id = Guid.NewGuid(),
+        ProfissionalId = req.ProfissionalId,
+        ClienteUserId = clienteId,
+        Data = req.Data,
+        Hora = req.Hora,
+        DuracaoMinutos = 60,
+        Status = AgendamentoStatus.Pendente,
+        CreatedAt = DateTime.UtcNow
+    };
+
+    db.Agendamentos.Add(novo);
+    await db.SaveChangesAsync(ct);
+
+    var resp = new Fitnutri.Contracts.AgendamentoResponse(novo.Id, novo.ProfissionalId, novo.ClienteUserId, novo.Data, novo.Hora, novo.DuracaoMinutos, novo.Status);
+    return Results.Created($"/agendamentos/{novo.Id}", resp);
+}).RequireAuthorization();
+
+// Listar agendamentos do usuário autenticado (cliente)
+agGroup.MapGet("/me", async (HttpContext ctx, AppDbContext db, CancellationToken ct) =>
+{
+    var sub = ctx.User.FindFirst("sub")?.Value;
+    if (sub is null) return Results.Unauthorized();
+    var clienteId = Guid.Parse(sub);
+
+    var items = await db.Agendamentos
+        .Where(a => a.ClienteUserId == clienteId)
+        .OrderByDescending(a => a.Data).ThenByDescending(a => a.Hora)
+        .Select(a => new Fitnutri.Contracts.AgendamentoResponse(a.Id, a.ProfissionalId, a.ClienteUserId, a.Data, a.Hora, a.DuracaoMinutos, a.Status))
+        .ToListAsync(ct);
+    return Results.Ok(items);
+}).RequireAuthorization();
+
+// Obter agendamento por ID (somente cliente ou profissional envolvidos)
+agGroup.MapGet("/{id:guid}", async (Guid id, HttpContext ctx, AppDbContext db, CancellationToken ct) =>
+{
+    var sub = ctx.User.FindFirst("sub")?.Value;
+    if (sub is null) return Results.Unauthorized();
+    var userId = Guid.Parse(sub);
+
+    var a = await db.Agendamentos.FirstOrDefaultAsync(x => x.Id == id, ct);
+    if (a is null) return Results.NotFound();
+
+    if (a.ClienteUserId != userId && a.ProfissionalId != userId)
+        return Results.Forbid();
+
+    return Results.Ok(new Fitnutri.Contracts.AgendamentoResponse(a.Id, a.ProfissionalId, a.ClienteUserId, a.Data, a.Hora, a.DuracaoMinutos, a.Status));
+}).RequireAuthorization();
+
+// Atualizar agendamento (data/hora/duração/status) - somente cliente ou profissional
+agGroup.MapPut("/{id:guid}", async (Guid id, Fitnutri.Contracts.AtualizarAgendamentoRequest req, HttpContext ctx, AppDbContext db, CancellationToken ct) =>
+{
+    var sub = ctx.User.FindFirst("sub")?.Value;
+    if (sub is null) return Results.Unauthorized();
+    var userId = Guid.Parse(sub);
+
+    var a = await db.Agendamentos.FirstOrDefaultAsync(x => x.Id == id, ct);
+    if (a is null) return Results.NotFound();
+    if (a.ClienteUserId != userId && a.ProfissionalId != userId)
+        return Results.Forbid();
+
+    // Atualizações opcionais
+    var newData = req.Data ?? a.Data;
+    var newHora = req.Hora ?? a.Hora;
+    var newDur = req.DuracaoMinutos ?? a.DuracaoMinutos;
+    var newStatus = req.Status ?? a.Status;
+
+    // Não permitir reagendamento para o passado
+    var newDateTime = new DateTime(newData.Year, newData.Month, newData.Day, newHora.Hour, newHora.Minute, 0, DateTimeKind.Unspecified);
+    if (newDateTime < DateTime.Today)
+        return Results.BadRequest(new { error = "Data/Horário no passado não permitido." });
+
+    // Checar conflito se Data ou Hora foram alterados e status não é cancelado
+    if ((newData != a.Data || newHora != a.Hora) && newStatus != AgendamentoStatus.Cancelado)
+    {
+        var conflict = await db.Agendamentos.AnyAsync(x => x.Id != a.Id && x.ProfissionalId == a.ProfissionalId && x.Data == newData && x.Hora == newHora && x.Status != AgendamentoStatus.Cancelado, ct);
+        if (conflict)
+            return Results.Conflict(new { error = "Horário indisponível." });
+    }
+
+    a.Data = newData;
+    a.Hora = newHora;
+    a.DuracaoMinutos = newDur;
+    a.Status = newStatus;
+
+    await db.SaveChangesAsync(ct);
+    return Results.Ok(new Fitnutri.Contracts.AgendamentoResponse(a.Id, a.ProfissionalId, a.ClienteUserId, a.Data, a.Hora, a.DuracaoMinutos, a.Status));
+}).RequireAuthorization();
+
+// Deletar agendamento (hard delete) - somente cliente ou profissional
+agGroup.MapDelete("/{id:guid}", async (Guid id, HttpContext ctx, AppDbContext db, CancellationToken ct) =>
+{
+    var sub = ctx.User.FindFirst("sub")?.Value;
+    if (sub is null) return Results.Unauthorized();
+    var userId = Guid.Parse(sub);
+
+    var a = await db.Agendamentos.FirstOrDefaultAsync(x => x.Id == id, ct);
+    if (a is null) return Results.NotFound();
+    if (a.ClienteUserId != userId && a.ProfissionalId != userId)
+        return Results.Forbid();
+
+    db.Agendamentos.Remove(a);
+    await db.SaveChangesAsync(ct);
+    return Results.NoContent();
+}).RequireAuthorization();
+
+
 // ---------- HEALTH ----------
 
 var commonGroup = app.MapGroup("/");
