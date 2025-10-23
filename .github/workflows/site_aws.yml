@@ -43,151 +43,149 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
+      - name: Extract Assembly Version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "==> Extracting version from $PROJECT_PATH"
+          
+          # Extrai a versão do arquivo .csproj
+          VERSION=$(grep -o '<Version>[^<]*</Version>' "$PROJECT_PATH" | sed 's/<Version>//g' | sed 's/<\/Version>//g')
+          
+          if [ -z "$VERSION" ]; then
+            echo "❌ Versão não encontrada no arquivo $PROJECT_PATH"
+            exit 1
+          fi
+          
+          echo "PROJECT_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Versão encontrada: $VERSION"
+          
+          # Cria tag com a versão + timestamp para garantir unicidade
+          TIMESTAMP=$(date +%Y%m%d-%H%M)
+          VERSION_TAG="v${VERSION}-${TIMESTAMP}"
+          echo "VERSION_TAG=$VERSION_TAG" >> $GITHUB_ENV
+          echo "Tag de versão: $VERSION_TAG"
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-            - name: Extract Assembly Version
-              id: version
-              shell: bash
-              run: |
-                set -euo pipefail
-                echo "==> Extracting version from $PROJECT_PATH"
-                
-                # Extrai a versão do arquivo .csproj
-                VERSION=$(grep -o '<Version>[^<]*</Version>' "$PROJECT_PATH" | sed 's/<Version>//g' | sed 's/<\/Version>//g')
-                
-                if [ -z "$VERSION" ]; then
-                  echo "❌ Versão não encontrada no arquivo $PROJECT_PATH"
-                  exit 1
-                fi
-                
-                echo "PROJECT_VERSION=$VERSION" >> $GITHUB_ENV
-                echo "Versão encontrada: $VERSION"
-                
-                # Cria tag com a versão + timestamp para garantir unicidade
-                TIMESTAMP=$(date +%Y%m%d-%H%M)
-                VERSION_TAG="v${VERSION}-${TIMESTAMP}"
-                echo "VERSION_TAG=$VERSION_TAG" >> $GITHUB_ENV
-                echo "Tag de versão: $VERSION_TAG"
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
 
-            - name: Configure AWS credentials
-              uses: aws-actions/configure-aws-credentials@v4
-              with:
-                aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-                aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-                aws-region: ${{ env.AWS_REGION }}
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-            - name: Install jq
-              run: sudo apt-get update && sudo apt-get install -y jq
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
-            - name: Setup Docker Buildx
-              uses: docker/setup-buildx-action@v3
+      - name: Resolve account and ECR URI + compute tags
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+          echo "ACCOUNT_ID=$ACCOUNT_ID" >> $GITHUB_ENV
+          ECR_URI="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}"
+          echo "ECR_URI=$ECR_URI" >> $GITHUB_ENV
+          
+          # Tag imutável usando versão + commit
+          IMAGE_TAG="${PROJECT_VERSION}-${GITHUB_SHA::7}"
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          
+          echo "Deploying to: $ECR_URI"
+          echo "Version tag: $VERSION_TAG"
+          echo "Image tag: $IMAGE_TAG"
+          echo "Project version: $PROJECT_VERSION"
 
-            - name: Login to Amazon ECR
-              id: login-ecr
-              uses: aws-actions/amazon-ecr-login@v2
+      - name: Assert Task Definition uses alias tag (:prod)
+        shell: bash
+        run: |
+          # Descobre a task definition atual do service
+          TASK_DEF_NAME=$(aws ecs describe-services \
+            --cluster "${ECS_CLUSTER_ARN}" \
+            --services "${ECS_SERVICE_ARN}" \
+            --query 'services[0].taskDefinition' --output text)
 
-            - name: Resolve account and ECR URI + compute tags
-              id: meta
-              shell: bash
-              run: |
-                set -euo pipefail
-                ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
-                echo "ACCOUNT_ID=$ACCOUNT_ID" >> $GITHUB_ENV
-                ECR_URI="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}"
-                echo "ECR_URI=$ECR_URI" >> $GITHUB_ENV
-                
-                # Tag imutável usando versão + commit
-                IMAGE_TAG="${PROJECT_VERSION}-${GITHUB_SHA::7}"
-                echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-                
-                echo "Deploying to: $ECR_URI"
-                echo "Version tag: $VERSION_TAG"
-                echo "Image tag: $IMAGE_TAG"
-                echo "Project version: $PROJECT_VERSION"
+          echo "TaskDefinition: $TASK_DEF_NAME"
 
-            - name: Assert Task Definition uses alias tag (:prod)
-              shell: bash
-              run: |
-                # Descobre a task definition atual do service
-                TASK_DEF_NAME=$(aws ecs describe-services \
-                  --cluster "${ECS_CLUSTER_ARN}" \
-                  --services "${ECS_SERVICE_ARN}" \
-                  --query 'services[0].taskDefinition' --output text)
-                
-                echo "TaskDefinition: $TASK_DEF_NAME"
-                
-                IMG=$(aws ecs describe-task-definition \
-                  --task-definition "$TASK_DEF_NAME" \
-                  --query 'taskDefinition.containerDefinitions[0].image' \
-                  --output text)
-                
-                echo "Container image in TaskDef: $IMG"
-                
-                if [[ "$IMG" != *":${ALIAS_TAG}" ]]; then
-                  echo "❌ A Task Definition não referencia a tag alias ':${ALIAS_TAG}'."
-                  echo "   Atualize a imagem da Task Definition para terminar com ':${ALIAS_TAG}'"
-                  echo "   Ex.: ${ECR_REPO}:${ALIAS_TAG} ou <account>.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:${ALIAS_TAG}"
-                  exit 1
-                fi
+          IMG=$(aws ecs describe-task-definition \
+            --task-definition "$TASK_DEF_NAME" \
+            --query 'taskDefinition.containerDefinitions[0].image' \
+            --output text)
 
-            - name: Build and Push (version + alias tags)
-              shell: bash
-              run: |
-                set -euo pipefail
-                echo "==> Build & Push com múltiplas tags"
-                docker buildx build \
-                  --platform "${PLATFORM}" \
-                  -f "${DOCKERFILE}" \
-                  -t "${ECR_URI}:${IMAGE_TAG}" \
-                  -t "${ECR_URI}:${PROJECT_VERSION}" \
-                  -t "${ECR_URI}:${ALIAS_TAG}" \
-                  -t "${ECR_URI}:latest" \
-                  "${BUILD_CONTEXT}" \
-                  --push
+          echo "Container image in TaskDef: $IMG"
 
-            - name: Create Git Tag
-              shell: bash
-              run: |
-                set -euo pipefail
-                echo "==> Criando tag Git: $VERSION_TAG"
-                
-                # Configura git (necessário para criar tags)
-                git config --local user.email "action@github.com"
-                git config --local user.name "GitHub Action"
-                
-                # Cria tag anotada com informações do deploy
-                git tag -a "$VERSION_TAG" -m "Deploy v$PROJECT_VERSION - $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-                
-                # Push da tag para o repositório
-                git push origin "$VERSION_TAG"
+          if [[ "$IMG" != *":${ALIAS_TAG}" ]]; then
+            echo "❌ A Task Definition não referencia a tag alias ':${ALIAS_TAG}'."
+            echo "   Atualize a imagem da Task Definition para terminar com ':${ALIAS_TAG}'"
+            echo "   Ex.: ${ECR_REPO}:${ALIAS_TAG} ou <account>.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:${ALIAS_TAG}"
+            exit 1
+          fi
 
-            - name: Force new deployment
-              shell: bash
-              run: |
-                set -euo pipefail
-                echo "==> Forçando novo deployment no ECS"
-                aws ecs update-service \
-                  --cluster "${ECS_CLUSTER_ARN}" \
-                  --service "${ECS_SERVICE_ARN}" \
-                  --force-new-deployment \
-                  --region "${AWS_REGION}" >/dev/null
+      - name: Build and Push (version + alias tags)
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "==> Build & Push com múltiplas tags"
+          docker buildx build \
+            --platform "${PLATFORM}" \
+            -f "${DOCKERFILE}" \
+            -t "${ECR_URI}:${IMAGE_TAG}" \
+            -t "${ECR_URI}:${PROJECT_VERSION}" \
+            -t "${ECR_URI}:${ALIAS_TAG}" \
+            -t "${ECR_URI}:latest" \
+            "${BUILD_CONTEXT}" \
+            --push
 
-            - name: Wait for ECS service stability
-              shell: bash
-              run: |
-                echo "==> Aguardando ECS estabilizar..."
-                aws ecs wait services-stable \
-                  --cluster "${ECS_CLUSTER_ARN}" \
-                  --services "${ECS_SERVICE_ARN}" \
-                  --region "${AWS_REGION}"
+      - name: Create Git Tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "==> Criando tag Git: $VERSION_TAG"
+          
+          # Configura git (necessário para criar tags)
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # Cria tag anotada com informações do deploy
+          git tag -a "$VERSION_TAG" -m "Deploy v$PROJECT_VERSION - $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          
+          # Push da tag para o repositório
+          git push origin "$VERSION_TAG"
 
-            - name: Done
-              run: |
-                echo "==> Deploy concluído com sucesso 🎉"
-                echo "    Versão do projeto: v${PROJECT_VERSION}"
-                echo "    Tag Git criada: ${VERSION_TAG}"
-                echo "    Tags Docker criadas:"
-                echo "      - ${ECR_URI}:${IMAGE_TAG} (imutável)"
-                echo "      - ${ECR_URI}:${PROJECT_VERSION} (versão)"
-                echo "      - ${ECR_URI}:${ALIAS_TAG} (alias)"
-                echo "      - ${ECR_URI}:latest"
+      - name: Force new deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "==> Forçando novo deployment no ECS"
+          aws ecs update-service \
+            --cluster "${ECS_CLUSTER_ARN}" \
+            --service "${ECS_SERVICE_ARN}" \
+            --force-new-deployment \
+            --region "${AWS_REGION}" >/dev/null
+
+      - name: Wait for ECS service stability
+        shell: bash
+        run: |
+          echo "==> Aguardando ECS estabilizar..."
+          aws ecs wait services-stable \
+            --cluster "${ECS_CLUSTER_ARN}" \
+            --services "${ECS_SERVICE_ARN}" \
+            --region "${AWS_REGION}"
+
+      - name: Done
+        run: |
+          echo "==> Deploy concluído com sucesso 🎉"
+          echo "    Versão do projeto: v${PROJECT_VERSION}"
+          echo "    Tag Git criada: ${VERSION_TAG}"
+          echo "    Tags Docker criadas:"
+          echo "      - ${ECR_URI}:${IMAGE_TAG} (imutável)"
+          echo "      - ${ECR_URI}:${PROJECT_VERSION} (versão)"
+          echo "      - ${ECR_URI}:${ALIAS_TAG} (alias)"
+          echo "      - ${ECR_URI}:latest"
