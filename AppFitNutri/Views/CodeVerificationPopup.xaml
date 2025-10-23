@@ -58,6 +58,7 @@
                            Placeholder="Digite o codigo"
                            PlaceholderColor="Gray"
                            Text="{Binding VerificationCode}"
+                           TextColor="Black"
                            Keyboard="Numeric"
                            MaxLength="6"
                            FontSize="16"

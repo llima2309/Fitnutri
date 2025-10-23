@@ -535,6 +535,47 @@ adminGroup.MapPost("/users/{id:guid}/approve",
         }
     });
 
+// Confirmar e-mail do usuário (forçar)
+adminGroup.MapPut("/users/{id:guid}/confimed-email",
+    async (Guid id,  AppDbContext db, IEmailSender emailSender, IConfiguration cfg, ILoggerFactory lf, CancellationToken ct) =>
+    {
+        try
+        {
+            var log = lf.CreateLogger("ConfimedEmailUser");
+            var user = await db.Users.FirstOrDefaultAsync(x => x.Id == id, ct);
+            if (user is null) return Results.NotFound();
+
+            if (user.Status == UserStatus.Pending || user.Status == UserStatus.Rejected)
+                return Results.BadRequest(new { error = "Usuário não está aprovado" });
+            
+            if (user.EmailConfirmed)
+                return Results.BadRequest(new { error = "Usuário já está com email confirmado" });
+
+            user.EmailConfirmed = true; // força confirmar e-mail
+            try
+            {
+                await db.SaveChangesAsync(ct);
+            }
+            catch (Amazon.SimpleEmailV2.Model.MessageRejectedException ex)
+            {
+            }
+
+            return Results.Ok(new
+            {
+                message = "Email confirmado com sucesso",
+                user.Id,
+                user.Status,
+                user.ApprovedAt,
+                user.ApprovedBy,
+                user.EmailConfirmed
+            });
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem(ex.Message, statusCode: 400);
+        }
+    });
+
 // Rejeitar usuário
 adminGroup.MapPost("/users/{id:guid}/reject", async (Guid id, RejectUserRequest req, AppDbContext db, CancellationToken ct) =>
 {

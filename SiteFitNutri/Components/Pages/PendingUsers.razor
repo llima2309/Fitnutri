@@ -8,9 +8,15 @@
 <h3>Usuários</h3>
 
 <div class="nav nav-tabs mb-3">
-    <button class="nav-link @(activeTab == "pendentes" ? "active" : "")" @onclick='@(() => ChangeTab("pendentes"))'>Pendentes</button>
-    <button class="nav-link @(activeTab == "aprovados" ? "active" : "")" @onclick='@(() => ChangeTab("aprovados"))'>Aprovados</button>
-    <button class="nav-link @(activeTab == "rejeitados" ? "active" : "")" @onclick='@(() => ChangeTab("rejeitados"))'>Rejeitados</button>
+    <button class="nav-link @(activeTab == "pendentes" ? "active" : "")" @onclick='@(() => ChangeTab("pendentes"))'>
+        Pendentes
+    </button>
+    <button class="nav-link @(activeTab == "aprovados" ? "active" : "")" @onclick='@(() => ChangeTab("aprovados"))'>
+        Aprovados
+    </button>
+    <button class="nav-link @(activeTab == "rejeitados" ? "active" : "")" @onclick='@(() => ChangeTab("rejeitados"))'>
+        Rejeitados
+    </button>
 </div>
 
 @if (isBusy)
@@ -29,50 +35,72 @@ else
 {
     <table class="table">
         <thead>
-            <tr>
-                <th>Usuário</th>
-                <th>Email</th>
-                <th>Criado em</th>
-                <th>Email confirmado</th>
-                <th>Status</th>
-                <th style="width:280px">Ações</th>
-            </tr>
+        <tr>
+            <th>Usuário</th>
+            <th>Email</th>
+            <th>Criado em</th>
+            <th>Email confirmado</th>
+            <th>Status</th>
+            <th style="width:280px">Ações</th>
+        </tr>
         </thead>
         <tbody>
-            @foreach (var u in users)
-            {
-                var rowBusy = busyIds.Contains(u.Id);
-                <tr>
-                    <td>@u.UserName</td>
-                    <td>@u.Email</td>
-                    <td>@u.CreatedAt.ToLocalTime():g</td>
-                    <td>@(u.EmailConfirmed ? "Sim" : "Não")</td>
-                    <td>@u.Status</td>
-                    <td>
-                        <div style="display:flex; gap:8px; flex-wrap:wrap">
-                            @if (activeTab == "pendentes")
-                            {
-                                <button class="btn btn-sm btn-success" disabled="@rowBusy" @onclick='() => ConfirmAndRun(u, ApproveAsync, $"Confirmar ACEITAR o usuário {u.UserName}?")'>Aceitar</button>
-                                <button class="btn btn-sm btn-warning" disabled="@rowBusy" @onclick='() => ConfirmAndRun(u, RejectAsync, $"Confirmar REJEITAR o usuário {u.UserName}?")'>Rejeitar</button>
-                                <button class="btn btn-sm btn-danger" disabled="@rowBusy" @onclick='() => ConfirmAndRun(u, DeleteAsync, $"Confirmar DELETAR o usuário {u.UserName}? Essa ação é irreversível.")'>Deletar</button>
-                            }
-                            else if (activeTab == "aprovados")
-                            {
-                                <button class="btn btn-sm btn-danger" disabled="@rowBusy" @onclick='() => ConfirmAndRun(u, DeleteAsync, $"Confirmar DELETAR o usuário {u.UserName}? Essa ação é irreversível.")'>Deletar</button>
-                            }
-                            else if (activeTab == "rejeitados")
-                            {
-                                <button class="btn btn-sm btn-success" disabled="@rowBusy" @onclick='() => ConfirmAndRun(u, ApproveAsync, $"Confirmar ACEITAR o usuário {u.UserName}?")'>Aprovar</button>
-                                <button class="btn btn-sm btn-danger" disabled="@rowBusy" @onclick='() => ConfirmAndRun(u, DeleteAsync, $"Confirmar DELETAR o usuário {u.UserName}? Essa ação é irreversível.")'>Deletar</button>
-                            }
-                            else
-                            {
-                                <span>-</span>
-                            }
-                        </div>
-                    </td>
-                </tr>
-            }
+        @foreach (var u in users)
+        {
+            var rowBusy = busyIds.Contains(u.Id);
+            <tr>
+                <td>@u.UserName</td>
+                <td>@u.Email</td>
+                <td>@u.CreatedAt.ToLocalTime():g</td>
+                <td>@(u.EmailConfirmed ? "Sim" : "Não")</td>
+                <td>@u.Status</td>
+                <td>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap">
+                        @if (activeTab == "pendentes")
+                        {
+                            <button class="btn btn-sm btn-success" disabled="@rowBusy"
+                                    @onclick='() => ConfirmAndRun(u, ApproveAsync, $"Confirmar ACEITAR o usuário {u.UserName}?")'>
+                                Aceitar
+                            </button>
+                            <button class="btn btn-sm btn-warning" disabled="@rowBusy"
+                                    @onclick='() => ConfirmAndRun(u, RejectAsync, $"Confirmar REJEITAR o usuário {u.UserName}?")'>
+                                Rejeitar
+                            </button>
+                            <button class="btn btn-sm btn-danger" disabled="@rowBusy"
+                                    @onclick='() => ConfirmAndRun(u, DeleteAsync, $"Confirmar DELETAR o usuário {u.UserName}? Essa ação é irreversível.")'>
+                                Deletar
+                            </button>
+                        }
+                        else if (activeTab == "aprovados")
+                        {
+                            <button class="btn btn-sm btn-danger" disabled="@rowBusy"
+                                    @onclick='() => ConfirmAndRun(u, DeleteAsync, $"Confirmar DELETAR o usuário {u.UserName}? Essa ação é irreversível.")'>
+                                Deletar
+                            </button>
+                            <button class="btn btn-sm btn-success" disabled="@rowBusy"
+                                    @onclick='() => ConfirmAndRun(u, ConfirmarEmailAsync, $"Confirmar email  do usuário {u.UserName}? Essa ação é irreversível.")'>
+                                Confirmar Email
+                            </button>
+                        }
+                        else if (activeTab == "rejeitados")
+                        {
+                            <button class="btn btn-sm btn-success" disabled="@rowBusy"
+                                    @onclick='() => ConfirmAndRun(u, ApproveAsync, $"Confirmar ACEITAR o usuário {u.UserName}?")'>
+                                Aprovar
+                            </button>
+                            <button class="btn btn-sm btn-danger" disabled="@rowBusy"
+                                    @onclick='() => ConfirmAndRun(u, DeleteAsync, $"Confirmar DELETAR o usuário {u.UserName}? Essa ação é irreversível.")'>
+                                Deletar
+                            </button>
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+                    </div>
+                </td>
+            </tr>
+        }
         </tbody>
     </table>
     <div style="display:flex; gap:8px">
@@ -105,7 +133,8 @@ else
     {
         try
         {
-            isBusy = true; error = null;
+            isBusy = true;
+            error = null;
             users.Clear();
 
             if (activeTab == "pendentes")
@@ -182,6 +211,8 @@ else
     }
 
     private Task ApproveAsync(Guid userId) => Api.ApproveUserAsync(userId);
-    private Task RejectAsync(Guid userId)  => Api.RejectUserAsync(userId);
-    private Task DeleteAsync(Guid userId)  => Api.DeleteUserAsync(userId);
+    private Task RejectAsync(Guid userId) => Api.RejectUserAsync(userId);
+    private Task DeleteAsync(Guid userId) => Api.DeleteUserAsync(userId);
+    private Task ConfirmarEmailAsync(Guid userId) => Api.ConfirmarEmailAsync(userId);
+
 }

@@ -111,7 +111,10 @@ public class UserProfileRegistrationViewModel : INotifyPropertyChanged
 
     public ICommand SaveCommand { get; }
     public ICommand SearchCepCommand { get; }
-
+    public ICommand ValidateCpfCommand => new Command(() => { CPF = FormatCpf(CPF); });
+    public ICommand ValidateCepCommand => new Command(() => { CEP = FormatCep(CEP); });
+    public ICommand ValidateRgCommand => new Command(() => { RG = FormatRg(RG); });
+    public ICommand ValidateTelefoneCommand => new Command(() => { Telefone = FormatTelefone(Telefone); });
     public bool IsLoading
     {
         get => _isLoading;
@@ -149,7 +152,7 @@ public class UserProfileRegistrationViewModel : INotifyPropertyChanged
         get => _cpf;
         set
         {
-            _cpf = FormatCpf(value);
+            _cpf =  value;
             OnPropertyChanged();
         }
     }
@@ -159,7 +162,7 @@ public class UserProfileRegistrationViewModel : INotifyPropertyChanged
         get => _rg;
         set
         {
-            _rg = FormatRg(value);
+            _rg = value;
             OnPropertyChanged();
         }
     }
@@ -169,7 +172,7 @@ public class UserProfileRegistrationViewModel : INotifyPropertyChanged
         get => _telefone;
         set
         {
-            _telefone = FormatTelefone(value);
+            _telefone = value;
             OnPropertyChanged();
         }
     }
@@ -210,13 +213,10 @@ public class UserProfileRegistrationViewModel : INotifyPropertyChanged
         get => _cep;
         set
         {
-            _cep = FormatCep(value);
+            _cep = value;
             OnPropertyChanged();
             
-            if (_cep.Length == 9) // Format: 00000-000
-            {
-                SearchCepCommand.Execute(_cep);
-            }
+         
         }
     }
 

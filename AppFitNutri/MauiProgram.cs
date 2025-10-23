@@ -2,7 +2,7 @@
 using AppFitNutri.Core.Services.Login;
 using AppFitNutri.Services;
 using AppFitNutri.ViewModel;
-
+using Microsoft.Maui.Handlers;
 namespace AppFitNutri;
 
 public static class MauiProgram
@@ -86,7 +86,6 @@ public static class MauiProgram
         builder.Services.AddTransient<Views.ListaProfissionaisPage>();
         builder.Services.AddTransient<Views.PerfilPage>();
         builder.Services.AddTransient<Views.MeusAgendamentosPage>();
-
         return builder.Build();
     }
 }

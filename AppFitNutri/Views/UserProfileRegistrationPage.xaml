@@ -85,7 +85,10 @@
                                    MaxLength="14"
                                    FontSize="16"
                                    TextColor="Black"
-                                   BackgroundColor="Transparent" />
+                                   BackgroundColor="Transparent"
+                                   Unfocused="EntryCPF_Unfocused"
+                                  />
+                            
                         </StackLayout>
                     </Border>
 
@@ -106,7 +109,9 @@
                                    ReturnType="Done"
                                    FontSize="16"
                                    TextColor="Black"
-                                   BackgroundColor="Transparent" />
+                                   BackgroundColor="Transparent" 
+                                   Unfocused="EntryRG_Unfocused"
+                                   />
                         </StackLayout>
                     </Border>
                 </Grid>
@@ -128,7 +133,9 @@
                                MaxLength="15"
                                FontSize="16"
                                TextColor="Black"
-                               BackgroundColor="Transparent" />
+                               BackgroundColor="Transparent" 
+                                   Unfocused="EntryTEL_Unfocused"
+                               />
                     </StackLayout>
                 </Border>
 
@@ -217,7 +224,10 @@
                                    MaxLength="9"
                                    FontSize="16"
                                    TextColor="Black"
-                                   BackgroundColor="Transparent" />
+                                   BackgroundColor="Transparent"
+                                   Unfocused="EntryCEP_Unfocused"
+                                   
+                                   />
                         </StackLayout>
                     </Border>
 
