@@ -22,7 +22,7 @@ env:
   # Tags
   ALIAS_TAG: prod
   # Project path for version extraction
-  PROJECT_PATH: FitNutri/SiteFitNutri/SiteFitNutri.csproj
+  PROJECT_PATH: Fitnutri/SiteFitNutri/SiteFitNutri.csproj
   # Healthcheck ALB (opcional)
   WAIT_TG_HEALTH: "true"
   TIMEOUT: "300"
