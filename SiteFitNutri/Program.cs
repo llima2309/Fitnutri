@@ -1,5 +1,5 @@
-using AppFitNutri.Core.Services;
-using AppFitNutri.Core.Services.Login;
+using SiteFitNutri.Services;
+using SiteFitNutri.Services.Login;
 using SiteFitNutri;
 using SiteFitNutri.Components;
 
