@@ -1,4 +1,4 @@
-using AppFitNutri.ViewModel;
+﻿using AppFitNutri.ViewModel;
 
 namespace AppFitNutri.Views;
 

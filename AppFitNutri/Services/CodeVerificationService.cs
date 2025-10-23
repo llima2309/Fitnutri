@@ -1,4 +1,4 @@
-using AppFitNutri.Views;
+﻿using AppFitNutri.Views;
 using AppFitNutri.ViewModel;
 using AppFitNutri.Core.Services.Login;
 

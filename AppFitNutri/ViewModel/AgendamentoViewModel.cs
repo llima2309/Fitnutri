@@ -10,7 +10,7 @@ using AppFitNutri.Services;
 
 namespace AppFitNutri.ViewModel;
 
-public class AgendamentoViewModel : INotifyPropertyChanged, IQueryAttributable
+public class AgendamentoViewModel : INotifyPropertyChanged
 {
     private Profissional? _profissional;
     private DateTime _selectedDate;
@@ -37,9 +37,6 @@ public class AgendamentoViewModel : INotifyPropertyChanged, IQueryAttributable
 
         ConfirmCommand = new Command(OnConfirm);
         CancelCommand = new Command(OnCancel);
-
-        // Carrega os horários iniciais
-        _ = LoadDisponibilidadeAsync();
     }
 
     public Profissional? Profissional
@@ -51,6 +48,8 @@ public class AgendamentoViewModel : INotifyPropertyChanged, IQueryAttributable
             OnPropertyChanged();
             OnPropertyChanged(nameof(CanConfirm));
             OnPropertyChanged(nameof(SelectedSummary));
+            // Carrega disponibilidade quando o profissional é definido
+            _ = LoadDisponibilidadeAsync();
         }
     }
 
@@ -61,7 +60,11 @@ public class AgendamentoViewModel : INotifyPropertyChanged, IQueryAttributable
         {
             _selectedDate = value;
             OnPropertyChanged();
-            _ = LoadDisponibilidadeAsync();
+            // Só carrega disponibilidade se houver um profissional definido
+            if (Profissional != null)
+            {
+                _ = LoadDisponibilidadeAsync();
+            }
             OnPropertyChanged(nameof(CanConfirm));
             OnPropertyChanged(nameof(SelectedSummary));
         }
@@ -152,18 +155,9 @@ public class AgendamentoViewModel : INotifyPropertyChanged, IQueryAttributable
         await Shell.Current.GoToAsync("..");
     }
 
-    public void ApplyQueryAttributes(IDictionary<string, object> query)
+    public void SetProfissional(Profissional profissional)
     {
-        if (query.TryGetValue("Profissional", out var profObj) && profObj is Profissional p)
-        {
-            Profissional = p;
-            _ = LoadDisponibilidadeAsync();
-        }
-        else if (query.TryGetValue("profissional", out var profObj2) && profObj2 is Profissional p2)
-        {
-            Profissional = p2;
-            _ = LoadDisponibilidadeAsync();
-        }
+        Profissional = profissional;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

@@ -11,6 +11,7 @@ public class MeusAgendamentosViewModel : INotifyPropertyChanged
 {
     private readonly IAgendamentoService _service;
     private bool _isLoading;
+    private bool _isRefreshing;
 
     public ObservableCollection<AgendamentoItem> Itens { get; } = new();
 
@@ -22,15 +23,25 @@ public class MeusAgendamentosViewModel : INotifyPropertyChanged
     {
         _service = service;
         CarregarCommand = new Command(async () => await Carregar());
-        AtualizarCommand = new Command(async () => await Carregar());
+        AtualizarCommand = new Command(async () => await Atualizar());
         CancelarCommand = new Command<AgendamentoItem>(async item => await Cancelar(item));
-        _ = Carregar();
+    }
+
+    public async Task InicializarAsync()
+    {
+        await Carregar();
     }
 
     public bool IsLoading
     {
         get => _isLoading;
         set { _isLoading = value; OnPropertyChanged(); }
+    }
+
+    public bool IsRefreshing
+    {
+        get => _isRefreshing;
+        set { _isRefreshing = value; OnPropertyChanged(); }
     }
 
     private async Task Carregar()
@@ -60,6 +71,36 @@ public class MeusAgendamentosViewModel : INotifyPropertyChanged
         finally
         {
             IsLoading = false;
+        }
+    }
+
+    private async Task Atualizar()
+    {
+        try
+        {
+            IsRefreshing = true;
+            Itens.Clear();
+            var items = await _service.GetMeusAgendamentosAsync();
+            foreach (var a in items)
+            {
+                Itens.Add(new AgendamentoItem
+                {
+                    Id = a.Id,
+                    ProfissionalId = a.ProfissionalId,
+                    Data = a.Data,
+                    Hora = a.Hora,
+                    DuracaoMinutos = a.DuracaoMinutos,
+                    Status = a.Status
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlert("Erro", $"Falha ao atualizar agendamentos: {ex.Message}", "OK");
+        }
+        finally
+        {
+            IsRefreshing = false;
         }
     }
 

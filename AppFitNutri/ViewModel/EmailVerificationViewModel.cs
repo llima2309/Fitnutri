@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+ï»¿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using AppFitNutri.Core.Services.Login;
 using System.Net.Http.Json;
@@ -6,7 +6,7 @@ using System.Net.Http.Json;
 namespace AppFitNutri.ViewModel;
 
 /// <summary>
-/// ViewModel especializado para verificação de e-mail durante o login
+/// ViewModel especializado para verificaï¿½ï¿½o de e-mail durante o login
 /// </summary>
 public partial class EmailVerificationViewModel : ObservableObject
 {
@@ -54,13 +54,13 @@ public partial class EmailVerificationViewModel : ObservableObject
 
         if (string.IsNullOrWhiteSpace(code))
         {
-            ErrorMessage = "Digite o código de verificação.";
+            ErrorMessage = "Digite o cï¿½digo de verificaï¿½ï¿½o.";
             return;
         }
 
         if (!int.TryParse(code, out var codeNumber))
         {
-            ErrorMessage = "Código deve conter apenas números.";
+            ErrorMessage = "Cï¿½digo deve conter apenas nï¿½meros.";
             return;
         }
 
@@ -68,13 +68,16 @@ public partial class EmailVerificationViewModel : ObservableObject
         {
             IsBusy = true;
 
-            // Usar o novo método que aceita email/username
+            // Usar o novo mï¿½todo que aceita email/username
             var result = await _apiHttp.ConfirmEmailByIdentifierAsync(_userIdentifier, codeNumber, CancellationToken.None);
 
             if (result.IsSuccessStatusCode)
             {
-                OnVerificationComplete?.Invoke(true, "E-mail verificado com sucesso!");
+                // Primeiro fecha o modal para evitar conflitos na pilha de navegaÃ§Ã£o
                 await Shell.Current.Navigation.PopModalAsync();
+                
+                // Depois invoca o callback
+                OnVerificationComplete?.Invoke(true, "E-mail verificado com sucesso!");
             }
             else
             {
@@ -86,7 +89,7 @@ public partial class EmailVerificationViewModel : ObservableObject
                 }
                 else
                 {
-                    ErrorMessage = "Código inválido. Tente novamente.";
+                    ErrorMessage = "Cï¿½digo invï¿½lido. Tente novamente.";
                 }
             }
         }
@@ -109,14 +112,14 @@ public partial class EmailVerificationViewModel : ObservableObject
     {
         await Application.Current.MainPage.DisplayAlert(
             "Reenvio", 
-            "Para reenviar o código, entre em contato com o administrador.", 
+            "Para reenviar o cï¿½digo, entre em contato com o administrador.", 
             "OK");
     }
 
     [RelayCommand]
     public async Task Cancel()
     {
-        OnVerificationComplete?.Invoke(false, "Verificação cancelada pelo usuário.");
+        OnVerificationComplete?.Invoke(false, "Verificaï¿½ï¿½o cancelada pelo usuï¿½rio.");
         await Shell.Current.Navigation.PopModalAsync();
     }
 }

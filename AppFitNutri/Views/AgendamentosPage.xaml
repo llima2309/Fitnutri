@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
+
 <ContentPage x:Class="AppFitNutri.Views.AgendamentosPage"
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
@@ -15,33 +16,10 @@
             <GradientStop Color="#4A90E2" Offset="1.0" />
         </LinearGradientBrush>
     </ContentPage.Background>
+    <!-- Opções de Profissionais -->
+    <ScrollView>
+        <VerticalStackLayout Spacing="30" VerticalOptions="Center">
 
-    <Grid Padding="20" RowSpacing="30">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-
-        <!-- Header -->
-        <StackLayout Grid.Row="0" Spacing="10" Margin="0,20,0,0">
-            <Label Text="Escolha o tipo de profissional"
-                   FontSize="24"
-                   FontAttributes="Bold"
-                   TextColor="White"
-                   HorizontalOptions="Center"
-                   HorizontalTextAlignment="Center" />
-            
-            <Label Text="Selecione com qual tipo de profissional você deseja agendar uma consulta"
-                   FontSize="16"
-                   TextColor="White"
-                   HorizontalOptions="Center"
-                   HorizontalTextAlignment="Center"
-                   Opacity="0.9" />
-        </StackLayout>
-
-        <!-- Opções de Profissionais -->
-        <StackLayout Grid.Row="1" Spacing="30" VerticalOptions="Center">
-            
             <!-- Meus Agendamentos -->
             <Border BackgroundColor="White"
                     StrokeShape="RoundRectangle 20"
@@ -56,7 +34,7 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding SelecionarMeusAgendamentosCommand}" />
                 </Border.GestureRecognizers>
-                
+
                 <Grid ColumnSpacing="20">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -111,7 +89,7 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding SelecionarNutricionistaCommand}" />
                 </Border.GestureRecognizers>
-                
+
                 <Grid ColumnSpacing="20">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -166,7 +144,7 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding SelecionarPersonalTrainerCommand}" />
                 </Border.GestureRecognizers>
-                
+
                 <Grid ColumnSpacing="20">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -206,7 +184,6 @@
                            VerticalOptions="Center" />
                 </Grid>
             </Border>
-
-        </StackLayout>
-    </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

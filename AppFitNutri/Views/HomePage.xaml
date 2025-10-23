@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
+
 <ContentPage x:Class="AppFitNutri.Views.HomePage"
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
@@ -6,7 +7,7 @@
              x:DataType="viewmodel:HomePageViewModel"
              Title="FitNutri"
              Shell.NavBarIsVisible="False">
-    
+
     <!-- Gradient Background -->
     <ContentPage.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
@@ -16,238 +17,231 @@
         </LinearGradientBrush>
     </ContentPage.Background>
 
-    <Grid Padding="20" RowSpacing="40">
+    <Grid Padding="10" RowSpacing="0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- Header with Logo and Title -->
-        <Grid Grid.Row="0" Margin="0,40,0,0">
-            <!-- Logo and Title Section -->
-            <StackLayout Spacing="20" HorizontalOptions="Center">
-                <!-- Logo Icon -->
-                <Border BackgroundColor="White"
-                        StrokeShape="RoundRectangle 25"
-                        WidthRequest="100"
-                        HeightRequest="100"
-                        HorizontalOptions="Center">
+        <!-- Logo and Title Section -->
+        <StackLayout Spacing="10" HorizontalOptions="Center">
+            <!-- Logo Icon -->
+            <Border BackgroundColor="White"
+                    StrokeShape="RoundRectangle 25"
+                    WidthRequest="100"
+                    HeightRequest="100"
+                    HorizontalOptions="Center">
+                <Border.Shadow>
+                    <Shadow Brush="Black"
+                            Offset="0,4"
+                            Radius="8"
+                            Opacity="0.3" />
+                </Border.Shadow>
+                <Image Source="logofitnutri.png"
+                       Aspect="AspectFit"
+                       WidthRequest="80"
+                       HeightRequest="80"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+            </Border>
+        </StackLayout>
+
+        <!-- Menu Buttons -->
+        <ScrollView Grid.Row="1">
+            <Grid
+                RowSpacing="20"
+                ColumnSpacing="0"
+                VerticalOptions="Center"
+                Margin="0,20,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Agendamentos -->
+                <Border Grid.Row="0" Grid.Column="0"
+                        BackgroundColor="White"
+                        StrokeShape="RoundRectangle 15"
+                        WidthRequest="60"
+                        HeightRequest="60"
+                        Margin="20,0,20,0">
                     <Border.Shadow>
-                        <Shadow Brush="Black"
-                                Offset="0,4"
-                                Radius="8"
-                                Opacity="0.3" />
+                        <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
                     </Border.Shadow>
-                    <Image Source="logofitnutri.png"
-                           Aspect="AspectFit"
-                           WidthRequest="80"
-                           HeightRequest="80"
+                    <Label Text="📅"
+                           FontSize="28"
                            HorizontalOptions="Center"
                            VerticalOptions="Center" />
                 </Border>
-                
-                <!-- Title -->
-                <Label Text="FitNutri"
-                       FontSize="24"
-                       FontAttributes="Bold"
-                       TextColor="White"
-                       HorizontalOptions="Center" />
-            </StackLayout>
-        </Grid>
+                <Button Grid.Row="0" Grid.Column="1"
+                        Text="Agendamentos"
+                        BackgroundColor="#E0E0E0"
+                        TextColor="Black"
+                        FontSize="16"
+                        HeightRequest="60"
+                        CornerRadius="30"
+                        Margin="0,0,20,0"
+                        Command="{Binding AgendamentosCommand}">
+                    <Button.Shadow>
+                        <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
+                    </Button.Shadow>
+                </Button>
 
-        <!-- Menu Buttons -->
-        <Grid Grid.Row="1" 
-              RowSpacing="20" 
-              ColumnSpacing="0"
-              VerticalOptions="Center"
-              Margin="0,20,0,0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
+                <!-- Video chamada -->
+                <Border Grid.Row="1" Grid.Column="0"
+                        BackgroundColor="White"
+                        StrokeShape="RoundRectangle 15"
+                        WidthRequest="60"
+                        HeightRequest="60"
+                        Margin="20,0,20,0">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
+                    </Border.Shadow>
+                    <Label Text="📹"
+                           FontSize="28"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+                <Button Grid.Row="1" Grid.Column="1"
+                        Text="Video chamada"
+                        BackgroundColor="#E0E0E0"
+                        TextColor="Black"
+                        FontSize="16"
+                        HeightRequest="60"
+                        CornerRadius="30"
+                        Margin="0,0,20,0"
+                        Command="{Binding VideoChamadaCommand}">
+                    <Button.Shadow>
+                        <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
+                    </Button.Shadow>
+                </Button>
 
-            <!-- Agendamentos -->
-            <Border Grid.Row="0" Grid.Column="0"
-                    BackgroundColor="White"
-                    StrokeShape="RoundRectangle 15"
-                    WidthRequest="60"
-                    HeightRequest="60"
-                    Margin="20,0,20,0">
-                <Border.Shadow>
-                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
-                </Border.Shadow>
-                <Label Text="📅"
-                       FontSize="28"
-                       HorizontalOptions="Center"
-                       VerticalOptions="Center" />
-            </Border>
-            <Button Grid.Row="0" Grid.Column="1"
-                    Text="Agendamentos"
-                    BackgroundColor="#E0E0E0"
-                    TextColor="Black"
-                    FontSize="16"
-                    HeightRequest="60"
-                    CornerRadius="30"
-                    Margin="0,0,20,0"
-                    Command="{Binding AgendamentosCommand}">
-                <Button.Shadow>
-                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
-                </Button.Shadow>
-            </Button>
+                <!-- Video aulas -->
+                <Border Grid.Row="2" Grid.Column="0"
+                        BackgroundColor="White"
+                        StrokeShape="RoundRectangle 15"
+                        WidthRequest="60"
+                        HeightRequest="60"
+                        Margin="20,0,20,0">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
+                    </Border.Shadow>
+                    <Label Text="▶️"
+                           FontSize="28"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+                <Button Grid.Row="2" Grid.Column="1"
+                        Text="Video aulas"
+                        BackgroundColor="#E0E0E0"
+                        TextColor="Black"
+                        FontSize="16"
+                        HeightRequest="60"
+                        CornerRadius="30"
+                        Margin="0,0,20,0"
+                        Command="{Binding VideoAulasCommand}">
+                    <Button.Shadow>
+                        <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
+                    </Button.Shadow>
+                </Button>
 
-            <!-- Video chamada -->
-            <Border Grid.Row="1" Grid.Column="0"
-                    BackgroundColor="White"
-                    StrokeShape="RoundRectangle 15"
-                    WidthRequest="60"
-                    HeightRequest="60"
-                    Margin="20,0,20,0">
-                <Border.Shadow>
-                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
-                </Border.Shadow>
-                <Label Text="📹"
-                       FontSize="28"
-                       HorizontalOptions="Center"
-                       VerticalOptions="Center" />
-            </Border>
-            <Button Grid.Row="1" Grid.Column="1"
-                    Text="Video chamada"
-                    BackgroundColor="#E0E0E0"
-                    TextColor="Black"
-                    FontSize="16"
-                    HeightRequest="60"
-                    CornerRadius="30"
-                    Margin="0,0,20,0"
-                    Command="{Binding VideoChamadaCommand}">
-                <Button.Shadow>
-                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
-                </Button.Shadow>
-            </Button>
+                <!-- Treinos -->
+                <Border Grid.Row="3" Grid.Column="0"
+                        BackgroundColor="White"
+                        StrokeShape="RoundRectangle 15"
+                        WidthRequest="60"
+                        HeightRequest="60"
+                        Margin="20,0,20,0">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
+                    </Border.Shadow>
+                    <Label Text="🏋️"
+                           FontSize="28"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+                <Button Grid.Row="3" Grid.Column="1"
+                        Text="Treinos"
+                        BackgroundColor="#E0E0E0"
+                        TextColor="Black"
+                        FontSize="16"
+                        HeightRequest="60"
+                        CornerRadius="30"
+                        Margin="0,0,20,0"
+                        Command="{Binding TreinosCommand}">
+                    <Button.Shadow>
+                        <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
+                    </Button.Shadow>
+                </Button>
 
-            <!-- Video aulas -->
-            <Border Grid.Row="2" Grid.Column="0"
-                    BackgroundColor="White"
-                    StrokeShape="RoundRectangle 15"
-                    WidthRequest="60"
-                    HeightRequest="60"
-                    Margin="20,0,20,0">
-                <Border.Shadow>
-                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
-                </Border.Shadow>
-                <Label Text="▶️"
-                       FontSize="28"
-                       HorizontalOptions="Center"
-                       VerticalOptions="Center" />
-            </Border>
-            <Button Grid.Row="2" Grid.Column="1"
-                    Text="Video aulas"
-                    BackgroundColor="#E0E0E0"
-                    TextColor="Black"
-                    FontSize="16"
-                    HeightRequest="60"
-                    CornerRadius="30"
-                    Margin="0,0,20,0"
-                    Command="{Binding VideoAulasCommand}">
-                <Button.Shadow>
-                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
-                </Button.Shadow>
-            </Button>
+                <!-- Dieta -->
+                <Border Grid.Row="4" Grid.Column="0"
+                        BackgroundColor="White"
+                        StrokeShape="RoundRectangle 15"
+                        WidthRequest="60"
+                        HeightRequest="60"
+                        Margin="20,0,20,0">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
+                    </Border.Shadow>
+                    <Label Text="🥗"
+                           FontSize="28"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+                <Button Grid.Row="4" Grid.Column="1"
+                        Text="Dieta"
+                        BackgroundColor="#E0E0E0"
+                        TextColor="Black"
+                        FontSize="16"
+                        HeightRequest="60"
+                        CornerRadius="30"
+                        Margin="0,0,20,0"
+                        Command="{Binding DietaCommand}">
+                    <Button.Shadow>
+                        <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
+                    </Button.Shadow>
+                </Button>
 
-            <!-- Treinos -->
-            <Border Grid.Row="3" Grid.Column="0"
-                    BackgroundColor="White"
-                    StrokeShape="RoundRectangle 15"
-                    WidthRequest="60"
-                    HeightRequest="60"
-                    Margin="20,0,20,0">
-                <Border.Shadow>
-                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
-                </Border.Shadow>
-                <Label Text="🏋️"
-                       FontSize="28"
-                       HorizontalOptions="Center"
-                       VerticalOptions="Center" />
-            </Border>
-            <Button Grid.Row="3" Grid.Column="1"
-                    Text="Treinos"
-                    BackgroundColor="#E0E0E0"
-                    TextColor="Black"
-                    FontSize="16"
-                    HeightRequest="60"
-                    CornerRadius="30"
-                    Margin="0,0,20,0"
-                    Command="{Binding TreinosCommand}">
-                <Button.Shadow>
-                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
-                </Button.Shadow>
-            </Button>
+                <!-- Perfil -->
+                <Border Grid.Row="5" Grid.Column="0"
+                        BackgroundColor="White"
+                        StrokeShape="RoundRectangle 15"
+                        WidthRequest="60"
+                        HeightRequest="60"
+                        Margin="20,0,20,0">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
+                    </Border.Shadow>
+                    <Label Text="👤"
+                           FontSize="28"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+                <Button Grid.Row="5" Grid.Column="1"
+                        Text="Perfil"
+                        BackgroundColor="#E0E0E0"
+                        TextColor="Black"
+                        FontSize="16"
+                        HeightRequest="60"
+                        CornerRadius="30"
+                        Margin="0,0,20,0"
+                        Command="{Binding PerfilCommand}">
+                    <Button.Shadow>
+                        <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
+                    </Button.Shadow>
+                </Button>
 
-            <!-- Dieta -->
-            <Border Grid.Row="4" Grid.Column="0"
-                    BackgroundColor="White"
-                    StrokeShape="RoundRectangle 15"
-                    WidthRequest="60"
-                    HeightRequest="60"
-                    Margin="20,0,20,0">
-                <Border.Shadow>
-                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
-                </Border.Shadow>
-                <Label Text="🥗"
-                       FontSize="28"
-                       HorizontalOptions="Center"
-                       VerticalOptions="Center" />
-            </Border>
-            <Button Grid.Row="4" Grid.Column="1"
-                    Text="Dieta"
-                    BackgroundColor="#E0E0E0"
-                    TextColor="Black"
-                    FontSize="16"
-                    HeightRequest="60"
-                    CornerRadius="30"
-                    Margin="0,0,20,0"
-                    Command="{Binding DietaCommand}">
-                <Button.Shadow>
-                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
-                </Button.Shadow>
-            </Button>
+            </Grid>
+        </ScrollView>
 
-            <!-- Perfil -->
-            <Border Grid.Row="5" Grid.Column="0"
-                    BackgroundColor="White"
-                    StrokeShape="RoundRectangle 15"
-                    WidthRequest="60"
-                    HeightRequest="60"
-                    Margin="20,0,20,0">
-                <Border.Shadow>
-                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
-                </Border.Shadow>
-                <Label Text="👤"
-                       FontSize="28"
-                       HorizontalOptions="Center"
-                       VerticalOptions="Center" />
-            </Border>
-            <Button Grid.Row="5" Grid.Column="1"
-                    Text="Perfil"
-                    BackgroundColor="#E0E0E0"
-                    TextColor="Black"
-                    FontSize="16"
-                    HeightRequest="60"
-                    CornerRadius="30"
-                    Margin="0,0,20,0"
-                    Command="{Binding PerfilCommand}">
-                <Button.Shadow>
-                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
-                </Button.Shadow>
-            </Button>
-
-        </Grid>
     </Grid>
 </ContentPage>

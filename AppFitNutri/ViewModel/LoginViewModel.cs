@@ -174,6 +174,9 @@ public partial class LoginViewModel : ObservableObject
     {
         try
         {
+            // Fechar o LoadingService antes de mostrar o popup para evitar conflitos de navegação
+            await LoadingService.HideLoadingAsync();
+            
             var choice = await Application.Current.MainPage.DisplayAlert(
                 "E-mail Não Verificado",
                 "Seu e-mail ainda não foi verificado. Você recebeu um código por e-mail quando sua conta foi aprovada. Deseja inserir o código agora?",

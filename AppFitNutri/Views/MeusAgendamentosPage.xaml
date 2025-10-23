@@ -27,7 +27,7 @@
                FontSize="22" FontAttributes="Bold"
                TextColor="White"/>
 
-        <RefreshView Grid.Row="1" Command="{Binding AtualizarCommand}" IsRefreshing="{Binding IsLoading}">
+        <RefreshView Grid.Row="1" Command="{Binding AtualizarCommand}" IsRefreshing="{Binding IsRefreshing}">
             <CollectionView ItemsSource="{Binding Itens}">
                 <CollectionView.EmptyView>
                     <StackLayout Padding="20" VerticalOptions="CenterAndExpand">
