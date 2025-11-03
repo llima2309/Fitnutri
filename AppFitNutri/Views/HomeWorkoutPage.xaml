@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentPage x:Class="AppFitNutri.Views.HomeWorkoutPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:AppFitNutri.ViewModel"
+             xmlns:model="clr-namespace:AppFitNutri.Models"
+             xmlns:converters="clr-namespace:AppFitNutri.Converters"
+             x:DataType="viewmodel:HomeWorkoutViewModel"
+             Title="Treino em Casa"
+             Shell.NavBarIsVisible="True">
+
+    <ContentPage.Resources>
+        <converters:BoolInverseConverter x:Key="BoolInverse" />
+    </ContentPage.Resources>
+
+    <!-- Gradient Background -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#4A90E2" Offset="0.0" />
+            <GradientStop Color="#7ED321" Offset="0.5" />
+            <GradientStop Color="#4A90E2" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <Grid>
+        <!-- Loading Indicator -->
+        <ActivityIndicator IsRunning="{Binding IsLoading}"
+                           IsVisible="{Binding IsLoading}"
+                           Color="White"
+                           VerticalOptions="Center"
+                           HorizontalOptions="Center"
+                           Scale="1.5" />
+
+        <!-- Main Content -->
+        <ScrollView Padding="24" IsVisible="{Binding IsLoading, Converter={StaticResource BoolInverse}}">
+            <VerticalStackLayout Spacing="16">
+
+                <!-- Weekly Grid usando CollectionView -->
+                <CollectionView ItemsSource="{Binding WorkoutPlan}"
+                                SelectionMode="None"
+                                HeightRequest="80">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Orientation="Vertical" 
+                                         Span="7" 
+                                         HorizontalItemSpacing="8" />
+                    </CollectionView.ItemsLayout>
+                    
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="model:HomeWorkout">
+                            <Border StrokeShape="RoundRectangle 16"
+                                    StrokeThickness="0"
+                                    Padding="4"
+                                    HeightRequest="80">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                        <Setter Property="Background">
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                <GradientStop Color="{Binding GradientStart}" Offset="0.0" />
+                                                <GradientStop Color="{Binding GradientEnd}" Offset="1.0" />
+                                            </LinearGradientBrush>
+                                        </Setter>
+                                        <Setter Property="Scale" Value="1.05" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="False">
+                                        <Setter Property="BackgroundColor" Value="#FFFFFFE6" />
+                                        <Setter Property="Scale" Value="1.0" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Border.Shadow>
+                                    <Shadow Brush="#0000001F" Offset="0,4" Radius="8" />
+                                </Border.Shadow>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:HomeWorkoutViewModel}}, Path=SelectDayCommand}"
+                                                          CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                                
+                                <VerticalStackLayout Spacing="4" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Label Text="{Binding Day}" 
+                                           FontSize="12" 
+                                           FontAttributes="Bold" 
+                                           HorizontalTextAlignment="Center">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                                <Setter Property="TextColor" Value="White" />
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="False">
+                                                <Setter Property="TextColor" Value="#64748B" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                    <Label Text="{Binding Title}" 
+                                           FontSize="9" 
+                                           FontAttributes="Bold" 
+                                           HorizontalTextAlignment="Center" 
+                                           LineBreakMode="WordWrap"
+                                           MaxLines="2">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                                <Setter Property="TextColor" Value="#FFFFFFE6" />
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="False">
+                                                <Setter Property="TextColor" Value="#64748B" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- Workout Details Card -->
+                <Border IsVisible="{Binding HasSelectedWorkout}"
+                        BackgroundColor="#FFFFFFF2"
+                        StrokeShape="RoundRectangle 24"
+                        Padding="24"
+                        Margin="0">
+                    <Border.Shadow>
+                        <Shadow Brush="#00000033" Offset="0,8" Radius="16" />
+                    </Border.Shadow>
+                    
+                    <VerticalStackLayout Spacing="16">
+                        <!-- Header -->
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                <Label Text="{Binding SelectedWorkout.Day, FallbackValue=''}"
+                                       FontSize="24"
+                                       FontAttributes="Bold"
+                                       TextColor="#1E293B" />
+                                <Label Text="{Binding SelectedWorkout.Title, FallbackValue=''}"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       TextColor="#64748B" />
+                            </VerticalStackLayout>
+                            
+                            <Border Grid.Column="1"
+                                    StrokeShape="RoundRectangle 16"
+                                    Padding="16"
+                                    VerticalOptions="Center">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="{Binding SelectedWorkout.GradientStart, FallbackValue=#64748B}" Offset="0.0" />
+                                        <GradientStop Color="{Binding SelectedWorkout.GradientEnd, FallbackValue=#475569}" Offset="1.0" />
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Label Text="{Binding SelectedWorkout.Day, FallbackValue=''}"
+                                       FontSize="20"
+                                       FontAttributes="Bold"
+                                       TextColor="White"
+                                       HorizontalTextAlignment="Center"
+                                       VerticalTextAlignment="Center" />
+                            </Border>
+                        </Grid>
+
+                        <!-- Table Layout (for Treino 7) -->
+                        <VerticalStackLayout IsVisible="{Binding SelectedWorkout.IsTable}" Spacing="16">
+                            <!-- Table Header -->
+                            <Grid RowDefinitions="Auto" ColumnDefinitions="2*,*,*,*" BackgroundColor="#F1F5F9">
+                                <Label Grid.Column="0" Text="Exercício" FontSize="13" FontAttributes="Bold" TextColor="#1E293B" Padding="12,10" />
+                                <Label Grid.Column="1" Text="Avançado" FontSize="11" FontAttributes="Bold" TextColor="#1E293B" Padding="8,10" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" MaxLines="2" />
+                                <Label Grid.Column="2" Text="Intermed." FontSize="11" FontAttributes="Bold" TextColor="#1E293B" Padding="8,10" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" MaxLines="2" />
+                                <Label Grid.Column="3" Text="Iniciante" FontSize="11" FontAttributes="Bold" TextColor="#1E293B" Padding="8,10" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" MaxLines="2" />
+                                <BoxView Grid.ColumnSpan="4" BackgroundColor="#CBD5E1" HeightRequest="1" VerticalOptions="End" />
+                            </Grid>
+                            
+                            <!-- Table Rows -->
+                            <CollectionView ItemsSource="{Binding SelectedWorkout.TableData.Rows}">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="model:TableRow">
+                                        <Grid RowDefinitions="Auto" ColumnDefinitions="2*,*,*,*">
+                                            <Label Grid.Column="0" Text="{Binding Exercise}" FontSize="13" TextColor="#334155" Padding="12,10" LineBreakMode="WordWrap" />
+                                            <Label Grid.Column="1" Text="{Binding Advanced}" FontSize="13" FontAttributes="Bold" TextColor="#334155" Padding="8,10" HorizontalTextAlignment="Center" />
+                                            <Label Grid.Column="2" Text="{Binding Intermediate}" FontSize="13" FontAttributes="Bold" TextColor="#334155" Padding="8,10" HorizontalTextAlignment="Center" />
+                                            <Label Grid.Column="3" Text="{Binding Beginner}" FontSize="13" FontAttributes="Bold" TextColor="#334155" Padding="8,10" HorizontalTextAlignment="Center" />
+                                            <BoxView Grid.ColumnSpan="4" BackgroundColor="#E2E8F0" HeightRequest="1" VerticalOptions="End" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                            
+                            <!-- Note -->
+                            <Border BackgroundColor="#FEF3C7"
+                                    StrokeThickness="1"
+                                    Stroke="#FCD34D"
+                                    StrokeShape="RoundRectangle 12"
+                                    Padding="16">
+                                <Label TextColor="#92400E" FontSize="12" LineBreakMode="WordWrap">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="Nota: " FontAttributes="Bold" />
+                                            <Span Text="Exercícios com * devem ser contados de um lado só. Caso conte para os dois lados, o número total será dobrado (Exemplo: O escalador ao invés de ser 80, será 160)." />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Regular Sections -->
+                        <CollectionView IsVisible="{Binding SelectedWorkout.IsTable, Converter={StaticResource BoolInverse}}" 
+                                        ItemsSource="{Binding SelectedWorkout.Sections}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="model:WorkoutSection">
+                                    <VerticalStackLayout Spacing="12" Margin="0,0,0,16">
+                                        <Label Text="{Binding Title}"
+                                               FontSize="18"
+                                               FontAttributes="Bold"
+                                               TextColor="#1E293B"
+                                               Margin="0,0,0,8" />
+                                        <BoxView BackgroundColor="#E2E8F0" HeightRequest="2" />
+                                        
+                                        <CollectionView ItemsSource="{Binding Exercises}">
+                                            <CollectionView.ItemTemplate>
+                                                <DataTemplate x:DataType="model:Exercise">
+                                                    <Border BackgroundColor="#F8FAFC"
+                                                            StrokeThickness="0"
+                                                            StrokeShape="RoundRectangle 12"
+                                                            Padding="16"
+                                                            Margin="0,0,0,8">
+                                                        <VerticalStackLayout Spacing="4">
+                                                            <Label Text="{Binding Name}"
+                                                                   FontSize="15"
+                                                                   FontAttributes="Bold"
+                                                                   TextColor="#1E293B"
+                                                                   LineBreakMode="WordWrap" />
+                                                            <Label Text="{Binding Details}"
+                                                                   FontSize="13"
+                                                                   TextColor="#64748B"
+                                                                   LineBreakMode="WordWrap" />
+                                                        </VerticalStackLayout>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </CollectionView.ItemTemplate>
+                                        </CollectionView>
+                                    </VerticalStackLayout>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- No Selection Message -->
+                <Label IsVisible="{Binding HasSelectedWorkout, Converter={StaticResource BoolInverse}}"
+                       Text="Selecione um dia da semana para ver os exercícios"
+                       FontSize="16"
+                       TextColor="#FFFFFFE6"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,32,0,0" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>
+

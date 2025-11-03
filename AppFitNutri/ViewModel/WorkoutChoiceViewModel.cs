@@ -33,14 +33,11 @@ public class WorkoutChoiceViewModel : INotifyPropertyChanged
     {
         try
         {
-            // TODO: Navegar para página de treinos em casa
-            var currentPage = Shell.Current.CurrentPage;
-            if (currentPage != null)
-                await currentPage.DisplayAlert("Em Casa", "Treino em casa", "OK");
+            await Shell.Current.GoToAsync(nameof(Views.HomeWorkoutPage));
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error in OnSelectHome: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"Error in OnSelectGym: {ex.Message}");
         }
     }
 
