@@ -12,187 +12,197 @@ xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
         </LinearGradientBrush>
     </ContentPage.Background>
 
-    <Grid Padding="10" RowSpacing="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-
-        <!-- Header with Logo and Title -->
-        <StackLayout Grid.Row="0" Spacing="10" Margin="0,0 ,0,0">
-            <!-- Logo Icon -->
-            <Border BackgroundColor="White"
-                    StrokeShape="RoundRectangle 25"
-                    WidthRequest="100"
-                    HeightRequest="100"
-                    HorizontalOptions="Center">
-                <Border.Shadow>
-                    <Shadow Brush="Black"
-                            Offset="0,4"
-                            Radius="8"
+    <ScrollView Padding="24">
+        <VerticalStackLayout Spacing="0" VerticalOptions="StartAndExpand">
+            
+            <!-- Logo Container -->
+            <VerticalStackLayout Spacing="16" Margin="0,0,0,48" HorizontalOptions="Center">
+                <!-- Logo Icon with Shadow -->
+                <Border 
+                    BackgroundColor="White"
+                    StrokeShape="RoundRectangle 36"
+                    WidthRequest="96"
+                    HeightRequest="96"
+                    HorizontalOptions="Center"
+                    Padding="0">
+                    <Border.Shadow>
+                        <Shadow 
+                            Brush="Black"
+                            Offset="0,8"
+                            Radius="16"
                             Opacity="0.3" />
-                </Border.Shadow>
-                <Image Source="logofitnutri.png"
-                       Aspect="AspectFit"
-                       WidthRequest="80"
-                       HeightRequest="80"
-                       HorizontalOptions="Center"
-                       VerticalOptions="Center" />
-            </Border>
-            <!-- Title -->
-            <Label Text="FitNutri"
-                   FontSize="32"
-                   FontAttributes="Bold"
-                   TextColor="White"
-                   HorizontalOptions="Center">
-                <Label.Shadow>
-                    <Shadow Brush="#222" Offset="0,2" Radius="6" Opacity="0.3" />
-                </Label.Shadow>
-            </Label>
-        </StackLayout>
-
-        <!-- Login Form -->
-        <ScrollView Grid.Row="1">
-            <VerticalStackLayout
-                VerticalOptions="Fill"
-                HorizontalOptions="Fill"
-                Spacing="10">
-                <!-- Login/E-mail -->
-                <Border BackgroundColor="White"
-                        StrokeShape="RoundRectangle 15"
-                        WidthRequest="300"
-                        HeightRequest="60"
-                        Margin="0,0,0,0">
-                    <Border.Shadow>
-                        <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
                     </Border.Shadow>
-                    <Entry Placeholder="Login/E-mail"
-                           PlaceholderColor="Gray"
-                           TextColor="Black"
-                           Text="{Binding EmailOrUserName}"
-                           Margin="16,3,0,0"
-                           Keyboard="Email"/>
+                    <Image 
+                        Source="logofitnutri.png"
+                        Aspect="AspectFit"
+                        WidthRequest="64"
+                        HeightRequest="64"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center" />
                 </Border>
-
-                <!-- Senha -->
-                <Border BackgroundColor="White"
-                        StrokeShape="RoundRectangle 15"
-                        WidthRequest="300"
-                        HeightRequest="60"
-                        Margin="0,0,0,0">
-                    <Border.Shadow>
-                        <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
-                    </Border.Shadow>
-                    <Grid>
-                        <Entry Placeholder="Senha"
-                               PlaceholderColor="Gray"
-                               TextColor="Black"
-                               IsPassword="{Binding IsPassword}"
-                               Text="{Binding Password}"
-                               Margin="16,3,0,0" 
-                               />
-                        <!-- Mostrar senha como ícone, sem borda -->
-                        <Image Source="eye_icon.png"
-                               WidthRequest="28"
-                               HeightRequest="28"
-                               VerticalOptions="Center"
-                               HorizontalOptions="End"
-                               Margin="0,0,16,0">
-                            <Image.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding TogglePasswordCommand}" />
-                            </Image.GestureRecognizers>
-                        </Image>
-                    </Grid>
-                </Border>
-
-                <!-- Mensagem de erro -->
-                <Label Text="{Binding ErrorMessage}"
-                       TextColor="#D32F2F"
-                       FontSize="13"
-                       FontAttributes="Bold"
-                       HorizontalTextAlignment="Center"
-                       IsVisible="{Binding HasError}"
-                       Margin="0,4,0,0" />
-
-                <!-- Botão Entrar -->
-                <Border BackgroundColor="#4A90E2"
-                        StrokeShape="RoundRectangle 30"
-                        WidthRequest="300"
-                        HeightRequest="60"
-                        Margin="0,0,0,0">
-                    <Border.Shadow>
-                        <Shadow Brush="Black" Offset="0,4" Radius="8" Opacity="0.2" />
-                    </Border.Shadow>
-                    <Button Text="{Binding LoginButtonText}"
-                            Command="{Binding EntrarCommand}"
-                            BackgroundColor="Transparent"
-                            TextColor="White"
-                            FontAttributes="Bold"
-                            Padding="15"
-                            IsEnabled="{Binding IsNotBusy}"
-                            FontSize="18"
-                            HorizontalOptions="FillAndExpand"
-                            VerticalOptions="Center" />
-                </Border>
-
-                <!-- Separador "Ou" -->
-                <Label Text="Ou"
-                       TextColor="White"
-                       FontSize="16"
-                       FontAttributes="Bold"
-                       HorizontalOptions="Center"
-                       Margin="0,2,0,2">
+                
+                <!-- Title -->
+                <Label 
+                    Text="FitNutri"
+                    FontSize="36"
+                    FontAttributes="Bold"
+                    TextColor="White"
+                    HorizontalOptions="Center">
                     <Label.Shadow>
-                        <Shadow Brush="Black" Offset="0,1" Radius="2" Opacity="0.3" />
+                        <Shadow Brush="#000" Offset="0,4" Radius="8" Opacity="0.3" />
                     </Label.Shadow>
                 </Label>
-
-                <!-- Botão Cadastrar-se -->
-                <Border BackgroundColor="#7ED321"
-                        StrokeShape="RoundRectangle 30"
-                        WidthRequest="300"
-                        HeightRequest="60"
-                        Margin="0,0,0,0">
-                    <Border.Shadow>
-                        <Shadow Brush="Black" Offset="0,4" Radius="8" Opacity="0.2" />
-                    </Border.Shadow>
-                    <Button Text="Cadastrar-se"
-                            Command="{Binding IrParaRegistrarCommand}"
-                            BackgroundColor="Transparent"
-                            TextColor="White"
-                            FontAttributes="Bold"
-                            Padding="15"
-                            IsEnabled="{Binding IsNotBusy}"
-                            FontSize="18"
-                            HorizontalOptions="FillAndExpand"
-                            VerticalOptions="Center" />
-                </Border>
-
-                <!-- Link Esqueceu a senha? -->
-                <Grid HorizontalOptions="Center" Margin="0,15,0,0">
-                    <Label Text="Esqueceu a senha?"
-                           TextColor="White"
-                           FontSize="15"
-                           FontAttributes="Bold"
-                           HorizontalOptions="Center"
-                           Padding="0,2">
-                        <Label.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding IrParaEsqueciSenhaCommand}" />
-                        </Label.GestureRecognizers>
-                        <Label.Shadow>
-                            <Shadow Brush="Black" Offset="0,1" Radius="2" Opacity="0.3" />
-                        </Label.Shadow>
-                    </Label>
-                    <!-- Sublinhado -->
-                    <BoxView HeightRequest="1"
-                             BackgroundColor="White"
-                             HorizontalOptions="Fill"
-                             VerticalOptions="End"
-                             Margin="0,0,0,0"
-                             Opacity="0.8" />
-                </Grid>
-
             </VerticalStackLayout>
-        </ScrollView>
-    </Grid>
+
+            <!-- Login Form Card -->
+            <Border 
+                BackgroundColor="#FFFFFF"
+                StrokeShape="RoundRectangle 32"
+                Padding="24">
+                <Border.Shadow>
+                    <Shadow 
+                        Brush="Black"
+                        Offset="0,8"
+                        Radius="16"
+                        Opacity="0.15" />
+                </Border.Shadow>
+
+                <VerticalStackLayout Spacing="16">
+                    
+                    <!-- Email/Login Input -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label 
+                            Text="Login/E-mail"
+                            TextColor="#64748B"
+                            FontSize="16"
+                            FontAttributes="Bold" />
+                        <Border 
+                            BackgroundColor="White"
+                            StrokeShape="RoundRectangle 12"
+                            Stroke="#E2E8F0"
+                            StrokeThickness="2"
+                            Padding="0,0">
+                            <Entry 
+                                Placeholder="Digite seu e-mail"
+                                PlaceholderColor="#CBD5E1"
+                                TextColor="#1E293B"
+                                Text="{Binding EmailOrUserName}"
+                                Keyboard="Email"
+                                FontSize="16" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Password Input -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label 
+                            Text="Senha"
+                            TextColor="#64748B"
+                            FontSize="16"
+                            FontAttributes="Bold" />
+                        <Border 
+                            BackgroundColor="White"
+                            StrokeShape="RoundRectangle 12"
+                            Stroke="#E2E8F0"
+                            StrokeThickness="2"
+                            Padding="2,0">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Entry 
+                                    Grid.Column="0"
+                                    Placeholder="Digite sua senha"
+                                    PlaceholderColor="#CBD5E1"
+                                    TextColor="#1E293B"
+                                    IsPassword="{Binding IsPassword}"
+                                    Text="{Binding Password}"
+                                    FontSize="16"
+                                    />
+                                <Image 
+                                    Grid.Column="1"
+                                    Source="eye_icon.png"
+                                    WidthRequest="24"
+                                    HeightRequest="24"
+                                    VerticalOptions="Center"
+                                    Margin="0,0,12,0">
+                                    <Image.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding TogglePasswordCommand}" />
+                                    </Image.GestureRecognizers>
+                                </Image>
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Error Message -->
+                    <Label 
+                        Text="{Binding ErrorMessage}"
+                        TextColor="#DC2626"
+                        FontSize="14"
+                        FontAttributes="Bold"
+                        HorizontalTextAlignment="Center"
+                        IsVisible="{Binding HasError}"
+                        Margin="0,8,0,0" />
+
+                    <!-- Login Button -->
+                    <Button 
+                        Text="{Binding LoginButtonText}"
+                        Command="{Binding EntrarCommand}"
+                        BackgroundColor="#2563EB"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        FontSize="18"
+                        Padding="16,18"
+                        CornerRadius="12"
+                        IsEnabled="{Binding IsNotBusy}"
+                        Margin="0,8,0,0" />
+
+                    <!-- Separator with "Ou" -->
+                    <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="16" Margin="0,8,0,8" VerticalOptions="Center">
+                        <BoxView 
+                            Grid.Column="0"
+                            BackgroundColor="#E2E8F0"
+                            HeightRequest="1"
+                            VerticalOptions="Center" />
+                        <Label 
+                            Grid.Column="1"
+                            Text="Ou"
+                            TextColor="#94A3B8"
+                            FontSize="14"
+                            HorizontalOptions="Center" />
+                        <BoxView 
+                            Grid.Column="2"
+                            BackgroundColor="#E2E8F0"
+                            HeightRequest="1"
+                            VerticalOptions="Center" />
+                    </Grid>
+
+                    <!-- Register Button -->
+                    <Button 
+                        Text="Cadastrar-se"
+                        Command="{Binding IrParaRegistrarCommand}"
+                        BackgroundColor="#16A34A"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        FontSize="18"
+                        Padding="16,18"
+                        CornerRadius="12"
+                        IsEnabled="{Binding IsNotBusy}" />
+
+                    <!-- Forgot Password Link -->
+                    <StackLayout HorizontalOptions="Center" Margin="0,16,0,0">
+                        <Label 
+                            Text="Esqueceu a senha?"
+                            TextColor="#2563EB"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            HorizontalOptions="Center"
+                            Padding="0">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding IrParaEsqueciSenhaCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </StackLayout>
+
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

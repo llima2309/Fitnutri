@@ -18,87 +18,92 @@
     <RefreshView
         IsRefreshing="{Binding IsLoading}"
         Command="{Binding CarregarProfissionaisCommand}">
+        <VerticalStackLayout>
 
-        <CollectionView ItemsSource="{Binding Profissionais}"
-                        BackgroundColor="Transparent"
-                        VerticalOptions="FillAndExpand">
 
-            <CollectionView.EmptyView>
-                <StackLayout Padding="20" VerticalOptions="CenterAndExpand">
-                    <Label Text="{Binding MensagemVazia}"
-                           FontSize="16"
-                           TextColor="White"
-                           HorizontalOptions="Center"
-                           HorizontalTextAlignment="Center"
-                           Opacity="0.8" />
-                </StackLayout>
-            </CollectionView.EmptyView>
+            <CollectionView ItemsSource="{Binding Profissionais}"
+                            BackgroundColor="Transparent"
+                            VerticalOptions="FillAndExpand">
 
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Grid Padding="0,5">
-                        <Border BackgroundColor="White"
-                                StrokeShape="RoundRectangle 15"
-                                Padding="20">
-                            <Border.Shadow>
-                                <Shadow Brush="Black"
-                                        Offset="0,2"
-                                        Radius="8"
-                                        Opacity="0.2" />
-                            </Border.Shadow>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer
-                                    Command="{Binding Path=BindingContext.SelecionarProfissionalCommand, Source={x:Reference Name=ThisPage}}"
-                                    CommandParameter="{Binding}" />
-                            </Border.GestureRecognizers>
+                <CollectionView.EmptyView>
+                    <StackLayout Padding="20" VerticalOptions="CenterAndExpand">
+                        <Label Text="{Binding MensagemVazia}"
+                               FontSize="16"
+                               TextColor="White"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               Opacity="0.8" />
+                    </StackLayout>
+                </CollectionView.EmptyView>
 
-                            <Grid ColumnSpacing="15">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="0,5">
+                            <Border BackgroundColor="White"
+                                    StrokeShape="RoundRectangle 15"
+                                    Padding="20">
+                                <Border.Shadow>
+                                    <Shadow Brush="Black"
+                                            Offset="0,2"
+                                            Radius="8"
+                                            Opacity="0.2" />
+                                </Border.Shadow>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Path=BindingContext.SelecionarProfissionalCommand, Source={x:Reference Name=ThisPage}}"
+                                        CommandParameter="{Binding}" />
+                                </Border.GestureRecognizers>
 
-                                <!-- Avatar/Ícone -->
-                                <Border Grid.Column="0"
-                                        BackgroundColor="#F0F8FF"
-                                        StrokeShape="RoundRectangle 25"
-                                        WidthRequest="50"
-                                        HeightRequest="50">
-                                    <Label Text="👤"
-                                           FontSize="24"
-                                           HorizontalOptions="Center"
-                                           VerticalOptions="Center" />
-                                </Border>
+                                <Grid ColumnSpacing="15">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
 
-                                <!-- Informações do Profissional -->
-                                <StackLayout Grid.Column="1" VerticalOptions="Center" Spacing="3">
-                                    <Label Text="{Binding NomeCompleto}"
-                                           FontSize="16"
-                                           FontAttributes="Bold"
-                                           TextColor="#2C3E50" />
+                                    <!-- Avatar/Ícone -->
+                                    <Border Grid.Column="0"
+                                            BackgroundColor="#F0F8FF"
+                                            StrokeShape="RoundRectangle 25"
+                                            WidthRequest="50"
+                                            HeightRequest="50">
+                                        <Label Text="👤"
+                                               FontSize="24"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center" />
+                                    </Border>
 
-                                    <Label Text="{Binding CidadeEstado}"
-                                           FontSize="12"
-                                           TextColor="#7F8C8D" />
+                                    <!-- Informações do Profissional -->
+                                    <StackLayout Grid.Column="1" VerticalOptions="Center" Spacing="3">
+                                        <Label Text="{Binding NomeCompleto}"
+                                               FontSize="16"
+                                               FontAttributes="Bold"
+                                               TextColor="#2C3E50" />
 
-                                    <Label Text="{Binding RegistroProfissional}"
-                                           FontSize="12"
+                                        <Label Text="{Binding CidadeEstado}"
+                                               FontSize="12"
+                                               TextColor="#7F8C8D" />
+
+                                        <Label Text="{Binding RegistroProfissional}"
+                                               FontSize="12"
+                                               TextColor="#3498DB"
+                                               IsVisible="{Binding TemRegistro}" />
+                                    </StackLayout>
+
+                                    <!-- Seta -->
+                                    <Label Grid.Column="2"
+                                           Text="›"
+                                           FontSize="20"
                                            TextColor="#3498DB"
-                                           IsVisible="{Binding TemRegistro}" />
-                                </StackLayout>
-
-                                <!-- Seta -->
-                                <Label Grid.Column="2"
-                                       Text="›"
-                                       FontSize="20"
-                                       TextColor="#3498DB"
-                                       VerticalOptions="Center" />
-                            </Grid>
-                        </Border>
-                    </Grid>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                                           VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
     </RefreshView>
+
+
 </ContentPage>

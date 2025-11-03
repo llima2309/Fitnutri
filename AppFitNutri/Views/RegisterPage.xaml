@@ -25,72 +25,63 @@
                        Margin="0,0,0,20" />
 
                 <!-- Usuário -->
-                <Frame HasShadow="False"
-                       CornerRadius="30"
-                       BackgroundColor="White"
-                       Padding="0"
-                       WidthRequest="300">
+                <Border BackgroundColor="White"
+                        StrokeShape="RoundRectangle 30"
+                        Padding="2,0"
+                        WidthRequest="300">
                     <Entry Placeholder="Usuário"
                            PlaceholderColor="Gray"
                            TextColor="Black"
-                           Text="{Binding UserName}"
-                           Margin="16,10" />
-                </Frame>
+                           Text="{Binding UserName}" />
+                </Border>
 
                 <!-- E-mail -->
-                <Frame HasShadow="False"
-                       CornerRadius="30"
-                       BackgroundColor="White"
-                       Padding="0"
-                       WidthRequest="300">
+                <Border BackgroundColor="White"
+                        StrokeShape="RoundRectangle 30"
+                        Padding="2,0"
+                        WidthRequest="300">
                     <Entry Placeholder="E-mail"
                            PlaceholderColor="Gray"
                            TextColor="Black"
                            Keyboard="Email"
-                           Text="{Binding Email}"
-                           Margin="16,10" />
-                </Frame>
+                           Text="{Binding Email}" />
+                </Border>
 
                 <!-- Senha -->
-                <Frame HasShadow="False"
-                       CornerRadius="30"
-                       BackgroundColor="White"
-                       Padding="0"
-                       WidthRequest="300">
+                <Border BackgroundColor="White"
+                        StrokeShape="RoundRectangle 30"
+                        Padding="2,0"
+                        WidthRequest="300">
                     <Entry Placeholder="Senha"
                            PlaceholderColor="Gray"
                            TextColor="Black"
                            IsPassword="{Binding MostrarSenha, Converter={StaticResource BoolInverseConverter}}"
-                           Text="{Binding Password}"
-                           Margin="16,10" />
-                </Frame>
+                           Text="{Binding Password}" />
+                </Border>
 
                 <!-- Confirmar senha -->
-                <Frame HasShadow="False"
-                       CornerRadius="30"
-                       BackgroundColor="White"
-                       Padding="0"
-                       WidthRequest="300">
+                <Border BackgroundColor="White"
+                        StrokeShape="RoundRectangle 30"
+                        Padding="2,0"
+                        WidthRequest="300">
                     <Entry Placeholder="Confirmar senha"
                            PlaceholderColor="Gray"
                            TextColor="Black"
                            IsPassword="{Binding MostrarSenha, Converter={StaticResource BoolInverseConverter}}"
-                           Text="{Binding ConfirmPassword}"
-                           Margin="16,10" />
-                </Frame>
+                           Text="{Binding ConfirmPassword}" />
+                </Border>
 
                 <!-- Mostrar senha -->
-                <Frame HasShadow="False"
-                       CornerRadius="30"
-                       BackgroundColor="White"
-                       Padding="0"
-                       WidthRequest="300"
-                       Margin="0,4,0,0">
+                <Border BackgroundColor="White"
+                        StrokeShape="RoundRectangle 30"
+                        Padding="2,0"
+                        WidthRequest="300"
+                        Margin="0,4,0,0">
                     <HorizontalStackLayout Spacing="8">
                         <CheckBox IsChecked="{Binding MostrarSenha}" />
                         <Label Text="Mostrar senha" VerticalTextAlignment="Center" />
                     </HorizontalStackLayout>
-                </Frame>
+                </Border>
 
                 <!-- Mensagem de erro -->
                 <Label Text="{Binding ErrorMessage}"

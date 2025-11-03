@@ -23,10 +23,6 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Label Text="Seus agendamentos"
-               FontSize="22" FontAttributes="Bold"
-               TextColor="White"/>
-
         <RefreshView Grid.Row="1" Command="{Binding AtualizarCommand}" IsRefreshing="{Binding IsRefreshing}">
             <CollectionView ItemsSource="{Binding Itens}">
                 <CollectionView.EmptyView>
@@ -45,7 +41,9 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <Border Grid.Column="0" BackgroundColor="#E3F2FD" StrokeShape="RoundRectangle 10" WidthRequest="48" HeightRequest="48">
-                                    <Label Text="🗓️" FontSize="22" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    <Image Source="calendario.png"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
                                 </Border>
                                 <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
                                     <Label Text="{Binding DataTexto}" FontAttributes="Bold" TextColor="#2C3E50"/>
