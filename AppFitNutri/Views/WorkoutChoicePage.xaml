@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage x:Class="AppFitNutri.Views.WorkoutChoicePage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:AppFitNutri.ViewModel"
+             x:DataType="viewmodel:WorkoutChoiceViewModel"
+             Title="Treinos"
+             Shell.NavBarIsVisible="True">
+
+    <!-- Gradient Background -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#4A90E2" Offset="0.0" />
+            <GradientStop Color="#7ED321" Offset="0.5" />
+            <GradientStop Color="#4A90E2" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <ScrollView Padding="24">
+        <VerticalStackLayout Spacing="24" VerticalOptions="Start">
+
+            <!-- Spacing -->
+            <BoxView HeightRequest="12" IsVisible="False" />
+
+            <!-- Gym Workout Option -->
+            <Border BackgroundColor="#FFFFFF"
+                    StrokeShape="RoundRectangle 24"
+                    Padding="20"
+                    Margin="0">
+                <Border.Shadow>
+                    <Shadow Brush="#0000001F" Offset="0,4" Radius="8" />
+                </Border.Shadow>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GymCommand}" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="64,16,*" ColumnSpacing="0" VerticalOptions="Center">
+                    <!-- Icon Container -->
+                    <Border Grid.Column="0"
+                            BackgroundColor="LightBlue"
+                            StrokeShape="RoundRectangle 16"
+                            Padding="12"
+                            WidthRequest="64"
+                            HeightRequest="64"
+                            VerticalOptions="Center">
+                        <Image Source="workout.png"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               Aspect="AspectFit"
+                               WidthRequest="40"
+                               HeightRequest="40" />
+                    </Border>
+                    
+                    <!-- Content -->
+                    <VerticalStackLayout Grid.Column="2" Spacing="4" VerticalOptions="Center">
+                        <Label Text="Academia"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               TextColor="#1E293B"
+                               LineBreakMode="NoWrap" />
+                        <Label Text="Treino completo para fazer na academia com equipamentos"
+                               FontSize="14"
+                               TextColor="#64748B"
+                               LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <!-- Home Workout Option -->
+            <Border BackgroundColor="#FFFFFF"
+                    StrokeShape="RoundRectangle 24"
+                    Padding="20"
+                    Margin="0">
+                <Border.Shadow>
+                    <Shadow Brush="#0000001F" Offset="0,4" Radius="8" />
+                </Border.Shadow>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding HomeCommand}" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="64,16,*" ColumnSpacing="0" VerticalOptions="Center">
+                    <!-- Icon Container -->
+                    <Border Grid.Column="0"
+                            BackgroundColor="LightGreen"
+                            StrokeShape="RoundRectangle 16"
+                            Padding="12"
+                            WidthRequest="64"
+                            HeightRequest="64"
+                            VerticalOptions="Center">
+                        <Image Source="emcasa.png"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               Aspect="AspectFit"
+                               WidthRequest="40"
+                               HeightRequest="40" />
+                    </Border>
+                    
+                    <!-- Content -->
+                    <VerticalStackLayout Grid.Column="2" Spacing="4" VerticalOptions="Center">
+                        <Label Text="Em Casa"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               TextColor="#1E293B"
+                               LineBreakMode="NoWrap" />
+                        <Label Text="Treino para fazer em casa sem equipamentos"
+                               FontSize="14"
+                               TextColor="#64748B"
+                               LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
+

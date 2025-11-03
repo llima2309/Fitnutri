@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage x:Class="AppFitNutri.Views.GymWorkoutPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:AppFitNutri.ViewModel"
+             xmlns:model="clr-namespace:AppFitNutri.Models"
+             xmlns:converters="clr-namespace:AppFitNutri.Converters"
+             x:DataType="viewmodel:GymWorkoutViewModel"
+             Title="Treino - Academia"
+             Shell.NavBarIsVisible="True">
+
+    <ContentPage.Resources>
+        <converters:BoolInverseConverter x:Key="BoolInverse" />
+    </ContentPage.Resources>
+
+    <!-- Gradient Background -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#4A90E2" Offset="0.0" />
+            <GradientStop Color="#7ED321" Offset="0.5" />
+            <GradientStop Color="#4A90E2" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <Grid>
+        <!-- Loading Indicator -->
+        <ActivityIndicator IsRunning="{Binding IsLoading}"
+                           IsVisible="{Binding IsLoading}"
+                           Color="White"
+                           VerticalOptions="Center"
+                           HorizontalOptions="Center"
+                           Scale="1.5" />
+
+        <!-- Main Content -->
+        <ScrollView Padding="24" IsVisible="{Binding IsLoading, Converter={StaticResource BoolInverse}}">
+            <VerticalStackLayout Spacing="16">
+
+                <!-- Weekly Plan Card -->
+                <Border BackgroundColor="#FFFFFFF2"
+                        StrokeShape="RoundRectangle 24"
+                        Padding="16"
+                        Margin="0">
+                    <Border.Shadow>
+                        <Shadow Brush="#0000001F" Offset="0,4" Radius="8" />
+                    </Border.Shadow>
+                    
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="PLANO DE TREINO SEMANAL"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="#1E293B"
+                               HorizontalTextAlignment="Center" />
+                        
+                        <Label Text="Treinos de 1h a 1h30"
+                               FontSize="14"
+                               TextColor="#64748B"
+                               HorizontalTextAlignment="Center"
+                               Margin="0,0,0,8" />
+
+                        <!-- Week Grid -->
+                        <Grid ColumnDefinitions="*,*,*,*,*,*,*" 
+                              RowDefinitions="Auto,Auto"
+                              ColumnSpacing="4"
+                              RowSpacing="4"
+                              Margin="0,0,0,12">
+                            
+                            <!-- Day Badges Row -->
+                            <Border Grid.Row="0" Grid.Column="0" StrokeShape="RoundRectangle 8" Padding="4">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#3B82F6" Offset="0.0" />
+                                        <GradientStop Color="#2563EB" Offset="1.0" />
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Label Text="SEG" FontSize="10" FontAttributes="Bold" TextColor="White" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                            </Border>
+                            
+                            <Border Grid.Row="0" Grid.Column="1" StrokeShape="RoundRectangle 8" Padding="4">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#10B981" Offset="0.0" />
+                                        <GradientStop Color="#059669" Offset="1.0" />
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Label Text="TER" FontSize="10" FontAttributes="Bold" TextColor="White" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                            </Border>
+                            
+                            <Border Grid.Row="0" Grid.Column="2" StrokeShape="RoundRectangle 8" Padding="4">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#A855F7" Offset="0.0" />
+                                        <GradientStop Color="#9333EA" Offset="1.0" />
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Label Text="QUA" FontSize="10" FontAttributes="Bold" TextColor="White" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                            </Border>
+                            
+                            <Border Grid.Row="0" Grid.Column="3" StrokeShape="RoundRectangle 8" Padding="4">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#F97316" Offset="0.0" />
+                                        <GradientStop Color="#EA580C" Offset="1.0" />
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Label Text="QUI" FontSize="10" FontAttributes="Bold" TextColor="White" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                            </Border>
+                            
+                            <Border Grid.Row="0" Grid.Column="4" StrokeShape="RoundRectangle 8" Padding="4">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#EF4444" Offset="0.0" />
+                                        <GradientStop Color="#DC2626" Offset="1.0" />
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Label Text="SEX" FontSize="10" FontAttributes="Bold" TextColor="White" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                            </Border>
+                            
+                            <Border Grid.Row="0" Grid.Column="5" StrokeShape="RoundRectangle 8" Padding="4">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#6366F1" Offset="0.0" />
+                                        <GradientStop Color="#4F46E5" Offset="1.0" />
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Label Text="SÁB" FontSize="10" FontAttributes="Bold" TextColor="White" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                            </Border>
+                            
+                            <Border Grid.Row="0" Grid.Column="6" StrokeShape="RoundRectangle 8" Padding="4">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#64748B" Offset="0.0" />
+                                        <GradientStop Color="#475569" Offset="1.0" />
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Label Text="DOM" FontSize="10" FontAttributes="Bold" TextColor="White" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                            </Border>
+                            
+                            <!-- Titles Row -->
+                            <Label Grid.Row="1" Grid.Column="0" Text="PEITO" FontSize="9" FontAttributes="Bold" TextColor="#334155" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" />
+                            <Label Grid.Row="1" Grid.Column="1" Text="COSTAS" FontSize="9" FontAttributes="Bold" TextColor="#334155" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" />
+                            <Label Grid.Row="1" Grid.Column="2" Text="ALONGA-MENTO" FontSize="9" FontAttributes="Bold" TextColor="#334155" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" />
+                            <Label Grid.Row="1" Grid.Column="3" Text="PERNA + GLÚTEOS" FontSize="9" FontAttributes="Bold" TextColor="#334155" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" />
+                            <Label Grid.Row="1" Grid.Column="4" Text="OMBROS" FontSize="9" FontAttributes="Bold" TextColor="#334155" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" />
+                            <Label Grid.Row="1" Grid.Column="5" Text="BRAÇOS" FontSize="9" FontAttributes="Bold" TextColor="#334155" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" />
+                            <Label Grid.Row="1" Grid.Column="6" Text="DESCANSO" FontSize="9" FontAttributes="Bold" TextColor="#334155" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" />
+                        </Grid>
+                        
+                        <!-- Legend -->
+                        <BoxView HeightRequest="1" BackgroundColor="#E2E8F0" Margin="0,8" />
+                        
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                            <!-- Row 1 -->
+                            <HorizontalStackLayout Grid.Row="0" Grid.Column="0" Spacing="8">
+                                <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="3">
+                                    <BoxView.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#3B82F6" Offset="0.0" />
+                                            <GradientStop Color="#2563EB" Offset="1.0" />
+                                        </LinearGradientBrush>
+                                    </BoxView.Background>
+                                </BoxView>
+                                <Label Text="Segunda - Peito" FontSize="11" TextColor="#334155" VerticalTextAlignment="Center" />
+                            </HorizontalStackLayout>
+                            
+                            <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="8">
+                                <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="3">
+                                    <BoxView.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#10B981" Offset="0.0" />
+                                            <GradientStop Color="#059669" Offset="1.0" />
+                                        </LinearGradientBrush>
+                                    </BoxView.Background>
+                                </BoxView>
+                                <Label Text="Terça - Costas" FontSize="11" TextColor="#334155" VerticalTextAlignment="Center" />
+                            </HorizontalStackLayout>
+                            
+                            <!-- Row 2 -->
+                            <HorizontalStackLayout Grid.Row="1" Grid.Column="0" Spacing="8">
+                                <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="3">
+                                    <BoxView.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#A855F7" Offset="0.0" />
+                                            <GradientStop Color="#9333EA" Offset="1.0" />
+                                        </LinearGradientBrush>
+                                    </BoxView.Background>
+                                </BoxView>
+                                <Label Text="Quarta - Alongamento" FontSize="11" TextColor="#334155" VerticalTextAlignment="Center" />
+                            </HorizontalStackLayout>
+                            
+                            <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Spacing="8">
+                                <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="3">
+                                    <BoxView.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#F97316" Offset="0.0" />
+                                            <GradientStop Color="#EA580C" Offset="1.0" />
+                                        </LinearGradientBrush>
+                                    </BoxView.Background>
+                                </BoxView>
+                                <Label Text="Quinta - Perna + Glúteos" FontSize="11" TextColor="#334155" VerticalTextAlignment="Center" />
+                            </HorizontalStackLayout>
+                            
+                            <!-- Row 3 -->
+                            <HorizontalStackLayout Grid.Row="2" Grid.Column="0" Spacing="8">
+                                <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="3">
+                                    <BoxView.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#EF4444" Offset="0.0" />
+                                            <GradientStop Color="#DC2626" Offset="1.0" />
+                                        </LinearGradientBrush>
+                                    </BoxView.Background>
+                                </BoxView>
+                                <Label Text="Sexta - Ombros" FontSize="11" TextColor="#334155" VerticalTextAlignment="Center" />
+                            </HorizontalStackLayout>
+                            
+                            <HorizontalStackLayout Grid.Row="2" Grid.Column="1" Spacing="8">
+                                <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="3">
+                                    <BoxView.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#6366F1" Offset="0.0" />
+                                            <GradientStop Color="#4F46E5" Offset="1.0" />
+                                        </LinearGradientBrush>
+                                    </BoxView.Background>
+                                </BoxView>
+                                <Label Text="Sábado - Braços" FontSize="11" TextColor="#334155" VerticalTextAlignment="Center" />
+                            </HorizontalStackLayout>
+                            
+                            <!-- Row 4 -->
+                            <HorizontalStackLayout Grid.Row="3" Grid.Column="0" Spacing="8">
+                                <BoxView WidthRequest="12" HeightRequest="12" CornerRadius="3">
+                                    <BoxView.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#64748B" Offset="0.0" />
+                                            <GradientStop Color="#475569" Offset="1.0" />
+                                        </LinearGradientBrush>
+                                    </BoxView.Background>
+                                </BoxView>
+                                <Label Text="Domingo - Descanso" FontSize="11" TextColor="#334155" VerticalTextAlignment="Center" />
+                            </HorizontalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Workout Days Collection -->
+                <CollectionView ItemsSource="{Binding WorkoutPlan}"
+                                SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="model:DayWorkout">
+                            <Border Margin="0,0,0,12"
+                                    BackgroundColor="#FFFFFFF2"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 20"
+                                    Padding="0">
+                                <Border.Shadow>
+                                    <Shadow Brush="#0000001F" Offset="0,4" Radius="12" />
+                                </Border.Shadow>
+                                
+                                <VerticalStackLayout Spacing="0">
+                                    <!-- Day Header (Clickable) -->
+                                    <Border BackgroundColor="Transparent"
+                                            StrokeThickness="0"
+                                            Padding="16">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:GymWorkoutViewModel}}, Path=ToggleDayCommand}"
+                                                                  CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+                                        
+                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                            <!-- Color Indicator -->
+                                            <BoxView Grid.Column="0"
+                                                     WidthRequest="12"
+                                                     HeightRequest="12"
+                                                     CornerRadius="6"
+                                                     VerticalOptions="Center">
+                                                <BoxView.Background>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                        <GradientStop Color="{Binding GradientStart}" Offset="0.0" />
+                                                        <GradientStop Color="{Binding GradientEnd}" Offset="1.0" />
+                                                    </LinearGradientBrush>
+                                                </BoxView.Background>
+                                            </BoxView>
+                                            
+                                            <!-- Day and Title -->
+                                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                                <Label Text="{Binding Day}"
+                                                       FontSize="16"
+                                                       FontAttributes="Bold"
+                                                       TextColor="#1E293B" />
+                                                <Label Text="{Binding Title}"
+                                                       FontSize="14"
+                                                       TextColor="#64748B" />
+                                            </VerticalStackLayout>
+                                            
+                                            <!-- Arrow Icon -->
+                                            <Label Grid.Column="2"
+                                                   FontSize="20"
+                                                   TextColor="#64748B"
+                                                   VerticalTextAlignment="Center">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding IsExpanded}" Value="True">
+                                                        <Setter Property="Text" Value="▲" />
+                                                    </DataTrigger>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding IsExpanded}" Value="False">
+                                                        <Setter Property="Text" Value="▼" />
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+                                        </Grid>
+                                    </Border>
+                                    
+                                    <!-- Exercises List (Expandable) -->
+                                    <VerticalStackLayout IsVisible="{Binding IsExpanded}"
+                                                         Padding="16,0,16,16"
+                                                         Spacing="12">
+                                        <BoxView HeightRequest="1" 
+                                                 BackgroundColor="#E2E8F0" 
+                                                 Margin="0,0,0,12" />
+                                        
+                                        <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Exercises}">
+                                            <BindableLayout.ItemTemplate>
+                                                <DataTemplate x:DataType="model:Exercise">
+                                                    <Border BackgroundColor="#F8FAFC"
+                                                            StrokeThickness="0"
+                                                            StrokeShape="RoundRectangle 12"
+                                                            Padding="12">
+                                                        <VerticalStackLayout Spacing="4">
+                                                            <Label Text="{Binding Name}"
+                                                                   FontSize="14"
+                                                                   FontAttributes="Bold"
+                                                                   TextColor="#1E293B"
+                                                                   LineBreakMode="WordWrap" />
+                                                            <HorizontalStackLayout Spacing="16">
+                                                                <Label TextColor="#64748B" FontSize="13">
+                                                                    <Label.FormattedText>
+                                                                        <FormattedString>
+                                                                            <Span Text="Séries: " FontAttributes="Bold" />
+                                                                            <Span Text="{Binding Sets}" />
+                                                                        </FormattedString>
+                                                                    </Label.FormattedText>
+                                                                </Label>
+                                                                <Label TextColor="#64748B" FontSize="13">
+                                                                    <Label.FormattedText>
+                                                                        <FormattedString>
+                                                                            <Span Text="Repetições: " FontAttributes="Bold" />
+                                                                            <Span Text="{Binding Reps}" />
+                                                                        </FormattedString>
+                                                                    </Label.FormattedText>
+                                                                </Label>
+                                                            </HorizontalStackLayout>
+                                                        </VerticalStackLayout>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </BindableLayout.ItemTemplate>
+                                        </VerticalStackLayout>
+                                    </VerticalStackLayout>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- Notes Card -->
+                <Border BackgroundColor="#FFFFFFF2"
+                        StrokeShape="RoundRectangle 20"
+                        Padding="16"
+                        Margin="0,4,0,24">
+                    <Border.Shadow>
+                        <Shadow Brush="#0000001F" Offset="0,4" Radius="8" />
+                    </Border.Shadow>
+                    
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Observações Importantes"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="#1E293B" />
+                        
+                        <Label TextColor="#334155" FontSize="13" LineBreakMode="WordWrap">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="• Foque em execução perfeita, controle de movimento e amplitude total" />
+                                    <Span Text="&#x0a;" />
+                                    <Span Text="• Alongamento pós-treino recomendado" />
+                                    <Span Text="&#x0a;" />
+                                    <Span Text="• Aumente progressivamente a carga toda semana (2-5%)" />
+                                    <Span Text="&#x0a;" />
+                                    <Span Text="• Priorize tempo sob tensão (ritmo: 2s descida / 1s subida)" />
+                                    <Span Text="&#x0a;" />
+                                    <Span Text="• Treine pesado e com foco em explosão na fase concêntrica" />
+                                    <Span Text="&#x0a;" />
+                                    <Span Text="• Mantenha o alongamento ativo na quarta-feira" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>
+

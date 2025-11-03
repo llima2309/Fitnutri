@@ -87,14 +87,15 @@ public class HomePageViewModel : INotifyPropertyChanged
     {
         try
         {
-            // TODO: Implementar navegação para página de treinos
-            var currentPage = Shell.Current.CurrentPage;
-            if (currentPage != null)
-                await currentPage.DisplayAlert("Treinos", "Funcionalidade em desenvolvimento", "OK");
+            // Navegar para a página de escolha de tipo de treino
+            await Shell.Current.GoToAsync(nameof(WorkoutChoicePage));
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Error in OnTreinos: {ex.Message}");
+            var currentPage = Shell.Current.CurrentPage;
+            if (currentPage != null)
+                await currentPage.DisplayAlert("Erro", "Erro ao abrir seleção de treinos", "OK");
         }
     }
 

@@ -66,6 +66,8 @@ public static class MauiProgram
         builder.Services.AddTransient<ProfileSelectionViewModel>();
         builder.Services.AddTransient<UserProfileRegistrationViewModel>();
         builder.Services.AddTransient<HomePageViewModel>();
+        builder.Services.AddTransient<WorkoutChoiceViewModel>();
+        builder.Services.AddTransient<GymWorkoutViewModel>();
         builder.Services.AddTransient<AgendamentosViewModel>();
         builder.Services.AddTransient<ListaProfissionaisViewModel>();
         builder.Services.AddTransient<AgendamentoViewModel>();
@@ -81,6 +83,8 @@ public static class MauiProgram
         builder.Services.AddTransient<Views.LoadingPage>();
         builder.Services.AddTransient<Views.ProfileSelectionPage>();
         builder.Services.AddTransient<Views.UserProfileRegistrationPage>();
+        builder.Services.AddTransient<Views.WorkoutChoicePage>();
+        builder.Services.AddTransient<Views.GymWorkoutPage>();
         builder.Services.AddTransient<Views.HomePage>();
         builder.Services.AddTransient<Views.AgendamentosPage>();
         builder.Services.AddTransient<Views.AgendamentoPage>();
