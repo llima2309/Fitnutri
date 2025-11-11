@@ -1,4 +1,4 @@
-﻿﻿using System.IdentityModel.Tokens.Jwt;
+﻿﻿﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.RateLimiting;
@@ -971,6 +971,438 @@ agGroup.MapDelete("/{id:guid}", async (Guid id, HttpContext ctx, AppDbContext db
     return Results.NoContent();
 }).RequireAuthorization();
 
+
+// ---------- DIETAS ----------
+var dietGroup = app.MapGroup("/dietas").WithTags("Dietas").RequireAuthorization();
+
+// Criar nova dieta
+dietGroup.MapPost("/", async (HttpContext ctx, AppDbContext db, CreateDietRequest req, CancellationToken ct) =>
+{
+    var sub = ctx.User.FindFirst("sub")?.Value;
+    if (sub is null) return Results.Unauthorized();
+    var userId = Guid.Parse(sub);
+
+    // Validações
+    if (string.IsNullOrWhiteSpace(req.Title))
+        return Results.BadRequest(new { error = "Título é obrigatório" });
+
+    if (string.IsNullOrWhiteSpace(req.Description))
+        return Results.BadRequest(new { error = "Descrição é obrigatória" });
+
+    if (req.DayMeals.Count != 7)
+        return Results.BadRequest(new { error = "É necessário fornecer exatamente 7 dias de refeições" });
+
+    var validDays = new[] { "SEG", "TER", "QUA", "QUI", "SEX", "SAB", "DOM" };
+    var providedDays = req.DayMeals.Select(d => d.Day.ToUpper()).ToList();
+    
+    if (!validDays.All(day => providedDays.Contains(day)))
+        return Results.BadRequest(new { error = "Todos os dias da semana devem ser fornecidos (SEG, TER, QUA, QUI, SEX, SAB, DOM)" });
+
+    // Criar dieta
+    var diet = new Diet
+    {
+        Id = Guid.NewGuid(),
+        ProfissionalId = userId,
+        Title = req.Title.Trim(),
+        Description = req.Description.Trim(),
+        Type = req.Type,
+        CreatedAt = DateTime.UtcNow,
+        DayMeals = req.DayMeals.Select(dm => new DietDayMeal
+        {
+            Id = Guid.NewGuid(),
+            Day = dm.Day.ToUpper(),
+            Color = dm.Color,
+            Breakfast = dm.Breakfast.Trim(),
+            MorningSnack = dm.MorningSnack.Trim(),
+            Lunch = dm.Lunch.Trim(),
+            AfternoonSnack = dm.AfternoonSnack.Trim(),
+            Dinner = dm.Dinner.Trim()
+        }).ToList()
+    };
+
+    db.Diets.Add(diet);
+    await db.SaveChangesAsync(ct);
+
+    var response = new DietResponse(
+        diet.Id,
+        diet.ProfissionalId,
+        diet.Title,
+        diet.Description,
+        diet.Type,
+        diet.CreatedAt,
+        diet.UpdatedAt,
+        diet.DayMeals.OrderBy(dm => GetDayOrder(dm.Day)).Select(dm => new DayMealResponse(
+            dm.Id,
+            dm.Day,
+            dm.Color,
+            new MealResponse(dm.Breakfast, dm.MorningSnack, dm.Lunch, dm.AfternoonSnack, dm.Dinner)
+        )).ToList(),
+        0
+    );
+
+    return Results.Created($"/dietas/{diet.Id}", response);
+});
+
+// Listar minhas dietas
+dietGroup.MapGet("/", async (HttpContext ctx, AppDbContext db, CancellationToken ct) =>
+{
+    var sub = ctx.User.FindFirst("sub")?.Value;
+    if (sub is null) return Results.Unauthorized();
+    var userId = Guid.Parse(sub);
+
+    var diets = await db.Diets
+        .Where(d => d.ProfissionalId == userId)
+        .Select(d => new DietSummaryResponse(
+            d.Id,
+            d.Title,
+            d.Description,
+            d.Type,
+            d.PatientDiets.Count(pd => pd.IsActive),
+            d.CreatedAt
+        ))
+        .OrderByDescending(d => d.CreatedAt)
+        .ToListAsync(ct);
+
+    return Results.Ok(diets);
+});
+
+// Obter detalhes de uma dieta
+dietGroup.MapGet("/{id:guid}", async (Guid id, HttpContext ctx, AppDbContext db, CancellationToken ct) =>
+{
+    var sub = ctx.User.FindFirst("sub")?.Value;
+    if (sub is null) return Results.Unauthorized();
+    var userId = Guid.Parse(sub);
+
+    var diet = await db.Diets
+        .Include(d => d.DayMeals)
+        .Include(d => d.PatientDiets)
+        .FirstOrDefaultAsync(d => d.Id == id, ct);
+
+    if (diet is null)
+        return Results.NotFound(new { error = "Dieta não encontrada" });
+
+    // Verificar se tem permissão (é o profissional que criou ou é paciente com dieta atribuída)
+    var isProfissional = diet.ProfissionalId == userId;
+    var isPaciente = await db.PatientDiets
+        .AnyAsync(pd => pd.DietId == id && pd.PatientUserId == userId && pd.IsActive, ct);
+
+    if (!isProfissional && !isPaciente)
+        return Results.Forbid();
+
+    var response = new DietResponse(
+        diet.Id,
+        diet.ProfissionalId,
+        diet.Title,
+        diet.Description,
+        diet.Type,
+        diet.CreatedAt,
+        diet.UpdatedAt,
+        diet.DayMeals.OrderBy(dm => GetDayOrder(dm.Day)).Select(dm => new DayMealResponse(
+            dm.Id,
+            dm.Day,
+            dm.Color,
+            new MealResponse(dm.Breakfast, dm.MorningSnack, dm.Lunch, dm.AfternoonSnack, dm.Dinner)
+        )).ToList(),
+        diet.PatientDiets.Count(pd => pd.IsActive)
+    );
+
+    return Results.Ok(response);
+});
+
+// Atualizar dieta
+dietGroup.MapPut("/{id:guid}", async (Guid id, HttpContext ctx, AppDbContext db, UpdateDietRequest req, CancellationToken ct) =>
+{
+    var sub = ctx.User.FindFirst("sub")?.Value;
+    if (sub is null) return Results.Unauthorized();
+    var userId = Guid.Parse(sub);
+
+    var diet = await db.Diets
+        .Include(d => d.DayMeals)
+        .FirstOrDefaultAsync(d => d.Id == id && d.ProfissionalId == userId, ct);
+
+    if (diet is null)
+        return Results.NotFound(new { error = "Dieta não encontrada" });
+
+    // Atualizar campos
+    if (!string.IsNullOrWhiteSpace(req.Title))
+        diet.Title = req.Title.Trim();
+
+    if (!string.IsNullOrWhiteSpace(req.Description))
+        diet.Description = req.Description.Trim();
+
+    if (req.Type.HasValue)
+        diet.Type = req.Type.Value;
+
+    if (req.DayMeals != null && req.DayMeals.Count > 0)
+    {
+        if (req.DayMeals.Count != 7)
+            return Results.BadRequest(new { error = "É necessário fornecer exatamente 7 dias de refeições" });
+
+        var validDays = new[] { "SEG", "TER", "QUA", "QUI", "SEX", "SAB", "DOM" };
+        var providedDays = req.DayMeals.Select(d => d.Day.ToUpper()).ToList();
+        
+        if (!validDays.All(day => providedDays.Contains(day)))
+            return Results.BadRequest(new { error = "Todos os dias da semana devem ser fornecidos" });
+
+        // Remover refeições antigas
+        db.DietDayMeals.RemoveRange(diet.DayMeals);
+
+        // Adicionar novas refeições
+        diet.DayMeals = req.DayMeals.Select(dm => new DietDayMeal
+        {
+            Id = Guid.NewGuid(),
+            DietId = diet.Id,
+            Day = dm.Day.ToUpper(),
+            Color = dm.Color,
+            Breakfast = dm.Breakfast.Trim(),
+            MorningSnack = dm.MorningSnack.Trim(),
+            Lunch = dm.Lunch.Trim(),
+            AfternoonSnack = dm.AfternoonSnack.Trim(),
+            Dinner = dm.Dinner.Trim()
+        }).ToList();
+    }
+
+    diet.UpdatedAt = DateTime.UtcNow;
+    await db.SaveChangesAsync(ct);
+
+    var response = new DietResponse(
+        diet.Id,
+        diet.ProfissionalId,
+        diet.Title,
+        diet.Description,
+        diet.Type,
+        diet.CreatedAt,
+        diet.UpdatedAt,
+        diet.DayMeals.OrderBy(dm => GetDayOrder(dm.Day)).Select(dm => new DayMealResponse(
+            dm.Id,
+            dm.Day,
+            dm.Color,
+            new MealResponse(dm.Breakfast, dm.MorningSnack, dm.Lunch, dm.AfternoonSnack, dm.Dinner)
+        )).ToList(),
+        await db.PatientDiets.CountAsync(pd => pd.DietId == diet.Id && pd.IsActive, ct)
+    );
+
+    return Results.Ok(response);
+});
+
+// Deletar dieta
+dietGroup.MapDelete("/{id:guid}", async (Guid id, HttpContext ctx, AppDbContext db, CancellationToken ct) =>
+{
+    var sub = ctx.User.FindFirst("sub")?.Value;
+    if (sub is null) return Results.Unauthorized();
+    var userId = Guid.Parse(sub);
+
+    var diet = await db.Diets
+        .Include(d => d.PatientDiets)
+        .FirstOrDefaultAsync(d => d.Id == id && d.ProfissionalId == userId, ct);
+
+    if (diet is null)
+        return Results.NotFound(new { error = "Dieta não encontrada" });
+
+    // Verificar se há pacientes usando esta dieta
+    if (diet.PatientDiets.Any(pd => pd.IsActive))
+        return Results.BadRequest(new { error = "Não é possível excluir uma dieta que está sendo usada por pacientes. Desative-a primeiro." });
+
+    db.Diets.Remove(diet);
+    await db.SaveChangesAsync(ct);
+
+    return Results.NoContent();
+});
+
+// Atribuir dieta a um paciente
+dietGroup.MapPost("/assign", async (HttpContext ctx, AppDbContext db, AssignDietToPatientRequest req, CancellationToken ct) =>
+{
+    var sub = ctx.User.FindFirst("sub")?.Value;
+    if (sub is null) return Results.Unauthorized();
+    var userId = Guid.Parse(sub);
+
+    // Verificar se a dieta existe e pertence ao nutricionista
+    var diet = await db.Diets
+        .FirstOrDefaultAsync(d => d.Id == req.DietId && d.ProfissionalId == userId, ct);
+
+    if (diet is null)
+        return Results.NotFound(new { error = "Dieta não encontrada" });
+
+    // Verificar se o paciente existe
+    var patient = await db.Users
+        .Include(u => u.Profile)
+        .FirstOrDefaultAsync(u => u.Id == req.PatientUserId, ct);
+
+    if (patient is null)
+        return Results.NotFound(new { error = "Paciente não encontrado" });
+
+    // Desativar dietas ativas anteriores do paciente
+    var activeDiets = await db.PatientDiets
+        .Where(pd => pd.PatientUserId == req.PatientUserId && pd.IsActive)
+        .ToListAsync(ct);
+
+    foreach (var activeDiet in activeDiets)
+    {
+        activeDiet.IsActive = false;
+        activeDiet.EndDate = DateOnly.FromDateTime(DateTime.UtcNow);
+    }
+
+    // Criar nova atribuição
+    var patientDiet = new PatientDiet
+    {
+        Id = Guid.NewGuid(),
+        PatientUserId = req.PatientUserId,
+        DietId = req.DietId,
+        StartDate = req.StartDate,
+        EndDate = req.EndDate,
+        IsActive = true,
+        AssignedAt = DateTime.UtcNow
+    };
+
+    db.PatientDiets.Add(patientDiet);
+    await db.SaveChangesAsync(ct);
+
+    var response = new PatientDietResponse(
+        patientDiet.Id,
+        patient.Id,
+        patient.Profile?.NomeCompleto ?? patient.UserName,
+        diet.Id,
+        diet.Title,
+        patientDiet.StartDate,
+        patientDiet.EndDate,
+        patientDiet.IsActive,
+        patientDiet.AssignedAt
+    );
+
+    return Results.Ok(response);
+});
+
+// Listar pacientes com uma dieta específica
+dietGroup.MapGet("/{dietId:guid}/patients", async (Guid dietId, HttpContext ctx, AppDbContext db, CancellationToken ct) =>
+{
+    var sub = ctx.User.FindFirst("sub")?.Value;
+    if (sub is null) return Results.Unauthorized();
+    var userId = Guid.Parse(sub);
+
+    // Verificar se a dieta pertence ao nutricionista
+    var diet = await db.Diets
+        .FirstOrDefaultAsync(d => d.Id == dietId && d.ProfissionalId == userId, ct);
+
+    if (diet is null)
+        return Results.NotFound(new { error = "Dieta não encontrada" });
+
+    var patients = await db.PatientDiets
+        .Where(pd => pd.DietId == dietId)
+        .Include(pd => pd.Diet)
+        .Select(pd => new
+        {
+            pd.Id,
+            pd.PatientUserId,
+            pd.DietId,
+            pd.StartDate,
+            pd.EndDate,
+            pd.IsActive,
+            pd.AssignedAt,
+            DietTitle = pd.Diet.Title,
+            PatientName = db.Users
+                .Where(u => u.Id == pd.PatientUserId)
+                .Select(u => u.Profile != null ? u.Profile.NomeCompleto : u.UserName)
+                .FirstOrDefault()
+        })
+        .OrderByDescending(pd => pd.AssignedAt)
+        .ToListAsync(ct);
+
+    var response = patients.Select(p => new PatientDietResponse(
+        p.Id,
+        p.PatientUserId,
+        p.PatientName ?? "Desconhecido",
+        p.DietId,
+        p.DietTitle,
+        p.StartDate,
+        p.EndDate,
+        p.IsActive,
+        p.AssignedAt
+    )).ToList();
+
+    return Results.Ok(response);
+});
+
+// Obter dieta ativa do paciente logado
+dietGroup.MapGet("/my-active-diet", async (HttpContext ctx, AppDbContext db, CancellationToken ct) =>
+{
+    var sub = ctx.User.FindFirst("sub")?.Value;
+    if (sub is null) return Results.Unauthorized();
+    var userId = Guid.Parse(sub);
+
+    var patientDiet = await db.PatientDiets
+        .Include(pd => pd.Diet)
+            .ThenInclude(d => d.DayMeals)
+        .Where(pd => pd.PatientUserId == userId && pd.IsActive)
+        .OrderByDescending(pd => pd.AssignedAt)
+        .FirstOrDefaultAsync(ct);
+
+    if (patientDiet is null)
+        return Results.NotFound(new { error = "Nenhuma dieta ativa encontrada" });
+
+    var diet = patientDiet.Diet;
+    var response = new DietResponse(
+        diet.Id,
+        diet.ProfissionalId,
+        diet.Title,
+        diet.Description,
+        diet.Type,
+        diet.CreatedAt,
+        diet.UpdatedAt,
+        diet.DayMeals.OrderBy(dm => GetDayOrder(dm.Day)).Select(dm => new DayMealResponse(
+            dm.Id,
+            dm.Day,
+            dm.Color,
+            new MealResponse(dm.Breakfast, dm.MorningSnack, dm.Lunch, dm.AfternoonSnack, dm.Dinner)
+        )).ToList(),
+        await db.PatientDiets.CountAsync(pd => pd.DietId == diet.Id && pd.IsActive, ct)
+    );
+
+    return Results.Ok(response);
+});
+
+// Desativar dieta de um paciente
+dietGroup.MapPost("/{dietId:guid}/deactivate/{patientUserId:guid}", async (Guid dietId, Guid patientUserId, HttpContext ctx, AppDbContext db, CancellationToken ct) =>
+{
+    var sub = ctx.User.FindFirst("sub")?.Value;
+    if (sub is null) return Results.Unauthorized();
+    var userId = Guid.Parse(sub);
+
+    // Verificar se a dieta pertence ao nutricionista
+    var diet = await db.Diets
+        .FirstOrDefaultAsync(d => d.Id == dietId && d.ProfissionalId == userId, ct);
+
+    if (diet is null)
+        return Results.NotFound(new { error = "Dieta não encontrada" });
+
+    var patientDiet = await db.PatientDiets
+        .FirstOrDefaultAsync(pd => pd.DietId == dietId && pd.PatientUserId == patientUserId && pd.IsActive, ct);
+
+    if (patientDiet is null)
+        return Results.NotFound(new { error = "Atribuição de dieta não encontrada ou já inativa" });
+
+    patientDiet.IsActive = false;
+    patientDiet.EndDate = DateOnly.FromDateTime(DateTime.UtcNow);
+
+    await db.SaveChangesAsync(ct);
+
+    return Results.NoContent();
+});
+
+// Helper function para ordenar dias da semana
+static int GetDayOrder(string day)
+{
+    return day.ToUpper() switch
+    {
+        "SEG" => 1,
+        "TER" => 2,
+        "QUA" => 3,
+        "QUI" => 4,
+        "SEX" => 5,
+        "SAB" => 6,
+        "DOM" => 7,
+        _ => 8
+    };
+}
 
 // ---------- HEALTH ----------
 

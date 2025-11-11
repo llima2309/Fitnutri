@@ -52,12 +52,12 @@ public class HomeNutricionistaViewModel : INotifyPropertyChanged
     {
         try
         {
-            // TODO: Criar página de gerenciamento de dietas do nutricionista
-            await Shell.Current.DisplayAlert("Dietas", "Funcionalidade em desenvolvimento", "OK");
+            await Shell.Current.GoToAsync("DietListPage");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Erro em OnDietas: {ex.Message}");
+            await ShowErrorAsync("Erro ao abrir dietas");
         }
     }
 

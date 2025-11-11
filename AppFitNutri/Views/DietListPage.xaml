@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage x:Class="AppFitNutri.Views.DietListPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:AppFitNutri.ViewModel"
+             xmlns:models="clr-namespace:AppFitNutri.Services"
+             x:DataType="viewmodel:DietListViewModel"
+             Title="Minhas Dietas"
+             Shell.NavBarIsVisible="True">
+
+    <!-- Gradient Background -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#4A90E2" Offset="0.0" />
+            <GradientStop Color="#7ED321" Offset="0.5" />
+            <GradientStop Color="#4A90E2" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <Grid>
+        <!-- Loading Overlay -->
+        <Grid IsVisible="{Binding IsLoading}" BackgroundColor="#80000000" ZIndex="10">
+            <ActivityIndicator IsRunning="{Binding IsLoading}" 
+                             Color="White" 
+                             VerticalOptions="Center" 
+                             HorizontalOptions="Center" />
+            <Label Text="Carregando dietas..." 
+                   TextColor="White" 
+                   FontSize="16"
+                   HorizontalOptions="Center" 
+                   VerticalOptions="Center" 
+                   Margin="0,60,0,0" />
+        </Grid>
+
+        <!-- Main Content -->
+        <ScrollView Padding="16">
+            <VerticalStackLayout Spacing="16">
+                
+                <!-- Header with Create Button -->
+                <Border BackgroundColor="#FFFFFF" 
+                        StrokeShape="RoundRectangle 16" 
+                        Padding="20"
+                        Opacity="0.95">
+                    <Border.Shadow>
+                        <Shadow Brush="#0000001F" Offset="0,4" Radius="8" />
+                    </Border.Shadow>
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
+                        <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
+                            <Label Text="Suas Dietas Criadas" 
+                                   FontSize="20" 
+                                   FontAttributes="Bold" 
+                                   TextColor="#1E293B" />
+                            <Label Text="Gerencie e monitore suas dietas personalizadas" 
+                                   FontSize="14" 
+                                   TextColor="#64748B" />
+                        </VerticalStackLayout>
+                        
+                        <Button Grid.Column="1"
+                                Text="+ Nova Dieta"
+                                Command="{Binding CreateDietCommand}"
+                                BackgroundColor="#10B981"
+                                TextColor="White"
+                                FontSize="14"
+                                FontAttributes="Bold"
+                                CornerRadius="12"
+                                Padding="16,8"
+                                VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <!-- Error Message -->
+                <Border IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}"
+                        BackgroundColor="#FEF2F2" 
+                        Stroke="#F87171"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12" 
+                        Padding="16">
+                    <Label Text="{Binding ErrorMessage}" 
+                           TextColor="#DC2626" 
+                           FontSize="14" />
+                </Border>
+
+                <!-- Empty State -->
+                <Border IsVisible="{Binding IsEmpty}"
+                        BackgroundColor="#FFFFFF" 
+                        StrokeShape="RoundRectangle 16" 
+                        Padding="40"
+                        Opacity="0.95">
+                    <Border.Shadow>
+                        <Shadow Brush="#0000001F" Offset="0,4" Radius="8" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="16" HorizontalOptions="Center">
+                        <Label Text="🍽️" 
+                               FontSize="48" 
+                               HorizontalOptions="Center" />
+                        <Label Text="Nenhuma dieta criada ainda" 
+                               FontSize="18" 
+                               FontAttributes="Bold" 
+                               TextColor="#1E293B" 
+                               HorizontalOptions="Center" />
+                        <Label Text="Crie sua primeira dieta personalizada para começar a ajudar seus pacientes" 
+                               FontSize="14" 
+                               TextColor="#64748B" 
+                               HorizontalOptions="Center" 
+                               HorizontalTextAlignment="Center" />
+                        <Button Text="Criar Primeira Dieta"
+                                Command="{Binding CreateDietCommand}"
+                                BackgroundColor="#10B981"
+                                TextColor="White"
+                                FontSize="16"
+                                FontAttributes="Bold"
+                                CornerRadius="12"
+                                Padding="24,12"
+                                Margin="0,16,0,0" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Diets List -->
+                <CollectionView ItemsSource="{Binding Diets}" 
+                                IsVisible="{Binding IsEmpty, Converter={StaticResource InverseBoolConverter}}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:DietSummaryDto">
+                            <Border BackgroundColor="#FFFFFF" 
+                                    StrokeShape="RoundRectangle 16" 
+                                    Padding="0"
+                                    Margin="0,0,0,12"
+                                    Opacity="0.95">
+                                <Border.Shadow>
+                                    <Shadow Brush="#0000001F" Offset="0,4" Radius="8" />
+                                </Border.Shadow>
+                                
+                                <Grid RowDefinitions="Auto,Auto,Auto">
+                                    
+                                    <!-- Header with Type Badge -->
+                                    <Grid Grid.Row="0" 
+                                          ColumnDefinitions="*,Auto" 
+                                          Padding="20,16,20,0">
+                                        <Label Grid.Column="0"
+                                               Text="{Binding Title}" 
+                                               FontSize="18" 
+                                               FontAttributes="Bold" 
+                                               TextColor="#1E293B" 
+                                               LineBreakMode="TailTruncation" />
+                                        
+                                        <Border Grid.Column="1"
+                                                BackgroundColor="#EFF6FF"
+                                                Stroke="#3B82F6"
+                                                StrokeThickness="1"
+                                                StrokeShape="RoundRectangle 12"
+                                                Padding="8,4">
+                                            <Label Text="{Binding Type, StringFormat='{0}'}"
+                                                   FontSize="12"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#3B82F6" />
+                                        </Border>
+                                    </Grid>
+                                    
+                                    <!-- Description and Stats -->
+                                    <VerticalStackLayout Grid.Row="1" 
+                                                         Padding="20,8,20,0" 
+                                                         Spacing="8">
+                                        <Label Text="{Binding Description}" 
+                                               FontSize="14" 
+                                               TextColor="#64748B" 
+                                               LineBreakMode="WordWrap" 
+                                               MaxLines="2" />
+                                        
+                                        <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                                            <HorizontalStackLayout Grid.Column="0" Spacing="4">
+                                                <Label Text="👥" FontSize="14" />
+                                                <Label Text="{Binding PatientsCount, StringFormat='{0} pacientes'}" 
+                                                       FontSize="12" 
+                                                       TextColor="#64748B" />
+                                            </HorizontalStackLayout>
+                                            
+                                            <HorizontalStackLayout Grid.Column="1" Spacing="4">
+                                                <Label Text="📅" FontSize="14" />
+                                                <Label Text="{Binding CreatedAt, StringFormat='{0:dd/MM/yyyy}'}" 
+                                                       FontSize="12" 
+                                                       TextColor="#64748B" />
+                                            </HorizontalStackLayout>
+                                        </Grid>
+                                    </VerticalStackLayout>
+                                    
+                                    <!-- Action Buttons -->
+                                    <Grid Grid.Row="2" 
+                                          ColumnDefinitions="*,*,*" 
+                                          ColumnSpacing="8" 
+                                          Padding="20,16,20,16">
+                                        
+                                        <Button Grid.Column="0"
+                                                Text="Ver"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:DietListViewModel}}, Path=ViewDietCommand}"
+                                                CommandParameter="{Binding Id}"
+                                                BackgroundColor="#3B82F6"
+                                                TextColor="White"
+                                                FontSize="14"
+                                                CornerRadius="8"
+                                                Padding="0,8" />
+                                        
+                                        <Button Grid.Column="1"
+                                                Text="Editar"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:DietListViewModel}}, Path=EditDietCommand}"
+                                                CommandParameter="{Binding Id}"
+                                                BackgroundColor="#F59E0B"
+                                                TextColor="White"
+                                                FontSize="14"
+                                                CornerRadius="8"
+                                                Padding="0,8" />
+                                        
+                                        <Button Grid.Column="2"
+                                                Text="Excluir"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:DietListViewModel}}, Path=DeleteDietCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="#EF4444"
+                                                TextColor="White"
+                                                FontSize="14"
+                                                CornerRadius="8"
+                                                Padding="0,8" />
+                                    </Grid>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- Refresh Button -->
+                <Button Text="🔄 Atualizar Lista"
+                        Command="{Binding LoadDietsCommand}"
+                        BackgroundColor="#6B7280"
+                        TextColor="White"
+                        FontSize="14"
+                        CornerRadius="12"
+                        Padding="16,12"
+                        Margin="0,16,0,24" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

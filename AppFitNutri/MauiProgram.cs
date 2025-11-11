@@ -1,4 +1,4 @@
-﻿﻿﻿﻿using AppFitNutri.Core.Services;
+﻿﻿﻿﻿﻿using AppFitNutri.Core.Services;
 using AppFitNutri.Core.Services.Login;
 using AppFitNutri.Services;
 using AppFitNutri.ViewModel;
@@ -60,6 +60,14 @@ public static class MauiProgram
             client.Timeout = TimeSpan.FromSeconds(30);
         });
 
+        // HttpClient para DietService
+        builder.Services.AddHttpClient<IDietService, DietService>(client =>
+        {
+            client.BaseAddress = new Uri("https://api.fit-nutri.com");
+            client.DefaultRequestHeaders.Add("x-api-key", "<STRONG_CLIENT_KEY>");
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
+
 
         // Token store
         builder.Services.AddSingleton<ITokenStore, SecureTokenStore>();
@@ -86,6 +94,8 @@ public static class MauiProgram
         builder.Services.AddTransient<DietDetailViewModel>();
         builder.Services.AddTransient<HomeNutricionistaViewModel>();
         builder.Services.AddTransient<AgendamentosProfissionalViewModel>();
+        builder.Services.AddTransient<DietListViewModel>();
+        builder.Services.AddTransient<CreateEditDietViewModel>();
 
         // Views
         builder.Services.AddTransient<Views.LoginPage>();
@@ -109,6 +119,8 @@ public static class MauiProgram
         builder.Services.AddTransient<Views.DietDetailPage>();
         builder.Services.AddTransient<Views.HomeNutricionistaPage>();
         builder.Services.AddTransient<Views.AgendamentosProfissionalPage>();
+        builder.Services.AddTransient<Views.DietListPage>();
+        builder.Services.AddTransient<Views.CreateEditDietPage>();
         
         return builder.Build();
     }

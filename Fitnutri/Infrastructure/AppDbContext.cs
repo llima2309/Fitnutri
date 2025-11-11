@@ -9,6 +9,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Perfil> Perfis => Set<Perfil>();
     public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
     public DbSet<Agendamento> Agendamentos => Set<Agendamento>();
+    public DbSet<Diet> Diets => Set<Diet>();
+    public DbSet<DietDayMeal> DietDayMeals => Set<DietDayMeal>();
+    public DbSet<PatientDiet> PatientDiets => Set<PatientDiet>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -105,5 +108,60 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         ag.HasIndex(x => new { x.ProfissionalId, x.Data, x.Hora })
             .IsUnique()
             .HasFilter("[Status] <> 2");
+
+        // ===== Diet =====
+        var diet = modelBuilder.Entity<Diet>();
+        diet.HasKey(x => x.Id);
+        diet.Property(x => x.ProfissionalId).IsRequired();
+        diet.Property(x => x.Title).HasMaxLength(200).IsRequired();
+        diet.Property(x => x.Description).HasMaxLength(500).IsRequired();
+        diet.Property(x => x.Type).HasConversion<int>().IsRequired();
+        diet.Property(x => x.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
+        diet.Property(x => x.UpdatedAt);
+        
+        // Índice para buscar dietas por profissional
+        diet.HasIndex(x => x.ProfissionalId);
+        
+        // Relacionamento com DietDayMeals
+        diet.HasMany(x => x.DayMeals)
+            .WithOne(x => x.Diet)
+            .HasForeignKey(x => x.DietId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        // Relacionamento com PatientDiets
+        diet.HasMany(x => x.PatientDiets)
+            .WithOne(x => x.Diet)
+            .HasForeignKey(x => x.DietId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // ===== DietDayMeal =====
+        var dayMeal = modelBuilder.Entity<DietDayMeal>();
+        dayMeal.HasKey(x => x.Id);
+        dayMeal.Property(x => x.DietId).IsRequired();
+        dayMeal.Property(x => x.Day).HasMaxLength(10).IsRequired();
+        dayMeal.Property(x => x.Color).HasMaxLength(20).IsRequired();
+        dayMeal.Property(x => x.Breakfast).HasMaxLength(500).IsRequired();
+        dayMeal.Property(x => x.MorningSnack).HasMaxLength(500).IsRequired();
+        dayMeal.Property(x => x.Lunch).HasMaxLength(500).IsRequired();
+        dayMeal.Property(x => x.AfternoonSnack).HasMaxLength(500).IsRequired();
+        dayMeal.Property(x => x.Dinner).HasMaxLength(500).IsRequired();
+        
+        // Índice para buscar refeições por dieta
+        dayMeal.HasIndex(x => x.DietId);
+
+        // ===== PatientDiet =====
+        var patientDiet = modelBuilder.Entity<PatientDiet>();
+        patientDiet.HasKey(x => x.Id);
+        patientDiet.Property(x => x.PatientUserId).IsRequired();
+        patientDiet.Property(x => x.DietId).IsRequired();
+        patientDiet.Property(x => x.AssignedAt).HasDefaultValueSql("SYSUTCDATETIME()");
+        patientDiet.Property(x => x.StartDate).HasColumnType("date").IsRequired();
+        patientDiet.Property(x => x.EndDate).HasColumnType("date");
+        patientDiet.Property(x => x.IsActive).IsRequired().HasDefaultValue(true);
+        
+        // Índices para consultas frequentes
+        patientDiet.HasIndex(x => x.PatientUserId);
+        patientDiet.HasIndex(x => x.DietId);
+        patientDiet.HasIndex(x => new { x.PatientUserId, x.IsActive });
     }
 }

@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage x:Class="AppFitNutri.Views.CreateEditDietPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:AppFitNutri.ViewModel"
+             xmlns:models="clr-namespace:AppFitNutri.Models"
+             x:DataType="viewmodel:CreateEditDietViewModel"
+             Title="{Binding PageTitle}"
+             Shell.NavBarIsVisible="True">
+
+    <!-- Gradient Background -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#4A90E2" Offset="0.0" />
+            <GradientStop Color="#7ED321" Offset="0.5" />
+            <GradientStop Color="#4A90E2" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <Grid>
+        <!-- Loading Overlay -->
+        <Grid IsVisible="{Binding IsLoading}" BackgroundColor="#80000000" ZIndex="10">
+            <ActivityIndicator IsRunning="{Binding IsLoading}" 
+                             Color="White" 
+                             VerticalOptions="Center" 
+                             HorizontalOptions="Center" />
+            <Label Text="Carregando..." 
+                   TextColor="White" 
+                   FontSize="16"
+                   HorizontalOptions="Center" 
+                   VerticalOptions="Center" 
+                   Margin="0,60,0,0" />
+        </Grid>
+
+        <!-- Main Content -->
+        <ScrollView Padding="16">
+            <VerticalStackLayout Spacing="16">
+
+                <!-- Error Message -->
+                <Border IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}"
+                        BackgroundColor="#FEF2F2" 
+                        Stroke="#F87171"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12" 
+                        Padding="16">
+                    <Label Text="{Binding ErrorMessage}" 
+                           TextColor="#DC2626" 
+                           FontSize="14" />
+                </Border>
+
+                <!-- Basic Information -->
+                <Border BackgroundColor="#FFFFFF" 
+                        StrokeShape="RoundRectangle 16" 
+                        Padding="20"
+                        Opacity="0.95">
+                    <Border.Shadow>
+                        <Shadow Brush="#0000001F" Offset="0,4" Radius="8" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="16">
+                        <Label Text="📋 Informações Básicas" 
+                               FontSize="18" 
+                               FontAttributes="Bold" 
+                               TextColor="#1E293B" />
+
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Título da Dieta *" 
+                                   FontSize="14" 
+                                   FontAttributes="Bold" 
+                                   TextColor="#374151" />
+                            <Entry Text="{Binding Title}" 
+                                   Placeholder="Ex: Dieta Low Carb Semanal"
+                                   BackgroundColor="#F9FAFB"
+                                   TextColor="#1F2937"
+                                   PlaceholderColor="#9CA3AF" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Descrição *" 
+                                   FontSize="14" 
+                                   FontAttributes="Bold" 
+                                   TextColor="#374151" />
+                            <Editor Text="{Binding Description}" 
+                                    Placeholder="Descreva os objetivos e características desta dieta..."
+                                    HeightRequest="80"
+                                    BackgroundColor="#F9FAFB"
+                                    TextColor="#1F2937"
+                                    PlaceholderColor="#9CA3AF" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Tipo de Dieta *" 
+                                   FontSize="14" 
+                                   FontAttributes="Bold" 
+                                   TextColor="#374151" />
+                            <Picker ItemsSource="{Binding DietTypes}" 
+                                    ItemDisplayBinding="{Binding Label}"
+                                    SelectedItem="{Binding SelectedDietType}"
+                                    BackgroundColor="#F9FAFB"
+                                    TextColor="#1F2937" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Weekly Meals -->
+                <Border BackgroundColor="#FFFFFF" 
+                        StrokeShape="RoundRectangle 16" 
+                        Padding="20"
+                        Opacity="0.95">
+                    <Border.Shadow>
+                        <Shadow Brush="#0000001F" Offset="0,4" Radius="8" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="16">
+                        <Label Text="📅 Refeições da Semana" 
+                               FontSize="18" 
+                               FontAttributes="Bold" 
+                               TextColor="#1E293B" />
+                        
+                        <Label Text="Configure as refeições para cada dia da semana" 
+                               FontSize="14" 
+                               TextColor="#64748B" />
+
+                        <CollectionView ItemsSource="{Binding DayMeals}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:DayMeal">
+                                    <Border BackgroundColor="#FAFAFA" 
+                                            StrokeShape="RoundRectangle 12" 
+                                            Padding="0"
+                                            Margin="0,0,0,8">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" 
+                                                         Binding="{Binding IsExpanded}" 
+                                                         Value="True">
+                                                <Setter Property="BackgroundColor" Value="#F0F9FF" />
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        
+                                        <VerticalStackLayout Spacing="0">
+                                            <!-- Day Header -->
+                                            <Grid Padding="16,12" ColumnDefinitions="8,*,Auto,Auto">
+                                                <Border Grid.Column="0"
+                                                        WidthRequest="4"
+                                                        HeightRequest="20"
+                                                        BackgroundColor="{Binding Color}"
+                                                        VerticalOptions="Center" />
+                                                
+                                                <Label Grid.Column="1"
+                                                       Text="{Binding DayLabel}" 
+                                                       FontSize="16" 
+                                                       FontAttributes="Bold"
+                                                       TextColor="#1E293B" 
+                                                       VerticalOptions="Center"
+                                                       Margin="12,0,0,0" />
+
+                                                <Label Grid.Column="2"
+                                                       Text="✓" 
+                                                       FontSize="16"
+                                                       TextColor="#10B981"
+                                                       IsVisible="{Binding HasMeals}"
+                                                       VerticalOptions="Center"
+                                                       Margin="0,0,8,0" />
+                                                
+                                                <Label Grid.Column="3"
+                                                       Text="{Binding IsExpanded, Converter={StaticResource BoolToArrowConverter}}" 
+                                                       FontSize="16"
+                                                       TextColor="#6B7280"
+                                                       VerticalOptions="Center" />
+                                                
+                                                <Grid.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:CreateEditDietViewModel}}, Path=ToggleDayExpansionCommand}"
+                                                                          CommandParameter="{Binding .}" />
+                                                </Grid.GestureRecognizers>
+                                            </Grid>
+
+                                            <!-- Meals Content -->
+                                            <VerticalStackLayout IsVisible="{Binding IsExpanded}" 
+                                                                 Spacing="12" 
+                                                                 Padding="16,0,16,16">
+                                                
+                                                <!-- Color Picker -->
+                                                <HorizontalStackLayout Spacing="8">
+                                                    <Label Text="Cor:" 
+                                                           FontSize="14" 
+                                                           TextColor="#374151"
+                                                           VerticalOptions="Center" />
+                                                    <Border BackgroundColor="{Binding Color}"
+                                                            WidthRequest="30"
+                                                            HeightRequest="30"
+                                                            StrokeShape="RoundRectangle 15" />
+                                                    <Entry Text="{Binding Color}" 
+                                                           WidthRequest="100"
+                                                           FontSize="12"
+                                                           VerticalOptions="Center" />
+                                                </HorizontalStackLayout>
+
+                                                <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" 
+                                                      ColumnDefinitions="80,*" 
+                                                      ColumnSpacing="12" 
+                                                      RowSpacing="8">
+                                                    
+                                                    <!-- Breakfast -->
+                                                    <Label Grid.Row="0" Grid.Column="0"
+                                                           Text="☀️ Café" 
+                                                           FontSize="12" 
+                                                           TextColor="#374151"
+                                                           VerticalOptions="Start"
+                                                           Margin="0,8,0,0" />
+                                                    <Editor Grid.Row="0" Grid.Column="1"
+                                                            Text="{Binding Breakfast}" 
+                                                            Placeholder="Ex: 2 ovos mexidos, pão integral..."
+                                                            HeightRequest="60"
+                                                            BackgroundColor="#FFFFFF"
+                                                            TextColor="#1F2937"
+                                                            PlaceholderColor="#9CA3AF"
+                                                            FontSize="14" />
+
+                                                    <!-- Morning Snack -->
+                                                    <Label Grid.Row="1" Grid.Column="0"
+                                                           Text="🍎 Lanche M" 
+                                                           FontSize="12" 
+                                                           TextColor="#374151"
+                                                           VerticalOptions="Start"
+                                                           Margin="0,8,0,0" />
+                                                    <Editor Grid.Row="1" Grid.Column="1"
+                                                            Text="{Binding MorningSnack}" 
+                                                            Placeholder="Ex: Frutas, castanhas..."
+                                                            HeightRequest="60"
+                                                            BackgroundColor="#FFFFFF"
+                                                            TextColor="#1F2937"
+                                                            PlaceholderColor="#9CA3AF"
+                                                            FontSize="14" />
+
+                                                    <!-- Lunch -->
+                                                    <Label Grid.Row="2" Grid.Column="0"
+                                                           Text="🍽️ Almoço" 
+                                                           FontSize="12" 
+                                                           TextColor="#374151"
+                                                           VerticalOptions="Start"
+                                                           Margin="0,8,0,0" />
+                                                    <Editor Grid.Row="2" Grid.Column="1"
+                                                            Text="{Binding Lunch}" 
+                                                            Placeholder="Ex: Arroz, feijão, frango grelhado..."
+                                                            HeightRequest="60"
+                                                            BackgroundColor="#FFFFFF"
+                                                            TextColor="#1F2937"
+                                                            PlaceholderColor="#9CA3AF"
+                                                            FontSize="14" />
+
+                                                    <!-- Afternoon Snack -->
+                                                    <Label Grid.Row="3" Grid.Column="0"
+                                                           Text="☕ Lanche T" 
+                                                           FontSize="12" 
+                                                           TextColor="#374151"
+                                                           VerticalOptions="Start"
+                                                           Margin="0,8,0,0" />
+                                                    <Editor Grid.Row="3" Grid.Column="1"
+                                                            Text="{Binding AfternoonSnack}" 
+                                                            Placeholder="Ex: Iogurte com granola..."
+                                                            HeightRequest="60"
+                                                            BackgroundColor="#FFFFFF"
+                                                            TextColor="#1F2937"
+                                                            PlaceholderColor="#9CA3AF"
+                                                            FontSize="14" />
+
+                                                    <!-- Dinner -->
+                                                    <Label Grid.Row="4" Grid.Column="0"
+                                                           Text="🌙 Jantar" 
+                                                           FontSize="12" 
+                                                           TextColor="#374151"
+                                                           VerticalOptions="Start"
+                                                           Margin="0,8,0,0" />
+                                                    <Editor Grid.Row="4" Grid.Column="1"
+                                                            Text="{Binding Dinner}" 
+                                                            Placeholder="Ex: Sopa de legumes, salada..."
+                                                            HeightRequest="60"
+                                                            BackgroundColor="#FFFFFF"
+                                                            TextColor="#1F2937"
+                                                            PlaceholderColor="#9CA3AF"
+                                                            FontSize="14" />
+                                                </Grid>
+                                            </VerticalStackLayout>
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Action Buttons -->
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,0,0,24">
+                    <Button Grid.Column="0"
+                            Text="Cancelar"
+                            Command="{Binding CancelCommand}"
+                            BackgroundColor="#6B7280"
+                            TextColor="White"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            CornerRadius="12"
+                            Padding="0,12" />
+                    
+                    <Button Grid.Column="1"
+                            Text="{Binding SaveButtonText}"
+                            Command="{Binding SaveDietCommand}"
+                            IsEnabled="{Binding IsSaving, Converter={StaticResource InverseBoolConverter}}"
+                            BackgroundColor="#10B981"
+                            TextColor="White"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            CornerRadius="12"
+                            Padding="0,12">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" 
+                                         Binding="{Binding IsSaving}" 
+                                         Value="True">
+                                <Setter Property="Text" Value="Salvando..." />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+                </Grid>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

@@ -100,9 +100,10 @@ public class AgendamentosProfissionalViewModel : INotifyPropertyChanged
 
             var (ok, error) = await _agendamentoService.ConfirmarAgendamentoAsync(agendamento.Id);
 
+            IsLoading = false;
+
             if (ok)
             {
-                await Shell.Current.DisplayAlert("Sucesso", "Agendamento confirmado com sucesso!", "OK");
                 await LoadAgendamentosAsync();
             }
             else
@@ -112,12 +113,9 @@ public class AgendamentosProfissionalViewModel : INotifyPropertyChanged
         }
         catch (Exception ex)
         {
+            IsLoading = false;
             System.Diagnostics.Debug.WriteLine($"Erro ao confirmar agendamento: {ex.Message}");
             await ShowErrorAsync("Erro ao confirmar agendamento");
-        }
-        finally
-        {
-            IsLoading = false;
         }
     }
 
@@ -139,9 +137,10 @@ public class AgendamentosProfissionalViewModel : INotifyPropertyChanged
 
             var (ok, error) = await _agendamentoService.CancelarAgendamentoAsync(agendamento.Id);
 
+            IsLoading = false;
+
             if (ok)
             {
-                await Shell.Current.DisplayAlert("Sucesso", "Agendamento cancelado com sucesso!", "OK");
                 await LoadAgendamentosAsync();
             }
             else
@@ -151,12 +150,9 @@ public class AgendamentosProfissionalViewModel : INotifyPropertyChanged
         }
         catch (Exception ex)
         {
+            IsLoading = false;
             System.Diagnostics.Debug.WriteLine($"Erro ao cancelar agendamento: {ex.Message}");
             await ShowErrorAsync("Erro ao cancelar agendamento");
-        }
-        finally
-        {
-            IsLoading = false;
         }
     }
 

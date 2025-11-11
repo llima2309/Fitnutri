@@ -62,6 +62,133 @@ namespace Fitnutri.Migrations
                     b.ToTable("Agendamentos");
                 });
 
+            modelBuilder.Entity("Fitnutri.Domain.Diet", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid>("ProfissionalId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProfissionalId");
+
+                    b.ToTable("Diets");
+                });
+
+            modelBuilder.Entity("Fitnutri.Domain.DietDayMeal", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AfternoonSnack")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Breakfast")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Day")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<Guid>("DietId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Dinner")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Lunch")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("MorningSnack")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DietId");
+
+                    b.ToTable("DietDayMeals");
+                });
+
+            modelBuilder.Entity("Fitnutri.Domain.PatientDiet", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("AssignedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
+
+                    b.Property<Guid>("DietId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly?>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<Guid>("PatientUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DietId");
+
+                    b.HasIndex("PatientUserId");
+
+                    b.HasIndex("PatientUserId", "IsActive");
+
+                    b.ToTable("PatientDiets");
+                });
+
             modelBuilder.Entity("Fitnutri.Domain.Perfil", b =>
                 {
                     b.Property<Guid>("Id")
@@ -250,6 +377,28 @@ namespace Fitnutri.Migrations
                     b.ToTable("UserProfiles");
                 });
 
+            modelBuilder.Entity("Fitnutri.Domain.DietDayMeal", b =>
+                {
+                    b.HasOne("Fitnutri.Domain.Diet", "Diet")
+                        .WithMany("DayMeals")
+                        .HasForeignKey("DietId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Diet");
+                });
+
+            modelBuilder.Entity("Fitnutri.Domain.PatientDiet", b =>
+                {
+                    b.HasOne("Fitnutri.Domain.Diet", "Diet")
+                        .WithMany("PatientDiets")
+                        .HasForeignKey("DietId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Diet");
+                });
+
             modelBuilder.Entity("Fitnutri.Domain.User", b =>
                 {
                     b.HasOne("Fitnutri.Domain.Perfil", "Perfil")
@@ -269,6 +418,13 @@ namespace Fitnutri.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Fitnutri.Domain.Diet", b =>
+                {
+                    b.Navigation("DayMeals");
+
+                    b.Navigation("PatientDiets");
                 });
 
             modelBuilder.Entity("Fitnutri.Domain.Perfil", b =>

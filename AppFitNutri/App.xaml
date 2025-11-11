@@ -18,6 +18,7 @@
             <conv:StatusToTextConverter x:Key="StatusToTextConverter" />
             <conv:StatusIsPendenteConverter x:Key="StatusIsPendenteConverter" />
             <conv:StatusIsNotCanceladoConverter x:Key="StatusIsNotCanceladoConverter" />
+            <conv:BoolToArrowConverter x:Key="BoolToArrowConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>
