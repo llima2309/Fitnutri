@@ -20,10 +20,6 @@ using System.Security.Cryptography;
 
 var builder = WebApplication.CreateBuilder(args);
 
-string appId  = Environment.GetEnvironmentVariable("JAAS_APP_ID") ?? throw new("JAAS_APP_ID ausente");
-string kid    = Environment.GetEnvironmentVariable("JAAS_KID")    ?? throw new("JAAS_KID ausente");
-string pemKey = Environment.GetEnvironmentVariable("JAAS_PRIVATE_KEY_PEM") ?? throw new("JAAS_PRIVATE_KEY_PEM ausente");
-
 // Util: carrega RSA a partir do PEM
 RSA LoadRsaFromPem(string pem)
 {
@@ -930,71 +926,6 @@ commonGroup.MapGet("/readyz", async (AppDbContext db, CancellationToken ct) =>
 {
     var ok = await db.Database.CanConnectAsync(ct);
     return ok ? Results.Ok(new { status = "ready" }) : Results.StatusCode(503);
-});
-
-// Ex.: GET /api/jwt?room=consulta-001&name=Maria%20Silva&email=maria@ex.com&moderator=false
-commonGroup.MapGet("/api/jwt", (string room, string name, string email, bool moderator = false) =>
-{
-    // 1) Cabeçalho com kid + RS256
-    var rsa = LoadRsaFromPem(pemKey);
-    var creds = new SigningCredentials(new RsaSecurityKey(rsa)
-    {
-        KeyId = kid   // <-- coloca o 'kid' no header
-    }, SecurityAlgorithms.RsaSha256);
-
-    // 2) Horários
-    var now = DateTimeOffset.UtcNow;
-    var exp = now.AddHours(2);
-
-    // 3) Payload JaaS
-    // Claims “padrão” do JaaS
-    var claims = new List<Claim>
-    {
-        new("aud", "jitsi"),                 // fixo
-        new("iss", "chat"),                  // fixo
-        new("sub", appId),                   // seu AppID
-        new("room", room),                   // sala específica (ou "*")
-        new("nbf", now.ToUnixTimeSeconds().ToString()),
-        new("exp", exp.ToUnixTimeSeconds().ToString())
-    };
-
-    // 4) context.user + context.features (como JSON aninhado)
-    var context = new
-    {
-        user = new
-        {
-            id = Guid.NewGuid().ToString(),
-            name,
-            email,
-            avatar = "",                      // opcional
-            moderator = moderator ? "true" : "false"
-        },
-        features = new
-        {
-            livestreaming = false,
-            recording = false,
-            transcription = false,
-            @outbound_call = false // usar underscore por ser palavra com hífen
-        },
-        room = new { regex = false }
-    };
-
-    // Dica: o JaaS aceita esse “context” como claim do tipo JSON
-    var contextJson = System.Text.Json.JsonSerializer.Serialize(context);
-    claims.Add(new Claim("context", contextJson, JsonClaimValueTypes.Json));
-
-    // 5) Emite o JWT
-    var token = new JwtSecurityToken(
-        claims: claims,
-        signingCredentials: creds
-    );
-
-    var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-
-    // roomName que o front deve usar no IFrame: "<AppID>/<room>"
-    var roomName = $"{appId}/{room}";
-
-    return Results.Ok(new { roomName, jwt });
 });
 
 app.Run();
