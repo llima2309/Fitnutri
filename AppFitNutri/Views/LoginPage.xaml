@@ -118,10 +118,12 @@ xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
                                 <Image 
                                     Grid.Column="1"
                                     Source="{Binding PasswordToggleIcon}"
-                                    WidthRequest="24"
-                                    HeightRequest="24"
+                                    Aspect="AspectFit"
+                                    WidthRequest="32"
+                                    HeightRequest="32"
                                     VerticalOptions="Center"
-                                    Margin="0,0,12,0">
+                                    HorizontalOptions="End"
+                                    Margin="0,0,8,0">
                                     <Image.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding TogglePasswordCommand}" />
                                     </Image.GestureRecognizers>

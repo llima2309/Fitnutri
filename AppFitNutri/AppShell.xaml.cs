@@ -1,4 +1,4 @@
-﻿﻿using AppFitNutri.Views;
+﻿﻿﻿﻿using AppFitNutri.Views;
 
 namespace AppFitNutri
 {
@@ -24,6 +24,8 @@ namespace AppFitNutri
             Routing.RegisterRoute(nameof(HomeWorkoutPage), typeof(HomeWorkoutPage));
             Routing.RegisterRoute(nameof(DietChoiceScreen), typeof(DietChoiceScreen));
             Routing.RegisterRoute(nameof(DietDetailPage), typeof(DietDetailPage));
+            Routing.RegisterRoute(nameof(HomeNutricionistaPage), typeof(HomeNutricionistaPage));
+            Routing.RegisterRoute(nameof(AgendamentosProfissionalPage), typeof(AgendamentosProfissionalPage));
             
             
 

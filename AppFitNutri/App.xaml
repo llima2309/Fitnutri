@@ -11,8 +11,13 @@
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <conv:BoolInverseConverter x:Key="BoolInverseConverter" />
+            <conv:InverseBoolConverter x:Key="InverseBoolConverter" />
             <conv:StringToBoolConverter x:Key="StringToBoolConverter" />
             <conv:NullToBoolConverter x:Key="NullToBoolConverter" />
+            <conv:StatusToColorConverter x:Key="StatusToColorConverter" />
+            <conv:StatusToTextConverter x:Key="StatusToTextConverter" />
+            <conv:StatusIsPendenteConverter x:Key="StatusIsPendenteConverter" />
+            <conv:StatusIsNotCanceladoConverter x:Key="StatusIsNotCanceladoConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

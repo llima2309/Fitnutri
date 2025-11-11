@@ -12,6 +12,7 @@ public interface IAgendamentoService
     Task<(bool ok, string? error)> AtualizarAgendamentoAsync(Guid agendamentoId, DateTime? data = null, string? hora = null, int? duracaoMinutos = null, int? status = null, CancellationToken ct = default);
     Task<(bool ok, string? error)> DeletarAgendamentoAsync(Guid agendamentoId, CancellationToken ct = default);
     Task<IReadOnlyList<AppFitNutri.Models.AgendamentoDto>> GetMeusAgendamentosAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<AppFitNutri.Models.AgendamentoDto>> GetAgendamentosProfissionalAsync(CancellationToken ct = default);
 }
 
 public class AgendamentoService : IAgendamentoService
@@ -76,6 +77,16 @@ public class AgendamentoService : IAgendamentoService
     {
         await EnsureAuthAsync();
         var resp = await _http.GetAsync("/agendamentos/me", ct);
+        if (!resp.IsSuccessStatusCode) return Array.Empty<AppFitNutri.Models.AgendamentoDto>();
+        var json = await resp.Content.ReadAsStringAsync(ct);
+        var items = JsonSerializer.Deserialize<List<AppFitNutri.Models.AgendamentoDto>>(json, _jsonOptions) ?? new List<AppFitNutri.Models.AgendamentoDto>();
+        return items;
+    }
+
+    public async Task<IReadOnlyList<AppFitNutri.Models.AgendamentoDto>> GetAgendamentosProfissionalAsync(CancellationToken ct = default)
+    {
+        await EnsureAuthAsync();
+        var resp = await _http.GetAsync("/agendamentos/profissional/me", ct);
         if (!resp.IsSuccessStatusCode) return Array.Empty<AppFitNutri.Models.AgendamentoDto>();
         var json = await resp.Content.ReadAsStringAsync(ct);
         var items = JsonSerializer.Deserialize<List<AppFitNutri.Models.AgendamentoDto>>(json, _jsonOptions) ?? new List<AppFitNutri.Models.AgendamentoDto>();

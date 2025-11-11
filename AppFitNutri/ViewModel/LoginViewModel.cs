@@ -5,6 +5,7 @@ using AppFitNutri.Core.Models;
 using AppFitNutri.Core.Services.Login;
 using AppFitNutri.Services;
 using System.Net.Http.Json;
+using AppFitNutri.Views;
 using Application = Microsoft.Maui.Controls.Application;
 
 namespace AppFitNutri.ViewModel;
@@ -28,7 +29,8 @@ public partial class LoginViewModel : ObservableObject
     public string LoginButtonText => IsBusy ? "Entrando..." : "Entrar";
     public string PasswordToggleIcon => MostrarSenha ? "hidden.png" : "show.png";
 
-    public LoginViewModel(IApiHttp authApi, ITokenStore tokenStore, IProfileService profileService, IUserProfileService userProfileService)
+    public LoginViewModel(IApiHttp authApi, ITokenStore tokenStore, IProfileService profileService,
+        IUserProfileService userProfileService)
     {
         _authApi = authApi;
         _tokenStore = tokenStore;
@@ -117,10 +119,10 @@ public partial class LoginViewModel : ObservableObject
             if (loginResponse != null)
             {
                 await _tokenStore.SaveAsync(loginResponse.AccessToken, loginResponse.ExpiresAt);
-                
+
                 // Verificar se o usuário já tem perfis associados
                 var perfisAssociados = await _profileService.ObterMeusPerfisAsync();
-                
+
                 if (perfisAssociados.Count == 0)
                 {
                     // Usuário não tem perfil associado, ir para seleção de perfil
@@ -130,7 +132,7 @@ public partial class LoginViewModel : ObservableObject
                 {
                     // Usuário já tem perfil associado, verificar se tem perfil completo
                     var userProfile = await _userProfileService.GetProfileAsync();
-                    
+
                     if (userProfile == null)
                     {
                         // Tem perfil associado mas não completou o cadastro, ir para completar
@@ -138,11 +140,13 @@ public partial class LoginViewModel : ObservableObject
                     }
                     else
                     {
-                        // Usuário já tem perfil completo, ir para HomePage
-                        await Shell.Current.GoToAsync("//HomePage");
+                        if (perfisAssociados[0].Tipo == 2)
+                            await Shell.Current.GoToAsync(nameof(HomeNutricionistaPage));
+                        else
+                            await Shell.Current.GoToAsync("//HomePage");
                     }
                 }
-                
+
                 if (Application.Current?.MainPage != null)
                 {
                     //await Application.Current.MainPage.DisplayAlert("Sucesso", "Login realizado com sucesso!", "OK");
@@ -158,8 +162,8 @@ public partial class LoginViewModel : ObservableObject
     private async Task ProcessLoginError(HttpResponseMessage result, string userInput)
     {
         var problem = await result.Content.ReadFromJsonAsync<Dictionary<string, string>>();
-        
-        if (problem is not null && problem.TryGetValue("error", out var message) && 
+
+        if (problem is not null && problem.TryGetValue("error", out var message) &&
             !string.IsNullOrWhiteSpace(message))
         {
             // Verifica se o erro é relacionado ao e-mail não verificado
@@ -184,7 +188,7 @@ public partial class LoginViewModel : ObservableObject
         {
             // Fechar o LoadingService antes de mostrar o popup para evitar conflitos de navegação
             await LoadingService.HideLoadingAsync();
-            
+
             var choice = await Application.Current.MainPage.DisplayAlert(
                 "E-mail Não Verificado",
                 "Seu e-mail ainda não foi verificado. Você recebeu um código por e-mail quando sua conta foi aprovada. Deseja inserir o código agora?",
@@ -208,21 +212,21 @@ public partial class LoginViewModel : ObservableObject
         {
             // Criar um ViewModel customizado para este cenário
             var viewModel = new EmailVerificationViewModel(_authApi, userInput);
-            
+
             viewModel.OnVerificationComplete = async (success, message) =>
             {
                 if (success)
                 {
                     await Application.Current.MainPage.DisplayAlert(
-                        "Sucesso", 
-                        "E-mail verificado com sucesso! Tente fazer login novamente.", 
+                        "Sucesso",
+                        "E-mail verificado com sucesso! Tente fazer login novamente.",
                         "OK");
                 }
                 else
                 {
                     await Application.Current.MainPage.DisplayAlert(
-                        "Erro", 
-                        message ?? "Verificação não concluída.", 
+                        "Erro",
+                        message ?? "Verificação não concluída.",
                         "OK");
                 }
             };

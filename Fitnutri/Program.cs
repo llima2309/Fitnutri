@@ -843,6 +843,43 @@ agGroup.MapGet("/me", async (HttpContext ctx, AppDbContext db, CancellationToken
     return Results.Ok(items);
 }).RequireAuthorization();
 
+// Listar agendamentos do profissional autenticado
+agGroup.MapGet("/profissional/me", async (HttpContext ctx, AppDbContext db, CancellationToken ct) =>
+{
+    var sub = ctx.User.FindFirst("sub")?.Value;
+    if (sub is null) return Results.Unauthorized();
+    var profissionalId = Guid.Parse(sub);
+
+    var agendamentos = await db.Agendamentos
+        .Where(a => a.ProfissionalId == profissionalId)
+        .OrderBy(a => a.Data).ThenBy(a => a.Hora)
+        .ToListAsync(ct);
+
+    var clienteIds = agendamentos.Select(a => a.ClienteUserId).Distinct().ToList();
+    var clientes = await db.Users
+        .Where(u => clienteIds.Contains(u.Id))
+        .Include(u => u.Profile)
+        .ToListAsync(ct);
+
+    var items = agendamentos.Select(a =>
+    {
+        var cliente = clientes.FirstOrDefault(c => c.Id == a.ClienteUserId);
+        return new AgendamentoResponse(
+            a.Id,
+            a.ProfissionalId,
+            a.ClienteUserId,
+            a.Data,
+            a.Hora,
+            a.DuracaoMinutos,
+            a.Status,
+            cliente?.Profile?.NomeCompleto ?? cliente?.UserName,
+            null // Não precisa retornar perfil do profissional neste caso
+        );
+    }).ToList();
+
+    return Results.Ok(items);
+}).RequireAuthorization();
+
 // Obter agendamento por ID (somente cliente ou profissional envolvidos)
 agGroup.MapGet("/{id:guid}", async (Guid id, HttpContext ctx, AppDbContext db, CancellationToken ct) =>
 {
