@@ -1,4 +1,4 @@
-﻿using AppFitNutri.Core.Services;
+﻿﻿using AppFitNutri.Core.Services;
 using AppFitNutri.Core.Services.Login;
 using AppFitNutri.Services;
 using AppFitNutri.ViewModel;
@@ -74,6 +74,8 @@ public static class MauiProgram
         builder.Services.AddTransient<MeusAgendamentosViewModel>();
         builder.Services.AddTransient<PerfilViewModel>();
         builder.Services.AddTransient<HomeWorkoutViewModel>();
+        builder.Services.AddTransient<DietChoiceViewModel>();
+        builder.Services.AddTransient<DietDetailViewModel>();
 
         // Views
         builder.Services.AddTransient<Views.LoginPage>();
@@ -93,6 +95,8 @@ public static class MauiProgram
         builder.Services.AddTransient<Views.PerfilPage>();
         builder.Services.AddTransient<Views.MeusAgendamentosPage>();
         builder.Services.AddTransient<Views.HomeWorkoutPage>();
+        builder.Services.AddTransient<Views.DietChoiceScreen>();
+        builder.Services.AddTransient<Views.DietDetailPage>();
         
         return builder.Build();
     }

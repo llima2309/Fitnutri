@@ -20,5 +20,7 @@ public record AgendamentoResponse(
     DateOnly Data,
     TimeOnly Hora,
     int DuracaoMinutos,
-    AgendamentoStatus Status
+    AgendamentoStatus Status,
+    string? ProfissionalNome = null,
+    string? ProfissionalPerfil = null
 );

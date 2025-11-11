@@ -330,19 +330,19 @@
                                                                    TextColor="#1E293B"
                                                                    LineBreakMode="WordWrap" />
                                                             <HorizontalStackLayout Spacing="16">
-                                                                <Label TextColor="#64748B" FontSize="13">
+                                                                <Label TextColor="#64748B" FontSize="13" FontAutoScalingEnabled="False">
                                                                     <Label.FormattedText>
                                                                         <FormattedString>
-                                                                            <Span Text="Séries: " FontAttributes="Bold" />
-                                                                            <Span Text="{Binding Sets}" />
+                                                                            <Span Text="Séries: " FontAttributes="Bold" TextColor="Black"/>
+                                                                            <Span Text="{Binding Sets}" TextColor="Black"/>
                                                                         </FormattedString>
                                                                     </Label.FormattedText>
                                                                 </Label>
-                                                                <Label TextColor="#64748B" FontSize="13">
+                                                                <Label TextColor="#64748B" FontSize="13" FontAutoScalingEnabled="False">
                                                                     <Label.FormattedText>
                                                                         <FormattedString>
-                                                                            <Span Text="Repetições: " FontAttributes="Bold" />
-                                                                            <Span Text="{Binding Reps}" />
+                                                                            <Span Text="Repetições: " FontAttributes="Bold" TextColor="Black"/>
+                                                                            <Span Text="{Binding Reps}" TextColor="Black"/>
                                                                         </FormattedString>
                                                                     </Label.FormattedText>
                                                                 </Label>
@@ -377,17 +377,17 @@
                         <Label TextColor="#334155" FontSize="13" LineBreakMode="WordWrap">
                             <Label.FormattedText>
                                 <FormattedString>
-                                    <Span Text="• Foque em execução perfeita, controle de movimento e amplitude total" />
+                                    <Span Text="• Foque em execução perfeita, controle de movimento e amplitude total" TextColor="Black"/>
                                     <Span Text="&#x0a;" />
-                                    <Span Text="• Alongamento pós-treino recomendado" />
+                                    <Span Text="• Alongamento pós-treino recomendado" TextColor="Black"/>
                                     <Span Text="&#x0a;" />
-                                    <Span Text="• Aumente progressivamente a carga toda semana (2-5%)" />
+                                    <Span Text="• Aumente progressivamente a carga toda semana (2-5%)" TextColor="Black"/>
                                     <Span Text="&#x0a;" />
-                                    <Span Text="• Priorize tempo sob tensão (ritmo: 2s descida / 1s subida)" />
+                                    <Span Text="• Priorize tempo sob tensão (ritmo: 2s descida / 1s subida)" TextColor="Black"/>
                                     <Span Text="&#x0a;" />
-                                    <Span Text="• Treine pesado e com foco em explosão na fase concêntrica" />
+                                    <Span Text="• Treine pesado e com foco em explosão na fase concêntrica" TextColor="Black"/>
                                     <Span Text="&#x0a;" />
-                                    <Span Text="• Mantenha o alongamento ativo na quarta-feira" />
+                                    <Span Text="• Mantenha o alongamento ativo na quarta-feira" TextColor="Black"/>
                                 </FormattedString>
                             </Label.FormattedText>
                         </Label>

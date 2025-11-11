@@ -27,7 +27,7 @@ public class AgendamentoViewModel : INotifyPropertyChanged
     public AgendamentoViewModel(IAgendamentoService agendamentoService)
     {
         _agendamentoService = agendamentoService;
-        var today = DateTime.Today;
+        var today = DateTime.Today.AddDays(1);
         for (int i = 0; i < 14; i++)
         {
             AvailableDates.Add(today.AddDays(i));
@@ -82,8 +82,8 @@ public class AgendamentoViewModel : INotifyPropertyChanged
         }
     }
 
-    public DateTime MinDate => DateTime.Today;
-    public DateTime MaxDate => DateTime.Today.AddDays(30);
+    public DateTime MinDate => DateTime.Today.AddDays(1);
+    public DateTime MaxDate => DateTime.Today.AddDays(14);
 
     public bool CanConfirm => Profissional != null && !string.IsNullOrWhiteSpace(SelectedTime) && SelectedDate >= MinDate;
     public bool HasSelection => !string.IsNullOrWhiteSpace(SelectedTime);

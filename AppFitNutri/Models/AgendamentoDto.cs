@@ -7,6 +7,8 @@ public record AgendamentoDto(
     DateOnly Data,
     TimeOnly Hora,
     int DuracaoMinutos,
-    int Status
+    int Status,
+    string? ProfissionalNome = null,
+    string? ProfissionalPerfil = null
 );
 

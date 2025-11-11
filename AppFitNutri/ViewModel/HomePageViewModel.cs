@@ -103,10 +103,7 @@ public class HomePageViewModel : INotifyPropertyChanged
     {
         try
         {
-            // TODO: Implementar navegação para página de dieta
-            var currentPage = Shell.Current.CurrentPage;
-            if (currentPage != null)
-                await currentPage.DisplayAlert("Dieta", "Funcionalidade em desenvolvimento", "OK");
+            await Shell.Current.GoToAsync(nameof(DietChoiceScreen));
         }
         catch (Exception ex)
         {

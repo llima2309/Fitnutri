@@ -1,4 +1,3 @@
-
 using AppFitNutri.ViewModel;
 
 namespace AppFitNutri.Views;

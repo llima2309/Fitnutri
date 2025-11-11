@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using AppFitNutri.Models;
+using AppFitNutri.Services;
 
 namespace AppFitNutri.ViewModel;
 
@@ -45,9 +46,15 @@ public class GymWorkoutViewModel : INotifyPropertyChanged
         
         try
         {
+            // Mostra o modal de loading
+            await LoadingService.ShowLoadingAsync();
+            
             // Simula carregamento assíncrono para não bloquear a UI
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
+                // Adiciona um delay para simular carregamento de dados
+                await Task.Delay(1500);
+                
                 var workouts = GetWorkoutData();
                 
                 // Adiciona os dados na UI thread
@@ -63,6 +70,8 @@ public class GymWorkoutViewModel : INotifyPropertyChanged
         finally
         {
             IsLoading = false;
+            // Esconde o modal de loading
+            await LoadingService.HideLoadingAsync();
         }
     }
 

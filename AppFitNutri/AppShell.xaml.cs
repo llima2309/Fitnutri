@@ -22,6 +22,8 @@ namespace AppFitNutri
             Routing.RegisterRoute(nameof(WorkoutChoicePage), typeof(WorkoutChoicePage));
             Routing.RegisterRoute(nameof(GymWorkoutPage), typeof(GymWorkoutPage));
             Routing.RegisterRoute(nameof(HomeWorkoutPage), typeof(HomeWorkoutPage));
+            Routing.RegisterRoute(nameof(DietChoiceScreen), typeof(DietChoiceScreen));
+            Routing.RegisterRoute(nameof(DietDetailPage), typeof(DietDetailPage));
             
             
 

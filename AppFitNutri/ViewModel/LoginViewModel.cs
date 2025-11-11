@@ -26,6 +26,7 @@ public partial class LoginViewModel : ObservableObject
     public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
     public bool IsNotBusy => !IsBusy;
     public string LoginButtonText => IsBusy ? "Entrando..." : "Entrar";
+    public string PasswordToggleIcon => MostrarSenha ? "hidden.png" : "show.png";
 
     public LoginViewModel(IApiHttp authApi, ITokenStore tokenStore, IProfileService profileService, IUserProfileService userProfileService)
     {
@@ -51,6 +52,13 @@ public partial class LoginViewModel : ObservableObject
     partial void OnMostrarSenhaChanged(bool _)
     {
         OnPropertyChanged(nameof(IsPassword));
+        OnPropertyChanged(nameof(PasswordToggleIcon));
+    }
+
+    [RelayCommand]
+    private void TogglePassword()
+    {
+        MostrarSenha = !MostrarSenha;
     }
 
     [RelayCommand]

@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage x:Class="AppFitNutri.Views.DietChoiceScreen"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:AppFitNutri.ViewModel"
+             x:DataType="viewmodel:DietChoiceViewModel"
+             Title="Escolha sua Dieta"
+             Shell.NavBarIsVisible="True">
+
+    <!-- Gradient Background -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#4A90E2" Offset="0.0" />
+            <GradientStop Color="#7ED321" Offset="0.5" />
+            <GradientStop Color="#4A90E2" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <ScrollView Padding="24">
+        <VerticalStackLayout Spacing="24" VerticalOptions="Start">
+
+            <!-- Subtitle -->
+            <Label Text="Selecione o plano alimentar ideal para você"
+                   FontSize="15"
+                   TextColor="#FFFFFF"
+                   Opacity="0.9"
+                   HorizontalTextAlignment="Center"
+                   Margin="0,0,0,8" />
+
+            <!-- Keto Diet -->
+            <Border BackgroundColor="#FFFFFF"
+                    StrokeShape="RoundRectangle 24"
+                    Padding="20"
+                    Margin="0"
+                    Opacity="0.95">
+                <Border.Shadow>
+                    <Shadow Brush="#0000001F" Offset="0,4" Radius="8" />
+                </Border.Shadow>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding KetoCommand}" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="64,16,*" ColumnSpacing="0" VerticalOptions="Center">
+                    <!-- Icon Container -->
+                    <Border Grid.Column="0"
+                            StrokeShape="RoundRectangle 16"
+                            Padding="12"
+                            WidthRequest="64"
+                            HeightRequest="64"
+                            VerticalOptions="Center">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#8B5CF6" Offset="0.0" />
+                                <GradientStop Color="#7C3AED" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Label Text="🔥"
+                               FontSize="32"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+                    
+                    <!-- Content -->
+                    <VerticalStackLayout Grid.Column="2" Spacing="4" VerticalOptions="Center">
+                        <Label Text="Dieta Cetogênica (Keto)"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               TextColor="#1E293B"
+                               LineBreakMode="NoWrap" />
+                        <Label Text="Prioriza gorduras e proteínas, minimizando carboidratos"
+                               FontSize="14"
+                               TextColor="#64748B"
+                               LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <!-- Low Carb Diet -->
+            <Border BackgroundColor="#FFFFFF"
+                    StrokeShape="RoundRectangle 24"
+                    Padding="20"
+                    Margin="0"
+                    Opacity="0.95">
+                <Border.Shadow>
+                    <Shadow Brush="#0000001F" Offset="0,4" Radius="8" />
+                </Border.Shadow>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding LowCarbCommand}" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="64,16,*" ColumnSpacing="0" VerticalOptions="Center">
+                    <!-- Icon Container -->
+                    <Border Grid.Column="0"
+                            StrokeShape="RoundRectangle 16"
+                            Padding="12"
+                            WidthRequest="64"
+                            HeightRequest="64"
+                            VerticalOptions="Center">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#F97316" Offset="0.0" />
+                                <GradientStop Color="#DC2626" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Label Text="🍎"
+                               FontSize="32"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+                    
+                    <!-- Content -->
+                    <VerticalStackLayout Grid.Column="2" Spacing="4" VerticalOptions="Center">
+                        <Label Text="Dieta Low Carb"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               TextColor="#1E293B"
+                               LineBreakMode="NoWrap" />
+                        <Label Text="Reduz carboidratos mantendo equilíbrio nutricional"
+                               FontSize="14"
+                               TextColor="#64748B"
+                               LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <!-- Vegan Diet -->
+            <Border BackgroundColor="#FFFFFF"
+                    StrokeShape="RoundRectangle 24"
+                    Padding="20"
+                    Margin="0"
+                    Opacity="0.95">
+                <Border.Shadow>
+                    <Shadow Brush="#0000001F" Offset="0,4" Radius="8" />
+                </Border.Shadow>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding VeganCommand}" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="64,16,*" ColumnSpacing="0" VerticalOptions="Center">
+                    <!-- Icon Container -->
+                    <Border Grid.Column="0"
+                            StrokeShape="RoundRectangle 16"
+                            Padding="12"
+                            WidthRequest="64"
+                            HeightRequest="64"
+                            VerticalOptions="Center">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#10B981" Offset="0.0" />
+                                <GradientStop Color="#059669" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Label Text="🌿"
+                               FontSize="32"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+                    
+                    <!-- Content -->
+                    <VerticalStackLayout Grid.Column="2" Spacing="4" VerticalOptions="Center">
+                        <Label Text="Dieta Vegana"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               TextColor="#1E293B"
+                               LineBreakMode="NoWrap" />
+                        <Label Text="100% plant-based, rica em vegetais e grãos"
+                               FontSize="14"
+                               TextColor="#64748B"
+                               LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <!-- Celiac Diet -->
+            <Border BackgroundColor="#FFFFFF"
+                    StrokeShape="RoundRectangle 24"
+                    Padding="20"
+                    Margin="0"
+                    Opacity="0.95">
+                <Border.Shadow>
+                    <Shadow Brush="#0000001F" Offset="0,4" Radius="8" />
+                </Border.Shadow>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CeliacCommand}" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="64,16,*" ColumnSpacing="0" VerticalOptions="Center">
+                    <!-- Icon Container -->
+                    <Border Grid.Column="0"
+                            StrokeShape="RoundRectangle 16"
+                            Padding="12"
+                            WidthRequest="64"
+                            HeightRequest="64"
+                            VerticalOptions="Center">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#F59E0B" Offset="0.0" />
+                                <GradientStop Color="#EA580C" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Label Text="🚫🌾"
+                               FontSize="24"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+                    
+                    <!-- Content -->
+                    <VerticalStackLayout Grid.Column="2" Spacing="4" VerticalOptions="Center">
+                        <Label Text="Dieta para Celíacos"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               TextColor="#1E293B"
+                               LineBreakMode="NoWrap" />
+                        <Label Text="Isenta de glúten, ingredientes certificados"
+                               FontSize="14"
+                               TextColor="#64748B"
+                               LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <!-- Vegetarian Diet -->
+            <Border BackgroundColor="#FFFFFF"
+                    StrokeShape="RoundRectangle 24"
+                    Padding="20"
+                    Margin="0"
+                    Opacity="0.95">
+                <Border.Shadow>
+                    <Shadow Brush="#0000001F" Offset="0,4" Radius="8" />
+                </Border.Shadow>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding VegetarianCommand}" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="64,16,*" ColumnSpacing="0" VerticalOptions="Center">
+                    <!-- Icon Container -->
+                    <Border Grid.Column="0"
+                            StrokeShape="RoundRectangle 16"
+                            Padding="12"
+                            WidthRequest="64"
+                            HeightRequest="64"
+                            VerticalOptions="Center">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#14B8A6" Offset="0.0" />
+                                <GradientStop Color="#0891B2" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Label Text="🥚"
+                               FontSize="32"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+                    
+                    <!-- Content -->
+                    <VerticalStackLayout Grid.Column="2" Spacing="4" VerticalOptions="Center">
+                        <Label Text="Dieta Vegetariana"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               TextColor="#1E293B"
+                               LineBreakMode="NoWrap" />
+                        <Label Text="Inclui laticínios e ovos, sem carnes"
+                               FontSize="14"
+                               TextColor="#64748B"
+                               LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

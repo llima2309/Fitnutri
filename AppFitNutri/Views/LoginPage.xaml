@@ -117,7 +117,7 @@ xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
                                     />
                                 <Image 
                                     Grid.Column="1"
-                                    Source="eye_icon.png"
+                                    Source="{Binding PasswordToggleIcon}"
                                     WidthRequest="24"
                                     HeightRequest="24"
                                     VerticalOptions="Center"

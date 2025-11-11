@@ -60,7 +60,9 @@ public class MeusAgendamentosViewModel : INotifyPropertyChanged
                     Data = a.Data,
                     Hora = a.Hora,
                     DuracaoMinutos = a.DuracaoMinutos,
-                    Status = a.Status
+                    Status = a.Status,
+                    ProfissionalNome = a.ProfissionalNome,
+                    ProfissionalPerfil = a.ProfissionalPerfil
                 });
             }
         }
@@ -90,7 +92,9 @@ public class MeusAgendamentosViewModel : INotifyPropertyChanged
                     Data = a.Data,
                     Hora = a.Hora,
                     DuracaoMinutos = a.DuracaoMinutos,
-                    Status = a.Status
+                    Status = a.Status,
+                    ProfissionalNome = a.ProfissionalNome,
+                    ProfissionalPerfil = a.ProfissionalPerfil
                 });
             }
         }

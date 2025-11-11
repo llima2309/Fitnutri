@@ -46,8 +46,13 @@
                                            VerticalOptions="Center" />
                                 </Border>
                                 <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
-                                    <Label Text="{Binding DataTexto}" FontAttributes="Bold" TextColor="#2C3E50"/>
-                                    <Label Text="{Binding HoraTexto}" TextColor="#2C3E50"/>
+                                    <Label Text="{Binding ProfissionalTexto}" FontAttributes="Bold" TextColor="#2C3E50" FontSize="16"/>
+                                    <Label Text="{Binding PerfilTexto}" TextColor="#4A90E2" FontSize="13" FontAttributes="Italic"/>
+                                    <HorizontalStackLayout Spacing="8">
+                                        <Label Text="{Binding DataTexto}" TextColor="#2C3E50" FontSize="14"/>
+                                        <Label Text="•" TextColor="#7F8C8D"/>
+                                        <Label Text="{Binding HoraTexto}" TextColor="#2C3E50" FontSize="14"/>
+                                    </HorizontalStackLayout>
                                     <Label Text="{Binding StatusTexto}" TextColor="#7F8C8D" FontSize="12"/>
                                 </VerticalStackLayout>
                                 <HorizontalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center">

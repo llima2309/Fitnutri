@@ -1,4 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.RateLimiting;
@@ -816,11 +816,34 @@ agGroup.MapGet("/me", async (HttpContext ctx, AppDbContext db, CancellationToken
     if (sub is null) return Results.Unauthorized();
     var clienteId = Guid.Parse(sub);
 
-    var items = await db.Agendamentos
+    var agendamentos = await db.Agendamentos
         .Where(a => a.ClienteUserId == clienteId)
         .OrderByDescending(a => a.Data).ThenByDescending(a => a.Hora)
-        .Select(a => new Fitnutri.Contracts.AgendamentoResponse(a.Id, a.ProfissionalId, a.ClienteUserId, a.Data, a.Hora, a.DuracaoMinutos, a.Status))
         .ToListAsync(ct);
+
+    var profissionalIds = agendamentos.Select(a => a.ProfissionalId).Distinct().ToList();
+    var profissionais = await db.Users
+        .Where(u => profissionalIds.Contains(u.Id))
+        .Include(u => u.Profile)
+        .Include(u => u.Perfil)
+        .ToListAsync(ct);
+
+    var items = agendamentos.Select(a =>
+    {
+        var prof = profissionais.FirstOrDefault(p => p.Id == a.ProfissionalId);
+        return new AgendamentoResponse(
+            a.Id,
+            a.ProfissionalId,
+            a.ClienteUserId,
+            a.Data,
+            a.Hora,
+            a.DuracaoMinutos,
+            a.Status,
+            prof?.Profile?.NomeCompleto,
+            prof?.Perfil?.Nome
+        );
+    }).ToList();
+
     return Results.Ok(items);
 }).RequireAuthorization();
 

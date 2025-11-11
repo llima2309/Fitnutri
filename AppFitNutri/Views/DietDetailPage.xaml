@@ -1,0 +1,510 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage x:Class="AppFitNutri.Views.DietDetailPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:AppFitNutri.ViewModel"
+             x:DataType="viewmodel:DietDetailViewModel"
+             Title="{Binding Title}"
+             Shell.NavBarIsVisible="False">
+
+    <!-- Gradient Background -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#4A90E2" Offset="0.0" />
+            <GradientStop Color="#7ED321" Offset="0.5" />
+            <GradientStop Color="#4A90E2" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <ScrollView Padding="24">
+        <VerticalStackLayout Spacing="24" VerticalOptions="Start">
+            <!-- Header -->
+            <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,8" VerticalOptions="Center">
+                <!-- Back Button -->
+                <Border Grid.Column="0"
+                        BackgroundColor="Transparent"
+                        StrokeShape="RoundRectangle 20"
+                        WidthRequest="40"
+                        HeightRequest="40"
+                        VerticalOptions="Center"
+                        Padding="0"
+                        Stroke="White">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoBackCommand}" />
+                    </Border.GestureRecognizers>
+                    <FlexLayout AlignItems="Center" JustifyContent="Center">
+                        <Label Text="←"
+                               FontSize="24"
+                               TextColor="White"
+                               Margin="0,0,0,3" />
+                    </FlexLayout>
+                </Border>
+
+                <!-- Title -->
+                <Label Grid.Column="1"
+                       Text="{Binding Title}"
+                       FontSize="24"
+                       FontAttributes="Bold"
+                       TextColor="White"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       Margin="10,0" />
+            </Grid>
+
+            <!-- Description Card -->
+            <Border BackgroundColor="#FFFFFF"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="16"
+                    Opacity="0.95">
+                <Border.Shadow>
+                    <Shadow Brush="#0000001F" Offset="0,4" Radius="8" />
+                </Border.Shadow>
+                <Label Text="{Binding Description}"
+                       FontSize="14"
+                       FontAttributes="Bold"
+                       TextColor="#475569"
+                       HorizontalTextAlignment="Center" />
+            </Border>
+
+            <!-- Weekly Grid -->
+            <Grid ColumnDefinitions="*,*,*,*,*,*,*" 
+                  ColumnSpacing="8"
+                  Margin="0,0,0,8">
+                <Border Grid.Column="0"
+                        BackgroundColor="#FFFFFFEE"
+                        StrokeShape="RoundRectangle 16"
+                        Stroke="Transparent"
+                        StrokeThickness="0"
+                        Padding="0"
+                        HeightRequest="56">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SelectDayCommand}" 
+                                            CommandParameter="{Binding DayMeals[0]}" />
+                    </Border.GestureRecognizers>
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" 
+                                   Binding="{Binding SelectedDay.Day}" 
+                                   Value="SEG">
+                            <Setter Property="BackgroundColor" Value="#8B5CF6" />
+                            <Setter Property="Scale" Value="1.1" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Label Text="SEG"
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           TextColor="#64748B"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" 
+                                       Binding="{Binding SelectedDay.Day}" 
+                                       Value="SEG">
+                                <Setter Property="TextColor" Value="White" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </Border>
+
+                <Border Grid.Column="1"
+                        BackgroundColor="#FFFFFFEE"
+                        StrokeShape="RoundRectangle 16"
+                        Stroke="Transparent"
+                        StrokeThickness="0"
+                        Padding="0"
+                        HeightRequest="56">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SelectDayCommand}" 
+                                            CommandParameter="{Binding DayMeals[1]}" />
+                    </Border.GestureRecognizers>
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" 
+                                   Binding="{Binding SelectedDay.Day}" 
+                                   Value="TER">
+                            <Setter Property="BackgroundColor" Value="#EC4899" />
+                            <Setter Property="Scale" Value="1.1" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Label Text="TER"
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           TextColor="#64748B"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" 
+                                       Binding="{Binding SelectedDay.Day}" 
+                                       Value="TER">
+                                <Setter Property="TextColor" Value="White" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </Border>
+
+                <Border Grid.Column="2"
+                        BackgroundColor="#FFFFFFEE"
+                        StrokeShape="RoundRectangle 16"
+                        Stroke="Transparent"
+                        StrokeThickness="0"
+                        Padding="0"
+                        HeightRequest="56">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SelectDayCommand}" 
+                                            CommandParameter="{Binding DayMeals[2]}" />
+                    </Border.GestureRecognizers>
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" 
+                                   Binding="{Binding SelectedDay.Day}" 
+                                   Value="QUA">
+                            <Setter Property="BackgroundColor" Value="#6366F1" />
+                            <Setter Property="Scale" Value="1.1" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Label Text="QUA"
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           TextColor="#64748B"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" 
+                                       Binding="{Binding SelectedDay.Day}" 
+                                       Value="QUA">
+                                <Setter Property="TextColor" Value="White" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </Border>
+
+                <Border Grid.Column="3"
+                        BackgroundColor="#FFFFFFEE"
+                        StrokeShape="RoundRectangle 16"
+                        Stroke="Transparent"
+                        StrokeThickness="0"
+                        Padding="0"
+                        HeightRequest="56">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SelectDayCommand}" 
+                                            CommandParameter="{Binding DayMeals[3]}" />
+                    </Border.GestureRecognizers>
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" 
+                                   Binding="{Binding SelectedDay.Day}" 
+                                   Value="QUI">
+                            <Setter Property="BackgroundColor" Value="#3B82F6" />
+                            <Setter Property="Scale" Value="1.1" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Label Text="QUI"
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           TextColor="#64748B"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" 
+                                       Binding="{Binding SelectedDay.Day}" 
+                                       Value="QUI">
+                                <Setter Property="TextColor" Value="White" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </Border>
+
+                <Border Grid.Column="4"
+                        BackgroundColor="#FFFFFFEE"
+                        StrokeShape="RoundRectangle 16"
+                        Stroke="Transparent"
+                        StrokeThickness="0"
+                        Padding="0"
+                        HeightRequest="56">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SelectDayCommand}" 
+                                            CommandParameter="{Binding DayMeals[4]}" />
+                    </Border.GestureRecognizers>
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" 
+                                   Binding="{Binding SelectedDay.Day}" 
+                                   Value="SEX">
+                            <Setter Property="BackgroundColor" Value="#10B981" />
+                            <Setter Property="Scale" Value="1.1" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Label Text="SEX"
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           TextColor="#64748B"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" 
+                                       Binding="{Binding SelectedDay.Day}" 
+                                       Value="SEX">
+                                <Setter Property="TextColor" Value="White" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </Border>
+
+                <Border Grid.Column="5"
+                        BackgroundColor="#FFFFFFEE"
+                        StrokeShape="RoundRectangle 16"
+                        Stroke="Transparent"
+                        StrokeThickness="0"
+                        Padding="0"
+                        HeightRequest="56">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SelectDayCommand}" 
+                                            CommandParameter="{Binding DayMeals[5]}" />
+                    </Border.GestureRecognizers>
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" 
+                                   Binding="{Binding SelectedDay.Day}" 
+                                   Value="SÁB">
+                            <Setter Property="BackgroundColor" Value="#F97316" />
+                            <Setter Property="Scale" Value="1.1" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Label Text="SÁB"
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           TextColor="#64748B"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" 
+                                       Binding="{Binding SelectedDay.Day}" 
+                                       Value="SÁB">
+                                <Setter Property="TextColor" Value="White" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </Border>
+
+                <Border Grid.Column="6"
+                        BackgroundColor="#FFFFFFEE"
+                        StrokeShape="RoundRectangle 16"
+                        Stroke="Transparent"
+                        StrokeThickness="0"
+                        Padding="0"
+                        HeightRequest="56">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SelectDayCommand}" 
+                                            CommandParameter="{Binding DayMeals[6]}" />
+                    </Border.GestureRecognizers>
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" 
+                                   Binding="{Binding SelectedDay.Day}" 
+                                   Value="DOM">
+                            <Setter Property="BackgroundColor" Value="#EF4444" />
+                            <Setter Property="Scale" Value="1.1" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Label Text="DOM"
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           TextColor="#64748B"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" 
+                                       Binding="{Binding SelectedDay.Day}" 
+                                       Value="DOM">
+                                <Setter Property="TextColor" Value="White" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </Border>
+            </Grid>
+
+            <!-- Meal Details Card -->
+            <Border BackgroundColor="#FFFFFF"
+                    StrokeShape="RoundRectangle 24"
+                    Padding="24"
+                    Opacity="0.95"
+                    IsVisible="{Binding SelectedDay, Converter={StaticResource NullToBoolConverter}}">
+                <Border.Shadow>
+                    <Shadow Brush="#00000033" Offset="0,8" Radius="16" />
+                </Border.Shadow>
+                <VerticalStackLayout Spacing="24">
+                    <!-- Day Header -->
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="{Binding SelectedDayFullName}"
+                                   FontSize="24"
+                                   FontAttributes="Bold"
+                                   TextColor="#1E293B" />
+                            <Label FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="#64748B">
+                                <Label.Text>
+                                    <MultiBinding StringFormat="Dia {0} - {1}">
+                                        <Binding Path="SelectedDayNumber" />
+                                        <Binding Path="Title" />
+                                    </MultiBinding>
+                                </Label.Text>
+                            </Label>
+                        </VerticalStackLayout>
+
+                        <Border Grid.Column="1"
+                                StrokeShape="RoundRectangle 16"
+                                BackgroundColor="{Binding SelectedDay.Color}"
+                                WidthRequest="64"
+                                HeightRequest="64"
+                                Padding="0">
+                            <Label Text="{Binding SelectedDayNumber}"
+                                   FontSize="20"
+                                   FontAttributes="Bold"
+                                   TextColor="White"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Border>
+                    </Grid>
+
+                    <!-- Meals List -->
+                    <VerticalStackLayout Spacing="16">
+                        <!-- Breakfast -->
+                        <Border StrokeShape="RoundRectangle 12"
+                                Padding="16">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#FEF3C7" Offset="0.0" />
+                                    <GradientStop Color="#FDE68A" Offset="1.0" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Border StrokeThickness="0" 
+                                    StrokeShape="RoundRectangle 12"
+                                    Stroke="#F59E0B"
+                                    Padding="0">
+                                <VerticalStackLayout Spacing="8">
+                                    <Label Text="☀️ Café da Manhã"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           TextColor="#78350F" />
+                                    <Label Text="{Binding SelectedDay.Meals.Breakfast}"
+                                           FontSize="14"
+                                           TextColor="#475569"
+                                           LineBreakMode="WordWrap" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </Border>
+
+                        <!-- Morning Snack -->
+                        <Border StrokeShape="RoundRectangle 12"
+                                Padding="16">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#D1FAE5" Offset="0.0" />
+                                    <GradientStop Color="#A7F3D0" Offset="1.0" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Border StrokeThickness="0" 
+                                    StrokeShape="RoundRectangle 12"
+                                    Stroke="#10B981"
+                                    Padding="0">
+                                <VerticalStackLayout Spacing="8">
+                                    <Label Text="🥑 Lanche da Manhã"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           TextColor="#064E3B" />
+                                    <Label Text="{Binding SelectedDay.Meals.MorningSnack}"
+                                           FontSize="14"
+                                           TextColor="#475569"
+                                           LineBreakMode="WordWrap" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </Border>
+
+                        <!-- Lunch -->
+                        <Border StrokeShape="RoundRectangle 12"
+                                Padding="16">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#FED7AA" Offset="0.0" />
+                                    <GradientStop Color="#FECACA" Offset="1.0" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Border StrokeThickness="0" 
+                                    StrokeShape="RoundRectangle 12"
+                                    Stroke="#F97316"
+                                    Padding="0">
+                                <VerticalStackLayout Spacing="8">
+                                    <Label Text="🍽️ Almoço"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           TextColor="#7C2D12" />
+                                    <Label Text="{Binding SelectedDay.Meals.Lunch}"
+                                           FontSize="14"
+                                           TextColor="#475569"
+                                           LineBreakMode="WordWrap" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </Border>
+
+                        <!-- Afternoon Snack -->
+                        <Border StrokeShape="RoundRectangle 12"
+                                Padding="16">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#DBEAFE" Offset="0.0" />
+                                    <GradientStop Color="#C7D2FE" Offset="1.0" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Border StrokeThickness="0" 
+                                    StrokeShape="RoundRectangle 12"
+                                    Stroke="#3B82F6"
+                                    Padding="0">
+                                <VerticalStackLayout Spacing="8">
+                                    <Label Text="🍓 Lanche da Tarde"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           TextColor="#1E3A8A" />
+                                    <Label Text="{Binding SelectedDay.Meals.AfternoonSnack}"
+                                           FontSize="14"
+                                           TextColor="#475569"
+                                           LineBreakMode="WordWrap" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </Border>
+
+                        <!-- Dinner -->
+                        <Border StrokeShape="RoundRectangle 12"
+                                Padding="16">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#E9D5FF" Offset="0.0" />
+                                    <GradientStop Color="#FBCFE8" Offset="1.0" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Border StrokeThickness="0" 
+                                    StrokeShape="RoundRectangle 12"
+                                    Stroke="#A855F7"
+                                    Padding="0">
+                                <VerticalStackLayout Spacing="8">
+                                    <Label Text="🌙 Jantar"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           TextColor="#581C87" />
+                                    <Label Text="{Binding SelectedDay.Meals.Dinner}"
+                                           FontSize="14"
+                                           TextColor="#475569"
+                                           LineBreakMode="WordWrap" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </Border>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- No Selection Message -->
+            <Label Text="Selecione um dia da semana para ver o cardápio completo"
+                   FontSize="16"
+                   TextColor="#FFFFFFCC"
+                   HorizontalTextAlignment="Center"
+                   Margin="0,32,0,0"
+                   IsVisible="{Binding SelectedDay, Converter={StaticResource NullToBoolConverter}, ConverterParameter=Inverse}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
+
