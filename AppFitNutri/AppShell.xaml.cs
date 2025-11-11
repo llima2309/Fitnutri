@@ -1,4 +1,4 @@
-﻿﻿﻿﻿using AppFitNutri.Views;
+﻿using AppFitNutri.Views;
 
 namespace AppFitNutri
 {

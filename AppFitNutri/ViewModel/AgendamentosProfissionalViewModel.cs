@@ -98,10 +98,7 @@ public class AgendamentosProfissionalViewModel : INotifyPropertyChanged
 
             IsLoading = true;
 
-            // Status 1 = Confirmado
-            var (ok, error) = await _agendamentoService.AtualizarAgendamentoAsync(
-                agendamento.Id,
-                status: 1);
+            var (ok, error) = await _agendamentoService.ConfirmarAgendamentoAsync(agendamento.Id);
 
             if (ok)
             {
@@ -140,10 +137,7 @@ public class AgendamentosProfissionalViewModel : INotifyPropertyChanged
 
             IsLoading = true;
 
-            // Status 2 = Cancelado
-            var (ok, error) = await _agendamentoService.AtualizarAgendamentoAsync(
-                agendamento.Id,
-                status: 2);
+            var (ok, error) = await _agendamentoService.CancelarAgendamentoAsync(agendamento.Id);
 
             if (ok)
             {

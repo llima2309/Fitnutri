@@ -141,7 +141,7 @@ public partial class LoginViewModel : ObservableObject
                     else
                     {
                         if (perfisAssociados[0].Tipo == 2)
-                            await Shell.Current.GoToAsync(nameof(HomeNutricionistaPage));
+                            await Shell.Current.GoToAsync("//HomeNutricionista");
                         else
                             await Shell.Current.GoToAsync("//HomePage");
                     }

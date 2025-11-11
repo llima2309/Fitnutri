@@ -33,5 +33,10 @@
      Title="Home"
      ContentTemplate="{DataTemplate local:HomePage}"
      Route="HomePage" />
+ 
+ <ShellContent
+  Title="HomeNutricionista"
+  ContentTemplate="{DataTemplate local:HomeNutricionistaPage}"
+  Route="HomeNutricionista" />
 
 </Shell>

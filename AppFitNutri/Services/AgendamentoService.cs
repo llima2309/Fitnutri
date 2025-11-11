@@ -9,7 +9,8 @@ public interface IAgendamentoService
 {
     Task<IReadOnlyList<string>> GetDisponibilidadeAsync(Guid profissionalId, DateTime data, CancellationToken ct = default);
     Task<(bool ok, string? error)> CriarAgendamentoAsync(Guid profissionalId, DateTime data, string hora, CancellationToken ct = default);
-    Task<(bool ok, string? error)> AtualizarAgendamentoAsync(Guid agendamentoId, DateTime? data = null, string? hora = null, int? duracaoMinutos = null, int? status = null, CancellationToken ct = default);
+    Task<(bool ok, string? error)> ConfirmarAgendamentoAsync(Guid agendamentoId, CancellationToken ct = default);
+    Task<(bool ok, string? error)> CancelarAgendamentoAsync(Guid agendamentoId, CancellationToken ct = default);
     Task<(bool ok, string? error)> DeletarAgendamentoAsync(Guid agendamentoId, CancellationToken ct = default);
     Task<IReadOnlyList<AppFitNutri.Models.AgendamentoDto>> GetMeusAgendamentosAsync(CancellationToken ct = default);
     Task<IReadOnlyList<AppFitNutri.Models.AgendamentoDto>> GetAgendamentosProfissionalAsync(CancellationToken ct = default);
@@ -48,17 +49,19 @@ public class AgendamentoService : IAgendamentoService
         return (false, string.IsNullOrWhiteSpace(err) ? resp.StatusCode.ToString() : err);
     }
 
-    public async Task<(bool ok, string? error)> AtualizarAgendamentoAsync(Guid agendamentoId, DateTime? data = null, string? hora = null, int? duracaoMinutos = null, int? status = null, CancellationToken ct = default)
+    public async Task<(bool ok, string? error)> ConfirmarAgendamentoAsync(Guid agendamentoId, CancellationToken ct = default)
     {
         await EnsureAuthAsync();
-        object body = new
-        {
-            Data = data.HasValue ? DateOnly.FromDateTime(data.Value) : (DateOnly?)null,
-            Hora = !string.IsNullOrWhiteSpace(hora) ? TimeOnly.Parse(hora!) : (TimeOnly?)null,
-            DuracaoMinutos = duracaoMinutos,
-            Status = status
-        };
-        var resp = await _http.PutAsJsonAsync($"/agendamentos/{agendamentoId}", body, _jsonOptions, ct);
+        var resp = await _http.PutAsync($"/agendamentos/{agendamentoId}/confirmar", null, ct);
+        if (resp.IsSuccessStatusCode) return (true, null);
+        var err = await resp.Content.ReadAsStringAsync(ct);
+        return (false, string.IsNullOrWhiteSpace(err) ? resp.StatusCode.ToString() : err);
+    }
+
+    public async Task<(bool ok, string? error)> CancelarAgendamentoAsync(Guid agendamentoId, CancellationToken ct = default)
+    {
+        await EnsureAuthAsync();
+        var resp = await _http.PutAsync($"/agendamentos/{agendamentoId}/cancelar", null, ct);
         if (resp.IsSuccessStatusCode) return (true, null);
         var err = await resp.Content.ReadAsStringAsync(ct);
         return (false, string.IsNullOrWhiteSpace(err) ? resp.StatusCode.ToString() : err);

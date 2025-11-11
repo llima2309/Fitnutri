@@ -896,8 +896,8 @@ agGroup.MapGet("/{id:guid}", async (Guid id, HttpContext ctx, AppDbContext db, C
     return Results.Ok(new Fitnutri.Contracts.AgendamentoResponse(a.Id, a.ProfissionalId, a.ClienteUserId, a.Data, a.Hora, a.DuracaoMinutos, a.Status));
 }).RequireAuthorization();
 
-// Atualizar agendamento (data/hora/duração/status) - somente cliente ou profissional
-agGroup.MapPut("/{id:guid}", async (Guid id, Fitnutri.Contracts.AtualizarAgendamentoRequest req, HttpContext ctx, AppDbContext db, CancellationToken ct) =>
+// Confirmar agendamento - somente profissional
+agGroup.MapPut("/{id:guid}/confirmar", async (Guid id, HttpContext ctx, AppDbContext db, CancellationToken ct) =>
 {
     var sub = ctx.User.FindFirst("sub")?.Value;
     if (sub is null) return Results.Unauthorized();
@@ -905,35 +905,53 @@ agGroup.MapPut("/{id:guid}", async (Guid id, Fitnutri.Contracts.AtualizarAgendam
 
     var a = await db.Agendamentos.FirstOrDefaultAsync(x => x.Id == id, ct);
     if (a is null) return Results.NotFound();
+    
+    // Apenas o profissional pode confirmar
+    if (a.ProfissionalId != userId)
+        return Results.Forbid();
+
+    // Verificar se já está cancelado
+    if (a.Status == AgendamentoStatus.Cancelado)
+        return Results.BadRequest(new { error = "Não é possível confirmar um agendamento cancelado." });
+
+    // Verificar se já está confirmado
+    if (a.Status == AgendamentoStatus.Confirmado)
+        return Results.Ok(new { message = "Agendamento já está confirmado.", agendamento = new AgendamentoResponse(a.Id, a.ProfissionalId, a.ClienteUserId, a.Data, a.Hora, a.DuracaoMinutos, a.Status) });
+
+    a.Status = AgendamentoStatus.Confirmado;
+    await db.SaveChangesAsync(ct);
+    
+    return Results.Ok(new { 
+        message = "Agendamento confirmado com sucesso!", 
+        agendamento = new AgendamentoResponse(a.Id, a.ProfissionalId, a.ClienteUserId, a.Data, a.Hora, a.DuracaoMinutos, a.Status) 
+    });
+}).RequireAuthorization();
+
+// Cancelar agendamento - cliente ou profissional
+agGroup.MapPut("/{id:guid}/cancelar", async (Guid id, HttpContext ctx, AppDbContext db, CancellationToken ct) =>
+{
+    var sub = ctx.User.FindFirst("sub")?.Value;
+    if (sub is null) return Results.Unauthorized();
+    var userId = Guid.Parse(sub);
+
+    var a = await db.Agendamentos.FirstOrDefaultAsync(x => x.Id == id, ct);
+    if (a is null) return Results.NotFound();
+    
+    // Cliente ou profissional podem cancelar
     if (a.ClienteUserId != userId && a.ProfissionalId != userId)
         return Results.Forbid();
 
-    // Atualizações opcionais
-    var newData = req.Data ?? a.Data;
-    var newHora = req.Hora ?? a.Hora;
-    var newDur = req.DuracaoMinutos ?? a.DuracaoMinutos;
-    var newStatus = req.Status ?? a.Status;
+    // Verificar se já está cancelado
+    if (a.Status == AgendamentoStatus.Cancelado)
+        return Results.Ok(new { message = "Agendamento já está cancelado.", agendamento = new AgendamentoResponse(a.Id, a.ProfissionalId, a.ClienteUserId, a.Data, a.Hora, a.DuracaoMinutos, a.Status) });
 
-    // Não permitir reagendamento para o passado
-    var newDateTime = new DateTime(newData.Year, newData.Month, newData.Day, newHora.Hour, newHora.Minute, 0, DateTimeKind.Unspecified);
-    if (newDateTime < DateTime.Today)
-        return Results.BadRequest(new { error = "Data/Horário no passado não permitido." });
-
-    // Checar conflito se Data ou Hora foram alterados e status não é cancelado
-    if ((newData != a.Data || newHora != a.Hora) && newStatus != AgendamentoStatus.Cancelado)
-    {
-        var conflict = await db.Agendamentos.AnyAsync(x => x.Id != a.Id && x.ProfissionalId == a.ProfissionalId && x.Data == newData && x.Hora == newHora && x.Status != AgendamentoStatus.Cancelado, ct);
-        if (conflict)
-            return Results.Conflict(new { error = "Horário indisponível." });
-    }
-
-    a.Data = newData;
-    a.Hora = newHora;
-    a.DuracaoMinutos = newDur;
-    a.Status = newStatus;
-
+    a.Status = AgendamentoStatus.Cancelado;
     await db.SaveChangesAsync(ct);
-    return Results.Ok(new Fitnutri.Contracts.AgendamentoResponse(a.Id, a.ProfissionalId, a.ClienteUserId, a.Data, a.Hora, a.DuracaoMinutos, a.Status));
+    
+    return Results.Ok(new { 
+        message = "Agendamento cancelado com sucesso!", 
+        agendamento = new AgendamentoResponse(a.Id, a.ProfissionalId, a.ClienteUserId, a.Data, a.Hora, a.DuracaoMinutos, a.Status) 
+    });
 }).RequireAuthorization();
 
 // Deletar agendamento (hard delete) - somente cliente ou profissional

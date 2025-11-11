@@ -6,8 +6,7 @@
              xmlns:viewmodel="clr-namespace:AppFitNutri.ViewModel"
              xmlns:models="clr-namespace:AppFitNutri.Models"
              x:DataType="viewmodel:AgendamentosProfissionalViewModel"
-             Title="Meus Agendamentos"
-             Shell.NavBarIsVisible="True">
+             Title="Meus Agendamentos">
 
     <ContentPage.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
