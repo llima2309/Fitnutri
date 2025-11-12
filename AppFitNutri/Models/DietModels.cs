@@ -1,3 +1,6 @@
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+
 namespace AppFitNutri.Models;
 
 public class Meal
@@ -9,8 +12,10 @@ public class Meal
     public string Dinner { get; set; } = string.Empty;
 }
 
-public class DayMeal
+public class DayMeal : INotifyPropertyChanged
 {
+    private bool _isExpanded;
+    
     public string Day { get; set; } = string.Empty;
     public string DayLabel { get; set; } = string.Empty;
     public string Color { get; set; } = string.Empty;
@@ -20,13 +25,32 @@ public class DayMeal
     public string AfternoonSnack { get; set; } = string.Empty;
     public string Dinner { get; set; } = string.Empty;
     public Meal Meals { get; set; } = new Meal();
-    public bool IsExpanded { get; set; }
+    
+    public bool IsExpanded 
+    { 
+        get => _isExpanded;
+        set
+        {
+            if (_isExpanded != value)
+            {
+                _isExpanded = value;
+                OnPropertyChanged();
+            }
+        }
+    }
     
     public bool HasMeals => !string.IsNullOrWhiteSpace(Breakfast) ||
                            !string.IsNullOrWhiteSpace(MorningSnack) ||
                            !string.IsNullOrWhiteSpace(Lunch) ||
                            !string.IsNullOrWhiteSpace(AfternoonSnack) ||
                            !string.IsNullOrWhiteSpace(Dinner);
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 }
 
 public enum DietType

@@ -1052,18 +1052,28 @@ dietGroup.MapGet("/", async (HttpContext ctx, AppDbContext db, CancellationToken
 
     var diets = await db.Diets
         .Where(d => d.ProfissionalId == userId)
-        .Select(d => new DietSummaryResponse(
+        .Select(d => new 
+        {
             d.Id,
             d.Title,
             d.Description,
             d.Type,
-            d.PatientDiets.Count(pd => pd.IsActive),
+            ActivePatientsCount = d.PatientDiets.Count(pd => pd.IsActive),
             d.CreatedAt
-        ))
+        })
         .OrderByDescending(d => d.CreatedAt)
         .ToListAsync(ct);
 
-    return Results.Ok(diets);
+    var response = diets.Select(d => new DietSummaryResponse(
+        d.Id,
+        d.Title,
+        d.Description,
+        d.Type,
+        d.ActivePatientsCount,
+        d.CreatedAt
+    )).ToList();
+
+    return Results.Ok(response);
 });
 
 // Obter detalhes de uma dieta
