@@ -172,23 +172,6 @@
                                             <VerticalStackLayout IsVisible="{Binding IsExpanded}" 
                                                                  Spacing="12" 
                                                                  Padding="16,0,16,16">
-                                                
-                                                <!-- Color Picker -->
-                                                <HorizontalStackLayout Spacing="8">
-                                                    <Label Text="Cor:" 
-                                                           FontSize="14" 
-                                                           TextColor="#374151"
-                                                           VerticalOptions="Center" />
-                                                    <Border BackgroundColor="{Binding Color}"
-                                                            WidthRequest="30"
-                                                            HeightRequest="30"
-                                                            StrokeShape="RoundRectangle 15" />
-                                                    <Entry Text="{Binding Color}" 
-                                                           WidthRequest="100"
-                                                           FontSize="12"
-                                                           VerticalOptions="Center" />
-                                                </HorizontalStackLayout>
-
                                                 <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" 
                                                       ColumnDefinitions="80,*" 
                                                       ColumnSpacing="12" 
@@ -196,7 +179,7 @@
                                                     
                                                     <!-- Breakfast -->
                                                     <Label Grid.Row="0" Grid.Column="0"
-                                                           Text="☀️ Café" 
+                                                           Text="Café" 
                                                            FontSize="12" 
                                                            TextColor="#374151"
                                                            VerticalOptions="Start"
@@ -212,7 +195,7 @@
 
                                                     <!-- Morning Snack -->
                                                     <Label Grid.Row="1" Grid.Column="0"
-                                                           Text="🍎 Lanche M" 
+                                                           Text="Lanche M" 
                                                            FontSize="12" 
                                                            TextColor="#374151"
                                                            VerticalOptions="Start"
@@ -228,7 +211,7 @@
 
                                                     <!-- Lunch -->
                                                     <Label Grid.Row="2" Grid.Column="0"
-                                                           Text="🍽️ Almoço" 
+                                                           Text="Almoço" 
                                                            FontSize="12" 
                                                            TextColor="#374151"
                                                            VerticalOptions="Start"
@@ -244,7 +227,7 @@
 
                                                     <!-- Afternoon Snack -->
                                                     <Label Grid.Row="3" Grid.Column="0"
-                                                           Text="☕ Lanche T" 
+                                                           Text="Lanche T" 
                                                            FontSize="12" 
                                                            TextColor="#374151"
                                                            VerticalOptions="Start"
@@ -260,7 +243,7 @@
 
                                                     <!-- Dinner -->
                                                     <Label Grid.Row="4" Grid.Column="0"
-                                                           Text="🌙 Jantar" 
+                                                           Text="Jantar" 
                                                            FontSize="12" 
                                                            TextColor="#374151"
                                                            VerticalOptions="Start"

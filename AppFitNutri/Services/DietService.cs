@@ -72,6 +72,7 @@ public class DietService : IDietService
     public async Task<(bool ok, string? error)> UpdateDietAsync(Guid dietId, UpdateDietDto dto, CancellationToken ct = default)
     {
         await EnsureAuthAsync();
+        string teste = JsonSerializer.Serialize(dto, _jsonOptions);
         var resp = await _http.PutAsJsonAsync($"/dietas/{dietId}", dto, _jsonOptions, ct);
         
         if (resp.IsSuccessStatusCode) 

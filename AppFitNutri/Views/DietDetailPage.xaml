@@ -377,7 +377,7 @@
                                     Stroke="#F59E0B"
                                     Padding="0">
                                 <VerticalStackLayout Spacing="8">
-                                    <Label Text="☀️ Café da Manhã"
+                                    <Label Text="Café da Manhã"
                                            FontSize="16"
                                            FontAttributes="Bold"
                                            TextColor="#78350F" />
@@ -403,7 +403,7 @@
                                     Stroke="#10B981"
                                     Padding="0">
                                 <VerticalStackLayout Spacing="8">
-                                    <Label Text="🥑 Lanche da Manhã"
+                                    <Label Text="Lanche da Manhã"
                                            FontSize="16"
                                            FontAttributes="Bold"
                                            TextColor="#064E3B" />
@@ -429,7 +429,7 @@
                                     Stroke="#F97316"
                                     Padding="0">
                                 <VerticalStackLayout Spacing="8">
-                                    <Label Text="🍽️ Almoço"
+                                    <Label Text="Almoço"
                                            FontSize="16"
                                            FontAttributes="Bold"
                                            TextColor="#7C2D12" />
@@ -455,7 +455,7 @@
                                     Stroke="#3B82F6"
                                     Padding="0">
                                 <VerticalStackLayout Spacing="8">
-                                    <Label Text="🍓 Lanche da Tarde"
+                                    <Label Text="Lanche da Tarde"
                                            FontSize="16"
                                            FontAttributes="Bold"
                                            TextColor="#1E3A8A" />
@@ -481,7 +481,7 @@
                                     Stroke="#A855F7"
                                     Padding="0">
                                 <VerticalStackLayout Spacing="8">
-                                    <Label Text="🌙 Jantar"
+                                    <Label Text="Jantar"
                                            FontSize="16"
                                            FontAttributes="Bold"
                                            TextColor="#581C87" />

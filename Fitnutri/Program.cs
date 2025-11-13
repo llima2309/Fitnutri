@@ -1133,7 +1133,7 @@ dietGroup.MapPut("/{id:guid}", async (Guid id, HttpContext ctx, AppDbContext db,
     if (diet is null)
         return Results.NotFound(new { error = "Dieta não encontrada" });
 
-    // Atualizar campos
+    // Atualizar campos básicos
     if (!string.IsNullOrWhiteSpace(req.Title))
         diet.Title = req.Title.Trim();
 
@@ -1154,22 +1154,32 @@ dietGroup.MapPut("/{id:guid}", async (Guid id, HttpContext ctx, AppDbContext db,
         if (!validDays.All(day => providedDays.Contains(day)))
             return Results.BadRequest(new { error = "Todos os dias da semana devem ser fornecidos" });
 
-        // Remover refeições antigas
-        db.DietDayMeals.RemoveRange(diet.DayMeals);
-
-        // Adicionar novas refeições
-        diet.DayMeals = req.DayMeals.Select(dm => new DietDayMeal
+        // Deletar todos os DayMeals existentes diretamente no banco sem tracking
+        await db.DietDayMeals.Where(dm => dm.DietId == diet.Id).ExecuteDeleteAsync(ct);
+        
+        // Limpar a coleção em memória
+        diet.DayMeals.Clear();
+        
+        // Adicionar todos os novos DayMeals
+        foreach (var reqDayMeal in req.DayMeals)
         {
-            Id = Guid.NewGuid(),
-            DietId = diet.Id,
-            Day = dm.Day.ToUpper(),
-            Color = dm.Color,
-            Breakfast = dm.Breakfast.Trim(),
-            MorningSnack = dm.MorningSnack.Trim(),
-            Lunch = dm.Lunch.Trim(),
-            AfternoonSnack = dm.AfternoonSnack.Trim(),
-            Dinner = dm.Dinner.Trim()
-        }).ToList();
+            var dayUpper = reqDayMeal.Day.ToUpper();
+            
+            var newDayMeal = new DietDayMeal
+            {
+                Id = Guid.NewGuid(),
+                DietId = diet.Id,
+                Day = dayUpper,
+                Color = reqDayMeal.Color,
+                Breakfast = reqDayMeal.Breakfast.Trim(),
+                MorningSnack = reqDayMeal.MorningSnack.Trim(),
+                Lunch = reqDayMeal.Lunch.Trim(),
+                AfternoonSnack = reqDayMeal.AfternoonSnack.Trim(),
+                Dinner = reqDayMeal.Dinner.Trim()
+            };
+            
+            db.DietDayMeals.Add(newDayMeal);
+        }
     }
 
     diet.UpdatedAt = DateTime.UtcNow;

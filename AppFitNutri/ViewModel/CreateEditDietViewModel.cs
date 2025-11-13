@@ -131,12 +131,17 @@ public partial class CreateEditDietViewModel : ObservableObject
             Description = diet.Description;
             SelectedType = diet.Type;
             SelectedDietType = DietTypes.FirstOrDefault(dt => dt.Type == diet.Type);
+            
+            System.Diagnostics.Debug.WriteLine($"Carregando dieta: {diet.Title} com {diet.DayMeals?.Count ?? 0} dias");
+            
             // Carregar refeições
             foreach (var dayMeal in diet.DayMeals)
             {
                 var model = DayMeals.FirstOrDefault(d => d.Day == dayMeal.Day);
                 if (model != null)
                 {
+                    System.Diagnostics.Debug.WriteLine($"Carregando dia {dayMeal.Day}: Café={!string.IsNullOrEmpty(dayMeal.Meals.Breakfast)}, Almoço={!string.IsNullOrEmpty(dayMeal.Meals.Lunch)}");
+                    
                     model.Color = dayMeal.Color;
                     model.Breakfast = dayMeal.Meals.Breakfast;
                     model.MorningSnack = dayMeal.Meals.MorningSnack;
@@ -145,6 +150,14 @@ public partial class CreateEditDietViewModel : ObservableObject
                     model.Dinner = dayMeal.Meals.Dinner;
                 }
             }
+            
+            // Força atualização da UI
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                OnPropertyChanged(nameof(DayMeals));
+            });
+            
+            System.Diagnostics.Debug.WriteLine("Dieta carregada com sucesso");
         }
         catch (Exception ex)
         {
@@ -241,23 +254,6 @@ public partial class CreateEditDietViewModel : ObservableObject
     [RelayCommand]
     private async Task Cancel()
     {
-        var hasChanges = !string.IsNullOrEmpty(Title) || !string.IsNullOrEmpty(Description) ||
-                        DayMeals.Any(d => !string.IsNullOrEmpty(d.Breakfast) || !string.IsNullOrEmpty(d.MorningSnack) ||
-                                         !string.IsNullOrEmpty(d.Lunch) || !string.IsNullOrEmpty(d.AfternoonSnack) ||
-                                         !string.IsNullOrEmpty(d.Dinner));
-
-        if (hasChanges)
-        {
-            var confirm = await Shell.Current.DisplayAlert(
-                "Descartar Alterações",
-                "Você tem alterações não salvas. Deseja realmente sair?",
-                "Sim, descartar",
-                "Continuar editando"
-            );
-
-            if (!confirm) return;
-        }
-
         await Shell.Current.GoToAsync("..");
     }
 
