@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using Fitnutri.Auth;
+using Fitnutri.Domain;
 using Fitnutri.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -57,7 +58,7 @@ public class RegisterValidationTests
         var sut = CreateSut(db);
 
         var user = await sut.RegisterAsync("joao123", "joao@email.com", "Strong!123", CancellationToken.None);
-        user.Status = Domain.UserStatus.Approved;
+        user.Status = UserStatus.Approved;
         user.EmailConfirmed = true;
         var (u, token, exp) = await sut.LoginAsync("JOAO@EMAIL.COM", "Strong!123", CancellationToken.None);
 

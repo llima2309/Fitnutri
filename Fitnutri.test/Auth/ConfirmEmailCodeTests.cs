@@ -48,7 +48,7 @@ namespace Fitnutri.test.Auth
             var sut = CreateSut(db);
 
             var user = await sut.RegisterAsync("joao123", "joao@email.com", "Strong!123", CancellationToken.None);
-            user.Status = Domain.UserStatus.Approved;
+            user.Status = UserStatus.Approved;
             user.EmailConfirmed = false;
             user.EmailVerificationCode = 123456;
             await db.SaveChangesAsync(CancellationToken.None);
@@ -71,7 +71,7 @@ namespace Fitnutri.test.Auth
             var sut = CreateSut(db);
 
             var user = await sut.RegisterAsync("joao123", "joao@email.com", "Strong!123", CancellationToken.None);
-            user.Status = Domain.UserStatus.Approved;
+            user.Status = UserStatus.Approved;
             user.EmailConfirmed = false;
             user.EmailVerificationCode = 123456;
             await db.SaveChangesAsync(CancellationToken.None);
@@ -93,7 +93,7 @@ namespace Fitnutri.test.Auth
             var sut = CreateSut(db);
 
             var user = await sut.RegisterAsync("joao123", "joao@email.com", "Strong!123", CancellationToken.None);
-            user.Status = Domain.UserStatus.Approved;
+            user.Status = UserStatus.Approved;
             user.EmailConfirmed = true;
             user.EmailVerificationCode = 123456;
             await db.SaveChangesAsync(CancellationToken.None);

@@ -2,12 +2,22 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-# Copia s  o csproj do API para cache eficiente
+# Copia os arquivos de projeto para cache eficiente
 COPY Fitnutri/Fitnutri.csproj ./Fitnutri/
-RUN dotnet restore Fitnutri/Fitnutri.csproj
+COPY Fitnutri.test/Fitnutri.test.csproj ./Fitnutri.test/
 
-# Copia o restante do c digo do API
+# Restore das dependências
+RUN dotnet restore Fitnutri/Fitnutri.csproj
+RUN dotnet restore Fitnutri.test/Fitnutri.test.csproj
+
+# Copia o código fonte
 COPY Fitnutri/ ./Fitnutri/
+COPY Fitnutri.test/ ./Fitnutri.test/
+
+# Executa os testes - se falhar, o build para aqui
+RUN dotnet test Fitnutri.test/Fitnutri.test.csproj --configuration Release --no-restore --verbosity normal
+
+# Se chegou aqui, todos os testes passaram - continua com o build
 RUN dotnet publish Fitnutri/Fitnutri.csproj -c Release -o /app/publish /p:UseAppHost=false
 
 # ===== STAGE 2: runtime =====

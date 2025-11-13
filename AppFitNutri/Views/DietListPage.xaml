@@ -185,21 +185,10 @@
                                     
                                     <!-- Action Buttons -->
                                     <Grid Grid.Row="2" 
-                                          ColumnDefinitions="*,*,*" 
+                                          ColumnDefinitions="*,*" 
                                           ColumnSpacing="8" 
                                           Padding="20,16,20,16">
-                                        
                                         <Button Grid.Column="0"
-                                                Text="Ver"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:DietListViewModel}}, Path=ViewDietCommand}"
-                                                CommandParameter="{Binding Id}"
-                                                BackgroundColor="#3B82F6"
-                                                TextColor="White"
-                                                FontSize="14"
-                                                CornerRadius="8"
-                                                Padding="0,8" />
-                                        
-                                        <Button Grid.Column="1"
                                                 Text="Editar"
                                                 Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:DietListViewModel}}, Path=EditDietCommand}"
                                                 CommandParameter="{Binding Id}"
@@ -209,7 +198,7 @@
                                                 CornerRadius="8"
                                                 Padding="0,8" />
                                         
-                                        <Button Grid.Column="2"
+                                        <Button Grid.Column="1"
                                                 Text="Excluir"
                                                 Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:DietListViewModel}}, Path=DeleteDietCommand}"
                                                 CommandParameter="{Binding .}"

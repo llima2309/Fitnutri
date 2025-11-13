@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using Fitnutri.Auth;
+using Fitnutri.Domain;
 using FluentAssertions;
 using Xunit;
 
@@ -15,7 +16,7 @@ namespace Fitnutri.test.Auth
 
             var user = await sut.RegisterAsync("alice", "alice@mail.com", "P@ssw0rd!", CancellationToken.None);
             user.Id.Should().NotBeEmpty();
-            user.Status = Domain.UserStatus.Approved;
+            user.Status =UserStatus.Approved;
             user.EmailConfirmed = true;
 
             var (u, token, exp) = await sut.LoginAsync("alice", "P@ssw0rd!", CancellationToken.None);
@@ -42,7 +43,7 @@ namespace Fitnutri.test.Auth
 
             // Primeiro registra e aprova um usuário
             var user = await sut.RegisterAsync("alice", "alice@mail.com", "P@ssw0rd!", CancellationToken.None);
-            user.Status = Domain.UserStatus.Approved;
+            user.Status = UserStatus.Approved;
             await db.SaveChangesAsync();
 
             var result = await sut.ForgotPasswordAsync("alice@mail.com", CancellationToken.None);

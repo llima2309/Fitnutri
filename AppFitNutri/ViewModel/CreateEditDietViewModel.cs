@@ -6,7 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace AppFitNutri.ViewModel;
 
-[QueryProperty(nameof(DietId), "dietId")]
+[QueryProperty(nameof(DietIdString), "dietId")]
 public partial class CreateEditDietViewModel : ObservableObject
 {
     private readonly IDietService _dietService;
@@ -22,6 +22,23 @@ public partial class CreateEditDietViewModel : ObservableObject
 
     [ObservableProperty]
     private Guid? dietId;
+
+    // Property to handle string query parameter
+    public string DietIdString
+    {
+        get => DietId?.ToString() ?? string.Empty;
+        set
+        {
+            if (Guid.TryParse(value, out var guid))
+            {
+                DietId = guid;
+            }
+            else
+            {
+                DietId = null;
+            }
+        }
+    }
 
     [ObservableProperty]
     private string title = string.Empty;
@@ -114,7 +131,6 @@ public partial class CreateEditDietViewModel : ObservableObject
             Description = diet.Description;
             SelectedType = diet.Type;
             SelectedDietType = DietTypes.FirstOrDefault(dt => dt.Type == diet.Type);
-
             // Carregar refeições
             foreach (var dayMeal in diet.DayMeals)
             {
