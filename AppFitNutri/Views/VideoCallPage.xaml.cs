@@ -328,55 +328,85 @@ public class VideoCallPage : ContentPage
 
         function setupHubHandlers() {{
             hubConnection.on('UserJoined', async (userId, userType, connectionId) => {{
-                console.log('Usuário entrou:', userId);
-                await createPeerConnection(connectionId, true);
+                console.log('Usuário entrou:', userId, 'connectionId:', connectionId);
+                // Apenas o usuário que JÁ estava na sala deve criar oferta
+                console.log('Meu connectionId:', hubConnection.connectionId);
+                if (hubConnection.connectionId < connectionId) {{
+                    console.log('Criando peer connection como iniciador');
+                    await createPeerConnection(connectionId, true);
+                }} else {{
+                    console.log('Aguardando oferta do outro peer');
+                }}
             }});
 
             hubConnection.on('ExistingParticipants', async (participants) => {{
                 console.log('Participantes existentes:', participants.length);
-                for (const p of participants) {{
-                    await createPeerConnection(p.connectionId, true);
-                }}
+                // Não criar ofertas aqui - aguardar o UserJoined no outro lado
+                console.log('Lista de participantes:', participants);
             }});
 
             hubConnection.on('ReceiveOffer', async (offer, fromConnectionId) => {{
+                console.log('Recebeu oferta de:', fromConnectionId);
                 await handleOffer(offer, fromConnectionId);
             }});
 
             hubConnection.on('ReceiveAnswer', async (answer, fromConnectionId) => {{
+                console.log('Recebeu resposta de:', fromConnectionId);
                 await handleAnswer(answer, fromConnectionId);
             }});
 
-            hubConnection.on('ReceiveIceCandidate', async (candidate) => {{
-                await handleIceCandidate(candidate);
+            hubConnection.on('ReceiveIceCandidate', async (candidate, fromConnectionId) => {{
+                console.log('Recebeu ICE candidate');
+                await handleIceCandidate(candidate, fromConnectionId);
             }});
 
             hubConnection.on('UserLeft', (connectionId) => {{
+                console.log('Usuário saiu:', connectionId);
                 closePeerConnection(connectionId);
             }});
 
             hubConnection.onclose(() => {{
+                console.log('Hub desconectado');
                 updateStatus('Desconectado');
+            }});
+            
+            hubConnection.onreconnecting(() => {{
+                console.log('Reconectando...');
+                updateStatus('Reconectando...');
+            }});
+            
+            hubConnection.onreconnected(() => {{
+                console.log('Reconectado!');
+                updateStatus('Conectado');
             }});
         }}
 
         async function createPeerConnection(connectionId, isInitiator) {{
+            console.log('Criando peer connection para:', connectionId, 'isInitiator:', isInitiator);
+            
             const pc = new RTCPeerConnection({{ iceServers: CONFIG.iceServers }});
             peerConnections.set(connectionId, pc);
 
+            // Adicionar tracks locais
             localStream.getTracks().forEach(track => {{
+                console.log('Adicionando track:', track.kind);
                 pc.addTrack(track, localStream);
             }});
 
+            // Receber tracks remotos
             pc.ontrack = (event) => {{
+                console.log('Track remoto recebido:', event.track.kind);
                 const remoteVideo = document.getElementById('remoteVideo');
                 if (remoteVideo.srcObject !== event.streams[0]) {{
+                    console.log('Conectando stream remoto ao vídeo');
                     remoteVideo.srcObject = event.streams[0];
                 }}
             }};
 
+            // ICE candidates
             pc.onicecandidate = async (event) => {{
                 if (event.candidate) {{
+                    console.log('Enviando ICE candidate');
                     await hubConnection.invoke('SendIceCandidate', 
                         CONFIG.agendamentoId, 
                         JSON.stringify(event.candidate), 
@@ -384,54 +414,120 @@ public class VideoCallPage : ContentPage
                     );
                 }}
             }};
+            
+            // Connection state changes
+            pc.onconnectionstatechange = () => {{
+                console.log('Connection state:', pc.connectionState);
+                if (pc.connectionState === 'connected') {{
+                    console.log('✅ Peer conectado com sucesso!');
+                }}
+            }};
+            
+            pc.oniceconnectionstatechange = () => {{
+                console.log('ICE connection state:', pc.iceConnectionState);
+            }};
 
+            // Se for o iniciador, criar e enviar oferta
             if (isInitiator) {{
-                const offer = await pc.createOffer();
+                console.log('Criando oferta...');
+                const offer = await pc.createOffer({{
+                    offerToReceiveAudio: true,
+                    offerToReceiveVideo: true
+                }});
+                console.log('Oferta criada, definindo local description');
                 await pc.setLocalDescription(offer);
+                console.log('Enviando oferta para:', connectionId);
                 await hubConnection.invoke('SendOffer', 
                     CONFIG.agendamentoId, 
                     JSON.stringify(offer), 
                     connectionId
                 );
+                console.log('Oferta enviada!');
             }}
         }}
 
         async function handleOffer(offerJson, fromConnectionId) {{
+            console.log('Processando oferta de:', fromConnectionId);
             const offer = JSON.parse(offerJson);
             let pc = peerConnections.get(fromConnectionId);
 
             if (!pc) {{
+                console.log('Criando nova peer connection para processar oferta');
                 await createPeerConnection(fromConnectionId, false);
                 pc = peerConnections.get(fromConnectionId);
             }}
 
+            console.log('Estado atual do PC:', pc.signalingState);
+            
+            if (pc.signalingState !== 'stable') {{
+                console.warn('PC não está em estado stable:', pc.signalingState);
+            }}
+
+            console.log('Definindo remote description (oferta)');
             await pc.setRemoteDescription(new RTCSessionDescription(offer));
+            
+            console.log('Criando resposta...');
             const answer = await pc.createAnswer();
+            
+            console.log('Definindo local description (resposta)');
             await pc.setLocalDescription(answer);
 
+            console.log('Enviando resposta para:', fromConnectionId);
             await hubConnection.invoke('SendAnswer', 
                 CONFIG.agendamentoId, 
                 JSON.stringify(answer), 
                 fromConnectionId
             );
+            console.log('Resposta enviada!');
         }}
 
         async function handleAnswer(answerJson, fromConnectionId) {{
+            console.log('Processando resposta de:', fromConnectionId);
             const answer = JSON.parse(answerJson);
             const pc = peerConnections.get(fromConnectionId);
-            if (pc) {{
-                await pc.setRemoteDescription(new RTCSessionDescription(answer));
+            
+            if (!pc) {{
+                console.error('Peer connection não encontrado para:', fromConnectionId);
+                return;
             }}
+            
+            console.log('Estado atual do PC:', pc.signalingState);
+            
+            if (pc.signalingState === 'stable') {{
+                console.warn('PC já está em stable, ignorando resposta duplicada');
+                return;
+            }}
+            
+            if (pc.signalingState !== 'have-local-offer') {{
+                console.error('Estado inesperado:', pc.signalingState, 'esperado: have-local-offer');
+                return;
+            }}
+            
+            console.log('Definindo remote description (resposta)');
+            await pc.setRemoteDescription(new RTCSessionDescription(answer));
+            console.log('Remote description definido! Estado:', pc.signalingState);
         }}
 
-        async function handleIceCandidate(candidateJson) {{
+        async function handleIceCandidate(candidateJson, fromConnectionId) {{
+            console.log('Processando ICE candidate de:', fromConnectionId);
             const candidate = JSON.parse(candidateJson);
-            for (const [, pc] of peerConnections) {{
-                try {{
+            const pc = peerConnections.get(fromConnectionId);
+            
+            if (!pc) {{
+                console.warn('Peer connection não encontrado, ignorando candidate');
+                return;
+            }}
+            
+            try {{
+                if (pc.remoteDescription) {{
+                    console.log('Adicionando ICE candidate');
                     await pc.addIceCandidate(new RTCIceCandidate(candidate));
-                }} catch (error) {{
-                    console.error('Erro ao adicionar ICE candidate:', error);
+                }} else {{
+                    console.warn('Remote description ainda não definido, salvando candidate para depois');
+                    // Em produção, você pode querer guardar esses candidates
                 }}
+            }} catch (error) {{
+                console.error('Erro ao adicionar ICE candidate:', error);
             }}
         }}
 

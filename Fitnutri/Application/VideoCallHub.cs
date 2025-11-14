@@ -59,7 +59,7 @@ public class VideoCallHub : Hub
 
     public async Task SendIceCandidate(string appointmentId, string candidate, string targetConnectionId)
     {
-        await Clients.Client(targetConnectionId).SendAsync("ReceiveIceCandidate", candidate);
+        await Clients.Client(targetConnectionId).SendAsync("ReceiveIceCandidate", candidate, Context.ConnectionId);
     }
 
     public async Task ToggleAudio(string appointmentId, bool enabled)
