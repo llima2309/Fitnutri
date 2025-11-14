@@ -28,5 +28,11 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
+	
+	<!-- Permissões para Videochamada -->
+	<key>NSCameraUsageDescription</key>
+	<string>O FitNutri precisa acessar sua câmera para realizar videochamadas com profissionais de saúde.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>O FitNutri precisa acessar seu microfone para realizar videochamadas com profissionais de saúde.</string>
 </dict>
 </plist>

@@ -156,14 +156,18 @@
                                         </Border>
 
                                         <!-- Ações -->
-                                        <Grid Grid.Row="3" ColumnSpacing="12">
+                                        <Grid Grid.Row="3" ColumnSpacing="12" RowSpacing="8">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
 
                                             <!-- Botão Confirmar (apenas se status = Pendente) -->
-                                            <Button Grid.Column="0"
+                                            <Button Grid.Row="0" Grid.Column="0"
                                                     Text="✓ Confirmar"
                                                     BackgroundColor="#4CAF50"
                                                     TextColor="White"
@@ -176,7 +180,7 @@
                                                     IsVisible="{Binding Status, Converter={StaticResource StatusIsPendenteConverter}}" />
 
                                             <!-- Botão Cancelar -->
-                                            <Button Grid.Column="1"
+                                            <Button Grid.Row="0" Grid.Column="1"
                                                     Text="✕ Cancelar"
                                                     BackgroundColor="#F44336"
                                                     TextColor="White"
@@ -187,6 +191,19 @@
                                                     Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:AgendamentosProfissionalViewModel}}, Path=CancelarCommand}"
                                                     CommandParameter="{Binding .}"
                                                     IsVisible="{Binding Status, Converter={StaticResource StatusIsNotCanceladoConverter}}" />
+
+                                            <!-- Botão Videochamada (apenas se status = Confirmado) -->
+                                            <Button Grid.Row="1" Grid.ColumnSpan="2"
+                                                    Text="🎥 Iniciar Videochamada"
+                                                    BackgroundColor="#2196F3"
+                                                    TextColor="White"
+                                                    FontSize="14"
+                                                    FontAttributes="Bold"
+                                                    Padding="12,8"
+                                                    CornerRadius="8"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:AgendamentosProfissionalViewModel}}, Path=IniciarChamadaCommand}"
+                                                    CommandParameter="{Binding .}"
+                                                    IsVisible="{Binding IsConfirmado}" />
                                         </Grid>
 
                                     </Grid>

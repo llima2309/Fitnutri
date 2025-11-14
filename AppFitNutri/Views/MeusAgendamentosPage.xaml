@@ -55,13 +55,33 @@
                                     </HorizontalStackLayout>
                                     <Label Text="{Binding StatusTexto}" TextColor="#7F8C8D" FontSize="12"/>
                                 </VerticalStackLayout>
-                                <HorizontalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center">
-                                    <Button Text="Cancelar"
+                                <VerticalStackLayout Grid.Column="2" Spacing="6" VerticalOptions="Center">
+                                    <!-- Botão Videochamada -->
+                                    <Button Text="🎥"
+                                            Command="{Binding BindingContext.IniciarChamadaCommand, Source={x:Reference ThisPage}}"
+                                            CommandParameter="{Binding .}"
+                                            IsVisible="{Binding IsConfirmado}"
+                                            BackgroundColor="#2196F3" 
+                                            TextColor="White"
+                                            WidthRequest="50"
+                                            HeightRequest="50"
+                                            CornerRadius="25"
+                                            FontSize="20"
+                                            Padding="0"/>
+                                    
+                                    <!-- Botão Cancelar -->
+                                    <Button Text="✕"
                                             Command="{Binding BindingContext.CancelarCommand, Source={x:Reference ThisPage}}"
                                             CommandParameter="{Binding .}"
                                             IsEnabled="{Binding PodeCancelar}"
-                                            BackgroundColor="#E74C3C" TextColor="White"/>
-                                </HorizontalStackLayout>
+                                            BackgroundColor="#E74C3C" 
+                                            TextColor="White"
+                                            WidthRequest="50"
+                                            HeightRequest="50"
+                                            CornerRadius="25"
+                                            FontSize="20"
+                                            Padding="0"/>
+                                </VerticalStackLayout>
                             </Grid>
                         </Border>
                     </DataTemplate>

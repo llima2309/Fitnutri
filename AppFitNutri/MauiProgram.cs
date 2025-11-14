@@ -1,4 +1,4 @@
-﻿using AppFitNutri.Core.Services;
+﻿﻿﻿using AppFitNutri.Core.Services;
 using AppFitNutri.Core.Services.Login;
 using AppFitNutri.Services;
 using AppFitNutri.ViewModel;
@@ -11,6 +11,14 @@ public static class MauiProgram
     {
         var builder = MauiApp.CreateBuilder();
         builder.UseMauiApp<App>();
+
+        // Configurar WebView customizado para Android (suporte a WebRTC)
+#if ANDROID
+        builder.ConfigureMauiHandlers(handlers =>
+        {
+            handlers.AddHandler<WebView, AppFitNutri.Platforms.Android.CustomWebViewHandler>();
+        });
+#endif
 
         // HttpClient nomeado para a API de Auth
         builder.Services.AddHttpClient<IApiHttp, ApiHttp>(client =>
@@ -68,6 +76,13 @@ public static class MauiProgram
             client.Timeout = TimeSpan.FromSeconds(30);
         });
 
+        // HttpClient para VideoCallService
+        builder.Services.AddHttpClient<IVideoCallService, VideoCallService>(client =>
+        {
+            client.BaseAddress = new Uri("https://api.fit-nutri.com");
+            client.DefaultRequestHeaders.Add("x-api-key", "<STRONG_CLIENT_KEY>");
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
 
         // Token store
         builder.Services.AddSingleton<ITokenStore, SecureTokenStore>();
@@ -121,6 +136,7 @@ public static class MauiProgram
         builder.Services.AddTransient<Views.AgendamentosProfissionalPage>();
         builder.Services.AddTransient<Views.DietListPage>();
         builder.Services.AddTransient<Views.CreateEditDietPage>();
+        builder.Services.AddTransient<Views.VideoCallPage>();
         
         return builder.Build();
     }

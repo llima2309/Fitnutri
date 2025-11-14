@@ -22,6 +22,7 @@ public class AgendamentoItem
         _ => "Desconhecido"
     };
     public bool PodeCancelar => Status != 2; // Não pode cancelar se já está cancelado
+    public bool IsConfirmado => Status == 1; // Status 1 = Confirmado
     public string ProfissionalTexto => !string.IsNullOrEmpty(ProfissionalNome) ? ProfissionalNome : "Profissional";
     public string PerfilTexto => !string.IsNullOrEmpty(ProfissionalPerfil) ? ProfissionalPerfil : "";
 }

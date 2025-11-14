@@ -19,6 +19,7 @@
             <conv:StatusIsPendenteConverter x:Key="StatusIsPendenteConverter" />
             <conv:StatusIsNotCanceladoConverter x:Key="StatusIsNotCanceladoConverter" />
             <conv:BoolToArrowConverter x:Key="BoolToArrowConverter" />
+            <conv:StatusEqualsConverter x:Key="StatusEqualsConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

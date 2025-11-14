@@ -94,7 +94,16 @@ builder.Services.AddAuthorization(opt =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("app", p =>
-        p.WithOrigins("https://fit-nutri.com") // ajuste se necessário
+        p.WithOrigins(
+            "https://fit-nutri.com",
+            "https://api.fit-nutri.com",
+            "capacitor://localhost",    // Capacitor apps
+            "ionic://localhost",         // Ionic apps  
+            "http://localhost",          // Local WebView
+            "https://localhost",         // Local WebView HTTPS
+            "file://"                    // WebView local files
+        )
+         .SetIsOriginAllowed(origin => true) // Permite WebView de apps mobile
          .AllowAnyHeader()
          .AllowAnyMethod()
          .AllowCredentials());

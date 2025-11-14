@@ -4,25 +4,34 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using AppFitNutri.Models;
 using AppFitNutri.Services;
+using AppFitNutri.Core.Services;
 
 namespace AppFitNutri.ViewModel;
 
 public class AgendamentosProfissionalViewModel : INotifyPropertyChanged
 {
     private readonly IAgendamentoService _agendamentoService;
+    private readonly IVideoCallService _videoCallService;
+    private readonly ITokenStore _tokenStore;
     private bool _isLoading;
     private bool _hasAgendamentos;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public AgendamentosProfissionalViewModel(IAgendamentoService agendamentoService)
+    public AgendamentosProfissionalViewModel(
+        IAgendamentoService agendamentoService, 
+        IVideoCallService videoCallService,
+        ITokenStore tokenStore)
     {
         _agendamentoService = agendamentoService;
+        _videoCallService = videoCallService;
+        _tokenStore = tokenStore;
         Agendamentos = new ObservableCollection<AgendamentoDto>();
         
         RefreshCommand = new Command(async () => await LoadAgendamentosAsync());
         ConfirmarCommand = new Command<AgendamentoDto>(async (agendamento) => await ConfirmarAgendamentoAsync(agendamento));
         CancelarCommand = new Command<AgendamentoDto>(async (agendamento) => await CancelarAgendamentoAsync(agendamento));
+        IniciarChamadaCommand = new Command<AgendamentoDto>(async (agendamento) => await IniciarVideoChamadaAsync(agendamento));
         
         _ = LoadAgendamentosAsync();
     }
@@ -52,6 +61,7 @@ public class AgendamentosProfissionalViewModel : INotifyPropertyChanged
     public ICommand RefreshCommand { get; }
     public ICommand ConfirmarCommand { get; }
     public ICommand CancelarCommand { get; }
+    public ICommand IniciarChamadaCommand { get; }
 
     private async Task LoadAgendamentosAsync()
     {
@@ -153,6 +163,107 @@ public class AgendamentosProfissionalViewModel : INotifyPropertyChanged
             IsLoading = false;
             System.Diagnostics.Debug.WriteLine($"Erro ao cancelar agendamento: {ex.Message}");
             await ShowErrorAsync("Erro ao cancelar agendamento");
+        }
+    }
+
+    private async Task IniciarVideoChamadaAsync(AgendamentoDto agendamento)
+    {
+        if (agendamento == null) return;
+
+        try
+        {
+            IsLoading = true;
+
+            // 1. Verificar se já existe uma chamada ativa
+            var status = await _videoCallService.GetStatusChamadaAsync(agendamento.Id);
+            
+            VideoCallResponse? callResponse;
+            
+            if (status?.IsActive == true)
+            {
+                // Chamada já existe, apenas conectar
+                System.Diagnostics.Debug.WriteLine("Chamada já ativa, conectando...");
+                
+                // Usar o token e hubUrl existentes
+                callResponse = new VideoCallResponse(
+                    agendamento.Id,
+                    status.CallStartedAt?.ToString("yyyyMMddHHmmss") ?? "existing",
+                    status.CallStartedAt ?? DateTime.Now,
+                    "/videocall"
+                );
+            }
+            else
+            {
+                // 2. Iniciar nova chamada
+                callResponse = await _videoCallService.IniciarChamadaAsync(agendamento.Id);
+                
+                if (callResponse == null)
+                {
+                    await ShowErrorAsync("Não foi possível iniciar a videochamada. Verifique se o agendamento está confirmado.");
+                    return;
+                }
+            }
+
+            IsLoading = false;
+
+            // 3. Obter dados do usuário
+            var token = await _tokenStore.GetAsync();
+            var userId = await GetCurrentUserIdAsync();
+            
+            if (string.IsNullOrEmpty(userId))
+            {
+                await ShowErrorAsync("Erro ao obter ID do usuário");
+                return;
+            }
+
+            // 4. Navegar para a página de videochamada
+            var videoCallPage = new Views.VideoCallPage(
+                callResponse.AgendamentoId,
+                callResponse.CallToken,
+                callResponse.HubUrl,
+                token ?? "",
+                userId,
+                "profissional"
+            );
+
+            await Shell.Current.Navigation.PushModalAsync(videoCallPage);
+        }
+        catch (Exception ex)
+        {
+            IsLoading = false;
+            System.Diagnostics.Debug.WriteLine($"Erro ao iniciar videochamada: {ex.Message}");
+            await ShowErrorAsync($"Erro ao iniciar videochamada: {ex.Message}");
+        }
+    }
+
+    private async Task<string?> GetCurrentUserIdAsync()
+    {
+        try
+        {
+            var token = await _tokenStore.GetAsync();
+            if (string.IsNullOrEmpty(token)) return null;
+
+            // Decodificar o JWT para pegar o sub (user ID)
+            var parts = token.Split('.');
+            if (parts.Length != 3) return null;
+
+            var payload = parts[1];
+            var paddedPayload = payload.PadRight(payload.Length + (4 - payload.Length % 4) % 4, '=');
+            var bytes = Convert.FromBase64String(paddedPayload);
+            var json = System.Text.Encoding.UTF8.GetString(bytes);
+            
+            var jsonDoc = System.Text.Json.JsonDocument.Parse(json);
+            if (jsonDoc.RootElement.TryGetProperty("sub", out var subElement))
+            {
+                return subElement.GetString();
+            }
+
+            return null;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Erro ao obter user ID: {ex.Message}");
+            return null;
         }
     }
 
