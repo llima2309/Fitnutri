@@ -28,6 +28,15 @@ namespace Fitnutri.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime?>("CallEndedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("CallStartedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CallToken")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("ClienteUserId")
                         .HasColumnType("uniqueidentifier");
 

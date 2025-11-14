@@ -1,4 +1,4 @@
-﻿﻿﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.RateLimiting;
@@ -113,6 +113,9 @@ builder.Services.AddHttpClient<IViaCepService, ViaCepService>(client =>
 // ===== Controllers =====
 builder.Services.AddControllers();
 
+// ===== SignalR para videochamada =====
+builder.Services.AddSignalR();
+
 // ===== Swagger + segurança (Bearer + x-api-key) =====
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -216,6 +219,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseCors("app");
 
@@ -229,6 +233,9 @@ app.UseAuthorization();
 
 // ===== Controllers =====
 app.MapControllers();
+
+// ===== SignalR Hub =====
+app.MapHub<Fitnutri.Application.VideoCallHub>("/videocall").RequireAuthorization();
 
 // ===== Endpoints =====
 

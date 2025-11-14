@@ -26,5 +26,10 @@ public class Agendamento
     public AgendamentoStatus Status { get; set; } = AgendamentoStatus.Pendente;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    // Campos para videochamada
+    public string? CallToken { get; set; }
+    public DateTime? CallStartedAt { get; set; }
+    public DateTime? CallEndedAt { get; set; }
 }
 
