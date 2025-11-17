@@ -41,10 +41,12 @@ public class HomeWorkoutViewModel : INotifyPropertyChanged
     }
 
     public ICommand ToggleDayCommand { get; }
+    public ICommand OpenVideoCommand { get; }
 
     public HomeWorkoutViewModel()
     {
         ToggleDayCommand = new Command<HomeWorkout>(OnToggleDay);
+        OpenVideoCommand = new Command<Exercise>(OnOpenVideo);
         _ = LoadWorkoutsAsync();
     }
 
@@ -288,6 +290,23 @@ public class HomeWorkoutViewModel : INotifyPropertyChanged
         workout.IsExpanded = !workout.IsExpanded;
         if (workout.IsExpanded)
             SelectedWorkout = workout; // Optional: update details view when expanded
+    }
+
+    private async void OnOpenVideo(Exercise exercise)
+    {
+        if (exercise == null) return;
+
+        try
+        {
+            var viewModel = new ExerciseVideoViewModel(exercise, null);
+            var modal = new Views.ExerciseVideoModal(viewModel);
+            await Shell.Current.Navigation.PushModalAsync(modal);
+        }
+        catch (Exception ex)
+        {
+            // Log ou tratar erro
+            System.Diagnostics.Debug.WriteLine($"Erro ao abrir modal de vídeo: {ex.Message}");
+        }
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

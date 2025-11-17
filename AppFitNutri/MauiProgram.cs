@@ -1,9 +1,10 @@
-﻿﻿using AppFitNutri.Core.Services;
+﻿using AppFitNutri.Core.Services;
 using AppFitNutri.Core.Services.Login;
 using AppFitNutri.Services;
 using AppFitNutri.ViewModel;
+#if ANDROID
 using Microsoft.Maui.Handlers;
-using CommunityToolkit.Maui;
+#endif
 namespace AppFitNutri;
 
 public static class MauiProgram
@@ -12,9 +13,7 @@ public static class MauiProgram
     {
         var builder = MauiApp.CreateBuilder();
         builder.UseMauiApp<App>();
-        
-        // Inicializar MediaElement
-        builder.UseMauiCommunityToolkitMediaElement();
+
 
         // Configurar WebView customizado para Android (suporte a WebRTC)
 #if ANDROID

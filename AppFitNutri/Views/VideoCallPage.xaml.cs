@@ -40,10 +40,78 @@ public class VideoCallPage : ContentPage
             Source = new HtmlWebViewSource { Html = html }
         };
 
+        // Adicionar handler para detectar quando a chamada é encerrada
+        webView.Navigating += OnWebViewNavigating;
+
         Content = new Grid
         {
             Children = { webView }
         };
+    }
+
+    private async void OnWebViewNavigating(object? sender, WebNavigatingEventArgs e)
+    {
+        System.Diagnostics.Debug.WriteLine($"VideoCallPage: WebView navegando para: {e.Url}");
+        
+        // Detecta quando o JavaScript tenta navegar para protocolos de fechamento
+        if (e.Url == "app://close" || 
+            e.Url == "app://end-call" || 
+            e.Url == "app://disconnect" ||
+            e.Url?.StartsWith("app://") == true)
+        {
+            e.Cancel = true; // Cancela a navegação
+            System.Diagnostics.Debug.WriteLine($"VideoCallPage: Protocolo de fechamento detectado: {e.Url}");
+            await CloseVideoCall();
+        }
+    }
+
+    private async Task CloseVideoCall()
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine("VideoCallPage: Encerrando chamada e voltando para view anterior");
+            
+            // Tenta voltar para a página anterior
+            if (Shell.Current.Navigation.NavigationStack.Count > 1)
+            {
+                await Shell.Current.Navigation.PopAsync();
+                System.Diagnostics.Debug.WriteLine("VideoCallPage: Voltou para página anterior com sucesso");
+            }
+            else
+            {
+                // Se não há página anterior, vai para Home
+                await Shell.Current.GoToAsync("//Home");
+                System.Diagnostics.Debug.WriteLine("VideoCallPage: Navegou para Home com sucesso");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"VideoCallPage: Erro ao navegar - {ex.Message}");
+            
+            // Fallback: tenta múltiplas alternativas
+            try
+            {
+                // Tenta ir para a página principal
+                await Shell.Current.GoToAsync("//Home");
+                System.Diagnostics.Debug.WriteLine("VideoCallPage: Fallback para Home bem-sucedido");
+            }
+            catch (Exception fallbackEx)
+            {
+                System.Diagnostics.Debug.WriteLine($"VideoCallPage: Erro no fallback para Home - {fallbackEx.Message}");
+                
+                // Último recurso: tenta PopToRootAsync
+                try
+                {
+                    await Shell.Current.Navigation.PopToRootAsync();
+                    System.Diagnostics.Debug.WriteLine("VideoCallPage: PopToRoot bem-sucedido");
+                }
+                catch (Exception rootEx)
+                {
+                    System.Diagnostics.Debug.WriteLine($"VideoCallPage: Erro crítico de navegação - {rootEx.Message}");
+                    // Em caso extremo, pode mostrar um alerta ou reiniciar a app
+                }
+            }
+        }
     }
 
     private string GetApiBaseUrl()
