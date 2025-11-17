@@ -323,31 +323,57 @@
                                                             StrokeThickness="0"
                                                             StrokeShape="RoundRectangle 12"
                                                             Padding="12">
-                                                        <VerticalStackLayout Spacing="4">
-                                                            <Label Text="{Binding Name}"
-                                                                   FontSize="14"
-                                                                   FontAttributes="Bold"
-                                                                   TextColor="#1E293B"
-                                                                   LineBreakMode="WordWrap" />
-                                                            <HorizontalStackLayout Spacing="16">
-                                                                <Label TextColor="#64748B" FontSize="13" FontAutoScalingEnabled="False">
-                                                                    <Label.FormattedText>
-                                                                        <FormattedString>
-                                                                            <Span Text="Séries: " FontAttributes="Bold" TextColor="Black"/>
-                                                                            <Span Text="{Binding Sets}" TextColor="Black"/>
-                                                                        </FormattedString>
-                                                                    </Label.FormattedText>
-                                                                </Label>
-                                                                <Label TextColor="#64748B" FontSize="13" FontAutoScalingEnabled="False">
-                                                                    <Label.FormattedText>
-                                                                        <FormattedString>
-                                                                            <Span Text="Repetições: " FontAttributes="Bold" TextColor="Black"/>
-                                                                            <Span Text="{Binding Reps}" TextColor="Black"/>
-                                                                        </FormattedString>
-                                                                    </Label.FormattedText>
-                                                                </Label>
-                                                            </HorizontalStackLayout>
-                                                        </VerticalStackLayout>
+                                                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                                            <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                                                <Label Text="{Binding Name}"
+                                                                       FontSize="14"
+                                                                       FontAttributes="Bold"
+                                                                       TextColor="#1E293B"
+                                                                       LineBreakMode="WordWrap" />
+                                                                <HorizontalStackLayout Spacing="16">
+                                                                    <Label TextColor="#64748B" FontSize="13" FontAutoScalingEnabled="False">
+                                                                        <Label.FormattedText>
+                                                                            <FormattedString>
+                                                                                <Span Text="Séries: " FontAttributes="Bold" TextColor="Black"/>
+                                                                                <Span Text="{Binding Sets}" TextColor="Black"/>
+                                                                            </FormattedString>
+                                                                        </Label.FormattedText>
+                                                                    </Label>
+                                                                    <Label TextColor="#64748B" FontSize="13" FontAutoScalingEnabled="False">
+                                                                        <Label.FormattedText>
+                                                                            <FormattedString>
+                                                                                <Span Text="Repetições: " FontAttributes="Bold" TextColor="Black"/>
+                                                                                <Span Text="{Binding Reps}" TextColor="Black"/>
+                                                                            </FormattedString>
+                                                                        </Label.FormattedText>
+                                                                    </Label>
+                                                                </HorizontalStackLayout>
+                                                            </VerticalStackLayout>
+                                                            
+                                                            <!-- Video Button -->
+                                                            <Border Grid.Column="1"
+                                                                    BackgroundColor="#EF4444"
+                                                                    StrokeThickness="0"
+                                                                    StrokeShape="RoundRectangle 20"
+                                                                    Padding="8"
+                                                                    HeightRequest="40"
+                                                                    WidthRequest="40"
+                                                                    VerticalOptions="Center">
+                                                                <Border.Shadow>
+                                                                    <Shadow Brush="#EF4444" Offset="0,2" Radius="8" Opacity="0.4" />
+                                                                </Border.Shadow>
+                                                                <Border.GestureRecognizers>
+                                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:GymWorkoutViewModel}}, Path=OpenVideoCommand}"
+                                                                                          CommandParameter="{Binding .}" />
+                                                                </Border.GestureRecognizers>
+                                                                <Label Text="▶"
+                                                                       FontSize="16"
+                                                                       TextColor="White"
+                                                                       HorizontalTextAlignment="Center"
+                                                                       VerticalTextAlignment="Center"
+                                                                       FontAttributes="Bold" />
+                                                            </Border>
+                                                        </Grid>
                                                     </Border>
                                                 </DataTemplate>
                                             </BindableLayout.ItemTemplate>

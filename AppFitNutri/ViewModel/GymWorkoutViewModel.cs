@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using AppFitNutri.Models;
 using AppFitNutri.Services;
+using AppFitNutri.Views;
 
 namespace AppFitNutri.ViewModel;
 
@@ -28,11 +29,13 @@ public class GymWorkoutViewModel : INotifyPropertyChanged
     
     public ICommand BackCommand { get; }
     public ICommand ToggleDayCommand { get; }
+    public ICommand OpenVideoCommand { get; }
 
     public GymWorkoutViewModel()
     {
         BackCommand = new Command(OnBack);
         ToggleDayCommand = new Command<DayWorkout>(OnToggleDay);
+        OpenVideoCommand = new Command<Exercise>(OnOpenVideo);
         
         WorkoutPlan = new ObservableCollection<DayWorkout>();
         
@@ -204,10 +207,14 @@ public class GymWorkoutViewModel : INotifyPropertyChanged
 
     private void OnToggleDay(DayWorkout dayWorkout)
     {
-        if (dayWorkout != null)
-        {
-            dayWorkout.IsExpanded = !dayWorkout.IsExpanded;
-        }
+        dayWorkout.IsExpanded = !dayWorkout.IsExpanded;
+    }
+
+    private async void OnOpenVideo(Exercise exercise)
+    {
+        var viewModel = new ExerciseVideoViewModel(exercise, null);
+        var modal = new ExerciseVideoModal(viewModel);
+        await Shell.Current.Navigation.PushModalAsync(modal);
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

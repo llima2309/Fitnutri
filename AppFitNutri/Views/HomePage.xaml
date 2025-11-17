@@ -60,13 +60,11 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-
                 <!-- Agendamentos -->
                 <Border Grid.Row="0" Grid.Column="0"
                         BackgroundColor="#FFFFFF"
@@ -96,67 +94,64 @@
                         <TapGestureRecognizer Command="{Binding AgendamentosCommand}" />
                     </Border.GestureRecognizers>
                 </Border>
-
-                <!-- Video chamada (disabled) -->
+                <!-- Perfil -->
                 <Border Grid.Row="0" Grid.Column="1"
                         BackgroundColor="#FFFFFF"
                         StrokeShape="RoundRectangle 24"
-                        Padding="20"
-                        Opacity="0.6">
+                        Padding="20">
                     <Border.Shadow>
                         <Shadow Brush="Black" Offset="0,4" Radius="8" Opacity="0.12" />
                     </Border.Shadow>
                     <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
-                        <Border BackgroundColor="#F3E8FF"
+                        <Border BackgroundColor="#E0E7FF"
                                 StrokeShape="RoundRectangle 16"
                                 Padding="12"
                                 WidthRequest="56"
                                 HeightRequest="56"
                                 HorizontalOptions="Center">
-                            <Image Source="videochamada.png"
+                            <Image Source="perfil.png"
                                    HorizontalOptions="Center"
                                    VerticalOptions="Center" />
                         </Border>
-                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                            <Label Text="Vídeo chamada"
-                                   FontSize="16"
-                                   FontAttributes="Bold"
-                                   TextColor="#1E293B"
-                                   HorizontalTextAlignment="Center" />
-                        </VerticalStackLayout>
+                        <Label Text="Perfil"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="#1E293B"
+                               HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding PerfilCommand}" />
+                    </Border.GestureRecognizers>
                 </Border>
-
-                <!-- Video aulas (disabled) -->
+                <!-- Dieta -->
                 <Border Grid.Row="1" Grid.Column="0"
                         BackgroundColor="#FFFFFF"
                         StrokeShape="RoundRectangle 24"
-                        Padding="20"
-                        Opacity="0.6">
+                        Padding="20">
                     <Border.Shadow>
                         <Shadow Brush="Black" Offset="0,4" Radius="8" Opacity="0.12" />
                     </Border.Shadow>
                     <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
-                        <Border BackgroundColor="#FCE7F3"
+                        <Border BackgroundColor="#DCFCE7"
                                 StrokeShape="RoundRectangle 16"
                                 Padding="12"
                                 WidthRequest="56"
                                 HeightRequest="56"
                                 HorizontalOptions="Center">
-                            <Image Source="videoaula.png"
+                            <Image Source="dieta.png"
                                    HorizontalOptions="Center"
                                    VerticalOptions="Center" />
                         </Border>
-                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                            <Label Text="Vídeo aulas"
-                                   FontSize="16"
-                                   FontAttributes="Bold"
-                                   TextColor="#1E293B"
-                                   HorizontalTextAlignment="Center" />
-                        </VerticalStackLayout>
+                        <Label Text="Dieta"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="#1E293B"
+                               HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding DietaCommand}" />
+                    </Border.GestureRecognizers>
                 </Border>
-
                 <!-- Treinos -->
                 <Border Grid.Row="1" Grid.Column="1"
                         BackgroundColor="#FFFFFF"
@@ -186,69 +181,7 @@
                         <TapGestureRecognizer Command="{Binding TreinosCommand}" />
                     </Border.GestureRecognizers>
                 </Border>
-
-                <!-- Dieta -->
-                <Border Grid.Row="2" Grid.Column="0"
-                        BackgroundColor="#FFFFFF"
-                        StrokeShape="RoundRectangle 24"
-                        Padding="20">
-                    <Border.Shadow>
-                        <Shadow Brush="Black" Offset="0,4" Radius="8" Opacity="0.12" />
-                    </Border.Shadow>
-                    <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
-                        <Border BackgroundColor="#DCFCE7"
-                                StrokeShape="RoundRectangle 16"
-                                Padding="12"
-                                WidthRequest="56"
-                                HeightRequest="56"
-                                HorizontalOptions="Center">
-                            <Image Source="dieta.png"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center" />
-                        </Border>
-                        <Label Text="Dieta"
-                               FontSize="16"
-                               FontAttributes="Bold"
-                               TextColor="#1E293B"
-                               HorizontalTextAlignment="Center" />
-                    </VerticalStackLayout>
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding DietaCommand}" />
-                    </Border.GestureRecognizers>
-                </Border>
-
-                <!-- Perfil -->
-                <Border Grid.Row="2" Grid.Column="1"
-                        BackgroundColor="#FFFFFF"
-                        StrokeShape="RoundRectangle 24"
-                        Padding="20">
-                    <Border.Shadow>
-                        <Shadow Brush="Black" Offset="0,4" Radius="8" Opacity="0.12" />
-                    </Border.Shadow>
-                    <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
-                        <Border BackgroundColor="#E0E7FF"
-                                StrokeShape="RoundRectangle 16"
-                                Padding="12"
-                                WidthRequest="56"
-                                HeightRequest="56"
-                                HorizontalOptions="Center">
-                            <Image Source="perfil.png"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center" />
-                        </Border>
-                        <Label Text="Perfil"
-                               FontSize="16"
-                               FontAttributes="Bold"
-                               TextColor="#1E293B"
-                               HorizontalTextAlignment="Center" />
-                    </VerticalStackLayout>
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding PerfilCommand}" />
-                    </Border.GestureRecognizers>
-                </Border>
-
             </Grid>
-
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
